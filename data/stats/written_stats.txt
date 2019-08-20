@@ -1,0 +1,12 @@
+#--------------STEMMING VERBS----------------
+Visible:
+Nb of different verbs before stemming: 729
+Nb of different verbs after stemming: 490
+
+NOT Visible:
+Nb of different verbs before stemming: 1330
+Nb of different verbs after stemming: 935
+
+All:
+Nb of different verbs before stemming: 1566
+Nb of different verbs after stemming: 1058
