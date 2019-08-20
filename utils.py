@@ -34,9 +34,9 @@ def measure_nb_words(list_actions):
     plt.bar(list(dict_nb_words.keys()), dict_nb_words.values(), color='g')
     plt.xlabel("# words")
     plt.ylabel("# actions")
-    plt.title("Number of words per visible action")
+    plt.title("Number of words per NOT visible action")
     # plt.show()
-    # plt.savefig('data/stats/nb_words_per_all_action.png')
+    plt.savefig('data/stats/nb_words_per_NOT_visibile_action.png')
 
 
 def stem_word(word):
@@ -194,7 +194,7 @@ def analyze_verbs(list_verbs, action_list):
 
 
 def stats(list_actions, path_pos_data):
-    # measure_nb_words(list_actions)
+    #measure_nb_words(list_actions)
     measure_verb_distribution(list_actions, path_pos_data)
 
 
@@ -233,10 +233,10 @@ def main():
     all_actions = visible_actions + not_visible_actions
 
     print("---- Looking at visible actions ----")
-    stats(visible_actions, path_pos_data)
+    stats(all_actions, path_pos_data)
 
     list_stemmed_actions = stemm_list_actions(visible_actions, path_pos_data)
-    write_list_to_csv(list(visible_actions), list_stemmed_actions)
+    # write_list_to_csv(list(visible_actions), list_stemmed_actions)
 
     list_verbs = ["add", "use", "put", "make", "do", "take", "get", "go", "clean", "give"]
     analyze_verbs(list_verbs, list_stemmed_actions)
