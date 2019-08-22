@@ -194,24 +194,32 @@ def analyze_verbs(list_verbs, action_list):
 
 
 def stats(list_actions, path_pos_data):
-    #measure_nb_words(list_actions)
+    # measure_nb_words(list_actions)
     measure_verb_distribution(list_actions, path_pos_data)
 
 
-def write_list_to_csv(list_actions, list_stemmed_actions):
+def write_list_to_csv(list_miniclips_visibile, list_visible_actions, list_stemmed_visibile_actions,
+                      list_miniclips_not_visibile, list_not_visible_actions, list_stemmed_not_visibile_actions):
     list_all = []
-    list_all.append(list_actions)
-    list_all.append(list_stemmed_actions)
+    list_all.append(list_miniclips_visibile)
+    list_all.append(list_visible_actions)
+    list_all.append(list_stemmed_visibile_actions)
+    list_all.append(list_miniclips_not_visibile)
+    list_all.append(list_not_visible_actions)
+    list_all.append(list_stemmed_not_visibile_actions)
 
     df = pd.DataFrame(list_all)
     df = df.transpose()
-    df.columns = ["Visible Actions", "Stemmed Visible Actions"]
+    df.columns = ["Miniclip Visible", "Visible Actions", "Stemmed Visible Actions", "Miniclip NOT Visible", "NOT Visible Actions",
+                  "Stemmed NOT Visible Actions"]
     df.to_csv('data/list_actions.csv', index=False)
 
 
 def separate_visibile_actions(path_miniclips):
     visible_actions = []
     not_visible_actions = []
+    list_miniclips_visibile = []
+    list_miniclips_not_visibile = []
 
     with open(path_miniclips) as f:
         dict_video_actions = json.loads(f.read())
@@ -221,25 +229,105 @@ def separate_visibile_actions(path_miniclips):
         for [action, label] in list_actions_labels:
             if label == 0:
                 visible_actions.append(action)
+                list_miniclips_visibile.append(miniclip)
             else:
                 not_visible_actions.append(action)
-    return visible_actions, not_visible_actions
+                list_miniclips_not_visibile.append(miniclip)
+    return list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions
+
+
+def time_flow_actions(path_miniclips, visible = True):
+    if visible:
+        name_column_miniclip = 'Miniclip Visible'
+        name_column_actions = 'Stemmed Visible Actions'
+        path_csv_output = 'data/list_actions_video_ordered_stemmed_visible.csv'
+    else:
+        name_column_miniclip = 'Miniclip NOT Visible'
+        name_column_actions = 'Stemmed NOT Visible Actions'
+        path_csv_output = 'data/list_actions_video_ordered_stemmed_NOT_visible.csv'
+
+
+    df = pd.read_csv(path_miniclips)
+    df = df.dropna()
+    list_miniclips = df[name_column_miniclip]
+    list_stemmed_actions = df[name_column_actions]
+
+    dict_miniclip_actions = {}
+    index = 0
+    for miniclip in list_miniclips:
+        if str(miniclip) == 'nan':
+            continue
+        if miniclip not in dict_miniclip_actions.keys():
+            dict_miniclip_actions[miniclip] = []
+        dict_miniclip_actions[miniclip].append(list_stemmed_actions[index])
+        index += 1
+
+    # order miniclips
+    set_video_full_names = set()
+    for miniclip in list_miniclips:
+        channel_playlists, video, miniclip_id = miniclip.split("_")
+        video = video
+        miniclip_id = miniclip_id[:-4]
+
+        video_full_name = channel_playlists + "_" + video
+        set_video_full_names.add(video_full_name)
+
+    list_video_full_names = list(set_video_full_names)
+    print("There are " + str(len(list_video_full_names)) + " videos")
+    dict_video = {}
+    for video_name in list_video_full_names:
+        set_miniclip_names = set()
+        for miniclip_name in list_miniclips:
+            if video_name in miniclip_name:
+                set_miniclip_names.add(miniclip_name)
+
+        list_miniclip_names = list(set_miniclip_names)
+        # sort list of miniclips
+        list_1 = []
+        list_2 = []
+        for miniclip_name in list_miniclip_names:
+            if int(miniclip_name.split("_")[2][:-4]) > 9:
+                list_2.append(miniclip_name)
+            else:
+                list_1.append(miniclip_name)
+        sorted_list_miniclip_names = sorted(list_1) + sorted(list_2)
+        dict_video[video_name] = sorted_list_miniclip_names
+
+    list_all = []
+    dict_video_actions = {}
+    for video_name in dict_video.keys():
+        list_ordered_actions = []
+        for miniclip in dict_video[video_name]:
+            list_ordered_actions += dict_miniclip_actions[miniclip]
+        dict_video_actions[video_name] = list_ordered_actions
+        list_all.append([video_name] + list_ordered_actions)
+
+    df = pd.DataFrame(list_all)
+    df = df.transpose()
+
+    df.to_csv(path_csv_output, index=False, header = 0)
 
 
 def main():
     path_miniclips = "/local/oignat/Action_Recog/vlog_action_recognition/data/miniclip_actions.json"
     path_pos_data = "/local/oignat/Action_Recog/vlog_action_recognition/data/dict_action_pos_concreteness.json"
-    visible_actions, not_visible_actions = separate_visibile_actions(path_miniclips)
+    path_list_actions = "data/list_actions.csv"
+    list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions = separate_visibile_actions(
+        path_miniclips)
     all_actions = visible_actions + not_visible_actions
 
     print("---- Looking at visible actions ----")
-    stats(all_actions, path_pos_data)
+    # stats(all_actions, path_pos_data)
 
-    list_stemmed_actions = stemm_list_actions(visible_actions, path_pos_data)
-    # write_list_to_csv(list(visible_actions), list_stemmed_actions)
+    list_stemmed_not_visibile_actions = stemm_list_actions(not_visible_actions, path_pos_data)
+    list_stemmed_visibile_actions = stemm_list_actions(visible_actions, path_pos_data)
+    # write_list_to_csv(list_miniclips_visibile, list(visible_actions), list_stemmed_visibile_actions,
+    #                   list_miniclips_not_visibile, list(not_visible_actions), list_stemmed_not_visibile_actions)
 
-    list_verbs = ["add", "use", "put", "make", "do", "take", "get", "go", "clean", "give"]
-    analyze_verbs(list_verbs, list_stemmed_actions)
+    # list_verbs = ["add", "use", "put", "make", "do", "take", "get", "go", "clean", "give"]
+    # analyze_verbs(list_verbs, list_stemmed_visibile_actions)
+
+    time_flow_actions(path_list_actions, visible=False)
 
 
 if __name__ == '__main__':
