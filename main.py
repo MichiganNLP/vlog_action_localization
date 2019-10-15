@@ -74,8 +74,28 @@ def write_clip_annotations():
     for clip in clip_time_actions:
         print(clip, clip_time_actions[clip])
 
+def sort_dict_pos():
+    path_pos_data = "data/dict_action_pos_concreteness.json"
+    sorted_dict_pos = {}
+
+    with open(path_pos_data) as f:
+        dict_pos_actions = json.loads(f.read())
+
+    for action in dict_pos_actions.keys():
+        list_words = action.split()
+        sorted_dict_pos[action] = []
+        for word in list_words:
+            for [word_1, pos_1, score_1] in dict_pos_actions[action]:
+                if word == word_1:
+                    sorted_dict_pos[action].append([word_1, pos_1, score_1])
+                    break
+
+    with open('data/dict_action_pos_concreteness.json', 'w+') as outfile:
+        json.dump(sorted_dict_pos, outfile)
+
 def main():
-    write_clip_annotations()
+    # write_clip_annotations()
+    sort_dict_pos()
 
 
 if __name__ == '__main__':

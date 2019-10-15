@@ -1,18 +1,26 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import itertools
-import time
 
 from nltk import bigrams
 import numpy as np
 import json
 from collections import OrderedDict
+
+from sklearn import cluster
 from sklearn.manifold import TSNE
 import pandas as pd
 import matplotlib.pyplot as plt
 import nltk
+import glob
+import os
+from datetime import datetime
+import re, math
+from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
+
+WORD = re.compile(r'\w+')
 
 plt.style.use('ggplot')
 
@@ -30,20 +38,61 @@ class color:
     END = '\033[0m'
 
 
-def measure_nb_words(list_actions):
-    dict_nb_words = {}
-    for action in list_actions:
-        nb_words = len(action.split(" "))
-        if nb_words not in dict_nb_words.keys():
-            dict_nb_words[nb_words] = 0
-        dict_nb_words[nb_words] += 1
+def get_cosine(vec1, vec2):
+    intersection = set(vec1.keys()) & set(vec2.keys())
+    numerator = sum([vec1[x] * vec2[x] for x in intersection])
 
-    plt.bar(list(dict_nb_words.keys()), dict_nb_words.values(), color='g')
-    plt.xlabel("# words")
-    plt.ylabel("# actions")
-    plt.title("Number of words per NOT visible action")
-    # plt.show()
-    plt.savefig('data/stats/nb_words_per_NOT_visibile_action.png')
+    sum1 = sum([vec1[x] ** 2 for x in vec1.keys()])
+    sum2 = sum([vec2[x] ** 2 for x in vec2.keys()])
+    denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+    if not denominator:
+        return 0.0
+    else:
+        return float(numerator) / denominator
+
+
+def text_to_vector(text):
+    words = WORD.findall(text)
+    return Counter(words)
+
+
+def verify_overlaps_actions(action1, action2):
+    words_1 = action1.split()
+    words_2 = action2.decode().split()
+    for word in words_1:
+        if word not in words_2 and stem_word(word) not in words_2:
+            return 0
+    return 1
+
+
+'''
+return -1, if time_1 < time_2
+        1, if time_1 > time_2
+        0, if equal
+'''
+
+
+def compare_time(time_1, time_2):
+    minute_1_s, sec_1_s = time_1.split(":")
+    minute_2_s, sec_2_s = time_2.split(":")
+
+    if int(minute_1_s) == int(minute_2_s) and int(sec_1_s) == int(sec_2_s):
+        return 0
+    if int(minute_1_s) > int(minute_2_s) or (int(minute_1_s) == int(minute_2_s) and int(sec_1_s) >= int(sec_2_s)):
+        return 1
+    else:
+        return -1
+
+
+def get_time_difference(time_1, time_2):
+    if compare_time(time_1, time_2) == -1:
+        return 100
+    FMT = '%M:%S'
+    tdelta = datetime.strptime(time_1, FMT) - datetime.strptime(time_2, FMT)
+    tdelta_h, tdelta_min, tdelta_seconds = str(tdelta).split(":")
+    tdelta_total = int(tdelta_seconds) + int(tdelta_min) * 60 + int(tdelta_h) * 360
+    return tdelta_total
 
 
 def stem_word(word):
@@ -107,6 +156,48 @@ def stemm_list_actions(list_actions, path_pos_data):
             print(action + "not in dict_pos_action!")
 
     return stemmed_actions
+
+
+def map_old_to_new_urls(path_old_urls, path_new_urls):
+    list_old_csv_files = sorted(glob.glob(path_old_urls + "*.csv"))
+    list_new_csv_files = sorted(glob.glob(path_new_urls + "*.csv"))
+
+    for index in range(0, len(list_new_csv_files)):
+        path_old_url = list_old_csv_files[index]
+        path_new_url = list_new_csv_files[index]
+        name_file = path_new_url.split("/")[-1]
+
+        df_old = pd.read_csv(path_old_url)
+        list_old_urls = list(df_old["Video_URL"])
+
+        dict_new_urls = pd.read_csv(path_new_url, index_col=0, squeeze=True).to_dict()
+
+        list_new_file = []
+        for url_old in list_old_urls:
+            if url_old in dict_new_urls.keys():
+                list_new_file.append([url_old, dict_new_urls[url_old]])
+            else:
+                list_new_file.append([url_old, ''])
+        df = pd.DataFrame(list_new_file)
+        # df = df.transpose()
+        df.columns = ["Video_URL", "Video_Name"]
+        df.to_csv('data/new_video_urls/' + name_file, index=False)
+
+
+def measure_nb_words(list_actions):
+    dict_nb_words = {}
+    for action in list_actions:
+        nb_words = len(action.split(" "))
+        if nb_words not in dict_nb_words.keys():
+            dict_nb_words[nb_words] = 0
+        dict_nb_words[nb_words] += 1
+
+    plt.bar(list(dict_nb_words.keys()), dict_nb_words.values(), color='g')
+    plt.xlabel("# words")
+    plt.ylabel("# actions")
+    plt.title("Number of words per NOT visible action")
+    # plt.show()
+    plt.savefig('data/stats/nb_words_per_NOT_visibile_action.png')
 
 
 def measure_verb_distribution(list_actions, path_pos_data):
@@ -217,12 +308,13 @@ def write_list_to_csv(list_miniclips_visibile, list_visible_actions, list_stemme
 
     df = pd.DataFrame(list_all)
     df = df.transpose()
-    df.columns = ["Miniclip Visible", "Visible Actions", "Stemmed Visible Actions", "Miniclip NOT Visible", "NOT Visible Actions",
+    df.columns = ["Miniclip Visible", "Visible Actions", "Stemmed Visible Actions", "Miniclip NOT Visible",
+                  "NOT Visible Actions",
                   "Stemmed NOT Visible Actions"]
-    df.to_csv('data/list_actions.csv', index=False)
+    df.to_csv('data/stats/list_actions.csv', index=False)
 
 
-def separate_visibile_actions(path_miniclips):
+def separate_visibile_actions(path_miniclips, video):
     visible_actions = []
     not_visible_actions = []
     list_miniclips_visibile = []
@@ -232,6 +324,11 @@ def separate_visibile_actions(path_miniclips):
         dict_video_actions = json.loads(f.read())
 
     for miniclip in dict_video_actions.keys():
+
+        if video != None:
+            if video not in miniclip:
+                continue
+
         list_actions_labels = dict_video_actions[miniclip]
         for [action, label] in list_actions_labels:
             if label == 0:
@@ -243,16 +340,15 @@ def separate_visibile_actions(path_miniclips):
     return list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions
 
 
-def time_flow_actions(path_miniclips, visible = True):
+def time_flow_actions(path_miniclips, visible=True):
     if visible:
         name_column_miniclip = 'Miniclip Visible'
         name_column_actions = 'Stemmed Visible Actions'
-        path_csv_output = 'data/list_actions_video_ordered_stemmed_visible.csv'
+        path_csv_output = 'data/stats/list_actions_video_ordered_stemmed_visible.csv'
     else:
         name_column_miniclip = 'Miniclip NOT Visible'
         name_column_actions = 'Stemmed NOT Visible Actions'
-        path_csv_output = 'data/list_actions_video_ordered_stemmed_NOT_visible.csv'
-
+        path_csv_output = 'data/stats/list_actions_video_ordered_stemmed_NOT_visible.csv'
 
     df = pd.read_csv(path_miniclips)
     df = df.dropna()
@@ -312,7 +408,9 @@ def time_flow_actions(path_miniclips, visible = True):
     df = pd.DataFrame(list_all)
     df = df.transpose()
 
-    df.to_csv(path_csv_output, index=False, header = 0)
+    df.to_csv(path_csv_output, index=False, header=0)
+
+    return dict_miniclip_actions, dict_video_actions
 
 
 def generate_co_occurrence_matrix(corpus):
@@ -344,27 +442,321 @@ def generate_co_occurrence_matrix(corpus):
     # return the matrix and the index
     return co_occurrence_matrix, vocab_index
 
-#TODO: remove stop words
-def test_coocurence_matrix(text_data):
-    text_data = [t.split() for t in text_data]
+def sort_matrix_by_nb_coocurence(matrix, vocab_index):
+    matrix = np.squeeze(np.asarray(matrix))
+    print(matrix)
+    sorted_indices_row = np.argsort(matrix.sum(axis=1))[::-1]  # sort indices by row (sum of the elemnts) & reverse list (to be descending order)
+    sorted_matrix = matrix[:, sorted_indices_row]
+
+
+    sorted_indices_col = np.argsort(sorted_matrix.sum(axis=0))[
+                     ::-1]  # sort indices by column (sum of the elemnts) & reverse list (to be descending order)
+    sorted_matrix = sorted_matrix[:, sorted_indices_col]
+
+    print(sorted_matrix)
+
+    print("row")
+    print(sorted_indices_row)
+
+    print("col")
+    print(sorted_indices_col)
+
+    sorted_indices_row_col = [0] * len(sorted_indices_row)
+    for i in range(len(sorted_indices_row)):
+        pos = sorted_indices_col[i]
+        sorted_indices_row_col[i] = sorted_indices_row[pos]
+
+    print("row col")
+    print(sorted_indices_row_col)
+    return sorted_indices_row_col, sorted_matrix
+
+
+
+# TODO: remove stop words
+def test_cooccurence_matrix(text_data):
+    text_data = [t.split(",") for t in text_data]
 
     # Create one list using many lists
     data = list(itertools.chain.from_iterable(text_data))
     matrix, vocab_index = generate_co_occurrence_matrix(data)
+    sorted_indices, sorted_matrix = sort_matrix_by_nb_coocurence(matrix, vocab_index)
+    sorted_vocab_index = {}
+
+    for k in vocab_index.keys():
+        sorted_vocab_index[k] = sorted_indices.index(vocab_index[k])
+
+
+    sorted_vocab_index_v = [v for (v,_) in sorted(sorted_vocab_index.items(), key=lambda kv: kv[1])]
 
     data_matrix = pd.DataFrame(matrix, index=vocab_index,
                                columns=vocab_index)
 
-   
+    data_matrix_sorted = pd.DataFrame(sorted_matrix, index=sorted_vocab_index,
+                               columns=sorted_vocab_index_v)
 
+    data_matrix = data_matrix.drop(columns=['END'])
+    data_matrix = data_matrix.drop(['END'])
+    data_matrix = data_matrix[(data_matrix.T != 0).any()]
+    data_matrix[data_matrix == 0] = np.nan
+
+    data_matrix_sorted = data_matrix_sorted.drop(columns=['END'])
+    data_matrix_sorted = data_matrix_sorted.drop(['END'])
+    data_matrix_sorted = data_matrix_sorted[(data_matrix_sorted.T != 0).any()]
+    data_matrix_sorted[data_matrix_sorted == 0] = np.nan
+
+    # column_values = list(data_matrix_sorted.columns.values)
+    # print(column_values[0:5])
+    # maxValuesObj = data_matrix_sorted.max()
+    # print(maxValuesObj)
+    # first_data_matrix = data_matrix_sorted.nlargest(30, column_values[0]) # sort the rows
+    # first_data_matrix = first_data_matrix.iloc[:,:30] # first 50 columns
+
+    first_data_matrix = data_matrix_sorted.iloc[:, :50]  # first 50 columns
+    first_data_matrix = first_data_matrix.iloc[:50, :]  # first 50 rows
+
+
+
+    cmap = sns.cm.rocket_r
+
+    # fig, axs = plt.subplots(ncols=2)
+    # # sns.heatmap(data_matrix, annot=True, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
+    # #             linewidths=1, ax = axs[0])
+    #
+    # sns.heatmap(data_matrix_sorted, annot=True, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
+    #             linewidths=1, ax = axs[0])
+    #
+    # sns.heatmap(first_data_matrix, annot=True, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
+    #             linewidths=1, ax=axs[1])
+
+    sns.heatmap(first_data_matrix, annot=True, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
+                linewidths=1, )
+
+    #sns.clustermap(data_matrix, xticklabels=1, yticklabels=1,cmap=cmap)
+
+
+
+
+    plt.show()
+
+
+def write_mini_action_time_to_csv(list_miniclips_visibile, list_stemmed_visibile_actions,
+                                  list_miniclips_not_visibile, list_stemmed_not_visibile_actions):
+    list_all = []
+    list_all.append(list_miniclips_visibile)
+    list_all.append(list_stemmed_visibile_actions)
+    list_all.append(list_miniclips_not_visibile)
+    list_all.append(list_stemmed_not_visibile_actions)
+
+    df = pd.DataFrame(list_all)
+    df = df.transpose()
+    df.columns = ["Miniclip Visible", "Stemmed Visible Actions", "Miniclip NOT Visible",
+                  "Stemmed NOT Visible Actions"]
+    df.to_csv('data/stats/list_actions_time.csv', index=False)
+
+
+def write_json_for_annotations(list_miniclips_visibile, list_stemmed_visibile_actions):
+    path_annotations = "/local/oignat/Action_Recog/temporal_annotation/miniclip_actions.json"
+    index = 0
+    dict_miniclip_actions = {}
+    for miniclip in list_miniclips_visibile:
+        if miniclip not in dict_miniclip_actions.keys():
+            dict_miniclip_actions[miniclip] = []
+        dict_miniclip_actions[miniclip].append(list_stemmed_visibile_actions[index])
+        index += 1
+
+    all_dicts_annotation = []
+    all_actions = []
+    for miniclip in sorted(dict_miniclip_actions.keys()):
+        all_dicts_annotation.append({"miniclip": miniclip, "actions": dict_miniclip_actions[miniclip]})
+
+    with open(path_annotations, 'w+') as fp:
+        json.dump(all_dicts_annotation, fp)
+
+
+def get_action_time_in_miniclip_and_in_video():
+    with open("/local/oignat/Action_Recog/vlog_action_recognition/data/Video/actions_time_in_video.json", 'r') as f:
+        actions_time_in_video = json.load(f)
+
+    dict_miniclip_and_video_time = {}
+    dict_miniclip_time = {}
+    for miniclip in actions_time_in_video.keys():
+        for [miniclip_time_in_video, action, time_action_in_video] in actions_time_in_video[miniclip]:
+            time_action_in_miniclip_start = int(get_time_difference(time_action_in_video[0], miniclip_time_in_video[0]))
+            time_action_in_miniclip_end = int(get_time_difference(time_action_in_video[1], miniclip_time_in_video[0]))
+
+            # if time_action_in_miniclip_start < 10:
+            #     time_action_in_miniclip_start = "0:0" + str(time_action_in_miniclip_start)
+            # else:
+            #     time_action_in_miniclip_start = "0:" + str(time_action_in_miniclip_start)
+            #
+            # if time_action_in_miniclip_end < 10:
+            #     time_action_in_miniclip_end = "0:0" + str(time_action_in_miniclip_end)
+            # else:
+            #     time_action_in_miniclip_end = "0:" + str(time_action_in_miniclip_end)
+            time_action_in_miniclip = [time_action_in_miniclip_start, time_action_in_miniclip_end]
+
+            # TODO: maybe I will use video time for action instead of miniclip time
+            if miniclip not in dict_miniclip_and_video_time.keys():
+                dict_miniclip_and_video_time[miniclip] = []
+                dict_miniclip_time[miniclip] = []
+            dict_miniclip_and_video_time[miniclip].append(
+                [miniclip_time_in_video, action.encode('utf8').lower(), time_action_in_video, time_action_in_miniclip])
+            dict_miniclip_time[miniclip].append(
+                [action.encode('utf8').lower(), time_action_in_miniclip])
+
+    return dict_miniclip_time
+
+
+def map_actions():
+    path_miniclips = "/local/oignat/Action_Recog/vlog_action_recognition/data/miniclip_actions.json"
+    with open(path_miniclips) as f:
+        dict_video_actions = json.loads(f.read())
+
+    dict_miniclip_time = get_action_time_in_miniclip_and_in_video()
+    dict_map_miniclip_time = {}
+    for miniclip in dict_video_actions:
+
+        if miniclip not in dict_map_miniclip_time.keys():
+            dict_map_miniclip_time[miniclip] = []
+
+        list_actions_time = dict_miniclip_time[miniclip]
+        list_actions_labels = dict_video_actions[miniclip]
+        for [action_new, label] in list_actions_labels:
+            ok = 0
+            for [action_old, time] in list_actions_time:
+                if action_old == action_new:
+                    ok = 1
+                    dict_map_miniclip_time[miniclip].append([action_new, time, label])
+                    continue
+            if ok == 0:
+                for [action_old, time] in list_actions_time:
+                    vector1 = text_to_vector(str(action_old))
+                    vector2 = text_to_vector(str(action_new))
+                    cosine = get_cosine(vector1, vector2)
+
+                    if cosine > 0.7:
+                        ok = 1
+                        dict_map_miniclip_time[miniclip].append([action_new, time, label])
+                        continue
+            if ok == 0:
+                for [action_old, time] in list_actions_time:
+                    if verify_overlaps_actions(action_new, action_old):
+                        ok = 1
+                        dict_map_miniclip_time[miniclip].append([action_new, time, label])
+                        continue
+
+            if ok == 0:
+                raise ValueError("action not found: " + action_new + " " + miniclip)
+
+    with open("data/mapped_actions_time_label.json", 'w+') as fp:
+        json.dump(dict_map_miniclip_time, fp)
+
+    return dict_map_miniclip_time
+
+
+def separate_mapped_visibile_actions(actions_time_label, video):
+    visible_actions = []
+    not_visible_actions = []
+    list_miniclips_visibile = []
+    list_miniclips_not_visibile = []
+    list_time_visibile = []
+    list_time_not_visibile = []
+
+    for miniclip in actions_time_label.keys():
+
+        if video != None:
+            if video not in miniclip:
+                continue
+
+        list_actions_labels = actions_time_label[miniclip]
+        for [action, time, label] in list_actions_labels:
+            if label == 0:
+                visible_actions.append(action)
+                list_miniclips_visibile.append(miniclip)
+                list_time_visibile.append(time)
+            else:
+                not_visible_actions.append(action)
+                list_miniclips_not_visibile.append(miniclip)
+                list_time_not_visibile.append(time)
+    return list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions, list_time_visibile, list_time_not_visibile
+
+
+def get_visibile_actions_verbs(path_pos_data, list_visibile_actions, use_nouns = False, use_particle = False):
+    with open(path_pos_data) as f:
+        dict_pos_actions = json.loads(f.read())
+
+    just_visible_verbs = []
+    for action in list_visibile_actions:
+        if action in dict_pos_actions.keys():
+            list_word_pos = dict_pos_actions[action]
+            stemmed_word = ""
+            ok_noun = 0
+            if not use_nouns:
+                ok_noun = 1
+            for [word, pos, concr_score] in list_word_pos:
+                if 'VB' in pos:
+                    stemmed_word += stem_word(word)
+                    stemmed_word += " "
+                    if not use_nouns and not use_particle:
+                        break
+                if use_nouns and stemmed_word and 'NN' in pos:
+                    stemmed_word += word
+                    stemmed_word += " "
+                    ok_noun = 1
+                    if not use_particle:
+                        break
+                if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
+                    stemmed_word += word
+                    stemmed_word += " "
+                    break
+
+            if stemmed_word and ok_noun:
+                just_visible_verbs.append(stemmed_word.strip())
+    return just_visible_verbs
+
+
+
+def get_most_common_visible_actions(list_stemmed_visibile_actions, k):
+
+    counter = Counter(list_stemmed_visibile_actions)
+    return (counter.most_common(k))
+
+
+def get_ordered_actions_per_miniclip(list_stemmed_visibile_actions, list_miniclips_visibile,
+                                     list_most_common_actions=[]):
+    dict = {}
+    for i in range(len(list_stemmed_visibile_actions)):
+        if list_miniclips_visibile[i] not in dict.keys():
+            dict[list_miniclips_visibile[i]] = [list_stemmed_visibile_actions[i]]
+        else:
+            dict[list_miniclips_visibile[i]].append(list_stemmed_visibile_actions[i])
+
+    list_all_actions_ordered = []
+    action_prev = ""
+    for miniclip in dict.keys():
+        END_OK = 0
+        for action in dict[miniclip]:
+            if list_most_common_actions and (
+                    action in list_most_common_actions or action_prev in list_most_common_actions):
+                list_all_actions_ordered.append(action)
+                END_OK = 1
+
+            elif not list_most_common_actions:
+                list_all_actions_ordered.append(action)
+                END_OK = 1
+            action_prev = action
+        if END_OK:
+            list_all_actions_ordered.append("END")
+
+    return list_all_actions_ordered
 
 
 def main():
-    path_miniclips = "/local/oignat/Action_Recog/vlog_action_recognition/data/miniclip_actions.json"
-    path_pos_data = "/local/oignat/Action_Recog/vlog_action_recognition/data/dict_action_pos_concreteness.json"
-    path_list_actions = "data/list_actions.csv"
+    path_miniclips = "data/miniclip_actions.json"
+    path_pos_data = "data/dict_action_pos_concreteness.json"
+    path_list_actions = "data/stats/list_actions.csv"
     list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions = separate_visibile_actions(
-        path_miniclips)
+        path_miniclips, video=None)
     all_actions = visible_actions + not_visible_actions
 
     print("---- Looking at visible actions ----")
@@ -372,15 +764,53 @@ def main():
 
     list_stemmed_not_visibile_actions = stemm_list_actions(not_visible_actions, path_pos_data)
     list_stemmed_visibile_actions = stemm_list_actions(visible_actions, path_pos_data)
+
     # write_list_to_csv(list_miniclips_visibile, list(visible_actions), list_stemmed_visibile_actions,
     #                   list_miniclips_not_visibile, list(not_visible_actions), list_stemmed_not_visibile_actions)
+
+    just_visible_verbs = get_visibile_actions_verbs(path_pos_data, visible_actions, use_nouns = True, use_particle=True)
+
+    list_most_common_actions = [action for action, count in
+                                get_most_common_visible_actions(just_visible_verbs, 10)] #list_stemmed_visibile_actions
+    print(list_most_common_actions)
+    # list_most_common_actions = [l for l in list_most_common_actions if l not in ['make it', 'show', 'do this', 'make sure']]
+    #
+    # print(list_most_common_actions)
+    list_all_actions_ordered = get_ordered_actions_per_miniclip(just_visible_verbs, list_miniclips_visibile,
+                                                                list_most_common_actions) #list_stemmed_visibile_actions
+
+
+    print(len(list_all_actions_ordered))
+    test_cooccurence_matrix(list_all_actions_ordered)
 
     # list_verbs = ["add", "use", "put", "make", "do", "take", "get", "go", "clean", "give"]
     # analyze_verbs(list_verbs, list_stemmed_visibile_actions)
 
-    #time_flow_actions(path_list_actions, visible=False)
+    # time_flow_actions(path_list_actions, visible=True)
+    # time_flow_actions(path_list_actions, visible=False)
+    #
+    #
+    # list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions = separate_visibile_actions(
+    #     path_miniclips, video="1p0")
+    #
+    # list_stemmed_not_visibile_actions = stemm_list_actions(not_visible_actions, path_pos_data)
+    # list_stemmed_visibile_actions = stemm_list_actions(visible_actions, path_pos_data)
+    #
+    # write_mini_action_time_to_csv(list_miniclips_visibile, list_stemmed_visibile_actions,
+    #                               list_miniclips_not_visibile, list_stemmed_not_visibile_actions)
 
-    test_coocurence_matrix(list_stemmed_visibile_actions)
+    # write_json_for_annotations(list_miniclips_visibile, list_stemmed_visibile_actions)
+
+
+# test_coocurence_matrix(list_stemmed_visibile_actions)
 
 if __name__ == '__main__':
+    # map_actions()
+
     main()
+
+    # path_root = "/local/oignat/Action_Recog/large_data/"
+    #
+    # path_old_urls = path_root + "all_transcripts/video_urls/"
+    # path_new_urls = path_root + "youtube_data/video_urls/"
+    # map_old_to_new_urls(path_old_urls, path_new_urls)
