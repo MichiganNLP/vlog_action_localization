@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from video_processing.evaluation import segment_iou
+from evaluation import segment_iou
 
 
 class TestEvaluation(TestCase):

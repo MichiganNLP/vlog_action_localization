@@ -1,6 +1,6 @@
 import json
-from video_processing.experiments import separate_mapped_visibile_actions
-from video_processing.utils_data import stemm_list_actions
+from experiments import separate_mapped_visibile_actions
+from utils_data_text import stemm_list_actions
 
 
 def compare_data():
