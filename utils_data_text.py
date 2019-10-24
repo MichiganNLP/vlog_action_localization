@@ -948,6 +948,23 @@ def create_average_action_embedding(list_actions):
     return embedding_matrix_actions
 
 
+def split_transcript_into_sentences(path_transcripts):
+    import spacy
+    nlp = spacy.load('en_core_web_sm')
+    dict_transcripts_sent = {}
+    with open(path_transcripts) as file:
+        dict_transcripts = json.load(file)
+
+    for channel_video in dict_transcripts.keys():
+        text = " ".join(dict_["text"] for dict_ in dict_transcripts[channel_video])
+        text_sentences = nlp(text)
+
+        dict_transcripts_sent[channel_video] = [str(span) for span in text_sentences.sents]
+
+    with open('data/transcripts_sentences.json', 'w+') as file:
+        json.dump(dict_transcripts_sent, file)
+
+    return dict_transcripts_sent
 
 
 
@@ -955,6 +972,8 @@ def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
+    path_transcripts = "/local/oignat/Action_Recog/vlog_action_recognition/data/Video/new_videos_captions/new_transcripts.json"
+    split_transcript_into_sentences(path_transcripts)
 
     #create_stemmed_original_actions(path_miniclips, path_pos_data)
     # list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions = separate_visibile_actions(

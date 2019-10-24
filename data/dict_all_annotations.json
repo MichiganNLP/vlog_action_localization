@@ -1,0 +1,5230 @@
+{
+  "1p0_10mini_1_000.mp4": [
+    [
+      "make super quick chicken tacos",
+      false
+    ],
+    [
+      "cook dinner",
+      false
+    ],
+    [
+      "get my son ready for bed",
+      false
+    ],
+    [
+      "do the dishes",
+      false
+    ]
+  ],
+  "1p0_10mini_1_001.mp4": [
+    [
+      "make super quick chicken tacos",
+      true
+    ],
+    [
+      "cook dinner",
+      true
+    ],
+    [
+      "get my son ready for bed",
+      false
+    ],
+    [
+      "do the dishes",
+      false
+    ]
+  ],
+  "1p0_10mini_1_002.mp4": [
+    [
+      "make super quick chicken tacos",
+      true
+    ],
+    [
+      "cook dinner",
+      false
+    ],
+    [
+      "get my son ready for bed",
+      false
+    ],
+    [
+      "do the dishes",
+      false
+    ]
+  ],
+  "1p0_10mini_1_003.mp4": [
+    [
+      "make super quick chicken tacos",
+      true
+    ],
+    [
+      "cook dinner",
+      false
+    ],
+    [
+      "get my son ready for bed",
+      false
+    ],
+    [
+      "do the dishes",
+      true
+    ]
+  ],
+  "1p0_10mini_1_004.mp4": [
+    [
+      "make super quick chicken tacos",
+      false
+    ],
+    [
+      "cook dinner",
+      false
+    ],
+    [
+      "get my son ready for bed",
+      true
+    ],
+    [
+      "do the dishes",
+      false
+    ]
+  ],
+  "1p0_10mini_1_005.mp4": [
+    [
+      "make super quick chicken tacos",
+      false
+    ],
+    [
+      "cook dinner",
+      false
+    ],
+    [
+      "get my son ready for bed",
+      true
+    ],
+    [
+      "do the dishes",
+      false
+    ]
+  ],
+  "1p0_10mini_2_000.mp4": [
+    [
+      "take showers at night",
+      false
+    ]
+  ],
+  "1p0_10mini_2_001.mp4": [
+    [
+      "take showers at night",
+      false
+    ]
+  ],
+  "1p0_10mini_2_002.mp4": [
+    [
+      "take showers at night",
+      false
+    ]
+  ],
+  "1p0_10mini_2_003.mp4": [
+    [
+      "take showers at night",
+      false
+    ]
+  ],
+  "1p0_10mini_2_004.mp4": [
+    [
+      "take showers at night",
+      true
+    ]
+  ],
+  "1p0_10mini_2_005.mp4": [
+    [
+      "take showers at night",
+      true
+    ]
+  ],
+  "1p0_10mini_3_000.mp4": [
+    [
+      "wash my face",
+      true
+    ],
+    [
+      "use dream cream all over my body",
+      false
+    ],
+    [
+      "make a cooling foot cream",
+      false
+    ],
+    [
+      "rub that dream cream all over my legs my arms all over my body",
+      false
+    ],
+    [
+      "rub that in",
+      true
+    ],
+    [
+      "put a little bit of serum on a light hydrating serum",
+      true
+    ]
+  ],
+  "1p0_10mini_3_001.mp4": [
+    [
+      "wash my face",
+      true
+    ],
+    [
+      "use dream cream all over my body",
+      true
+    ],
+    [
+      "make a cooling foot cream",
+      false
+    ],
+    [
+      "rub that dream cream all over my legs my arms all over my body",
+      true
+    ],
+    [
+      "rub that in",
+      true
+    ],
+    [
+      "put a little bit of serum on a light hydrating serum",
+      false
+    ]
+  ],
+  "1p0_10mini_3_002.mp4": [
+    [
+      "wash my face",
+      false
+    ],
+    [
+      "use dream cream all over my body",
+      true
+    ],
+    [
+      "make a cooling foot cream",
+      false
+    ],
+    [
+      "rub that dream cream all over my legs my arms all over my body",
+      true
+    ],
+    [
+      "rub that in",
+      true
+    ],
+    [
+      "put a little bit of serum on a light hydrating serum",
+      false
+    ]
+  ],
+  "1p0_10mini_3_003.mp4": [
+    [
+      "wash my face",
+      false
+    ],
+    [
+      "use dream cream all over my body",
+      true
+    ],
+    [
+      "make a cooling foot cream",
+      true
+    ],
+    [
+      "rub that dream cream all over my legs my arms all over my body",
+      true
+    ],
+    [
+      "rub that in",
+      true
+    ],
+    [
+      "put a little bit of serum on a light hydrating serum",
+      false
+    ]
+  ],
+  "1p0_10mini_3_004.mp4": [
+    [
+      "wash my face",
+      false
+    ],
+    [
+      "use dream cream all over my body",
+      true
+    ],
+    [
+      "make a cooling foot cream",
+      true
+    ],
+    [
+      "rub that dream cream all over my legs my arms all over my body",
+      true
+    ],
+    [
+      "rub that in",
+      true
+    ],
+    [
+      "put a little bit of serum on a light hydrating serum",
+      false
+    ]
+  ],
+  "1p0_10mini_4_000.mp4": [
+    [
+      "take that with a nice big glass of water",
+      false
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      false
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      false
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      false
+    ],
+    [
+      "make a snack for myself",
+      false
+    ]
+  ],
+  "1p0_10mini_4_001.mp4": [
+    [
+      "take that with a nice big glass of water",
+      false
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      true
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      false
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      false
+    ],
+    [
+      "make a snack for myself",
+      false
+    ]
+  ],
+  "1p0_10mini_4_002.mp4": [
+    [
+      "take that with a nice big glass of water",
+      false
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      true
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      false
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      false
+    ],
+    [
+      "make a snack for myself",
+      false
+    ]
+  ],
+  "1p0_10mini_4_003.mp4": [
+    [
+      "take that with a nice big glass of water",
+      true
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      true
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      false
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      true
+    ],
+    [
+      "make a snack for myself",
+      true
+    ]
+  ],
+  "1p0_10mini_4_004.mp4": [
+    [
+      "take that with a nice big glass of water",
+      false
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      false
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      true
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      true
+    ],
+    [
+      "make a snack for myself",
+      true
+    ]
+  ],
+  "1p0_10mini_4_005.mp4": [
+    [
+      "take that with a nice big glass of water",
+      false
+    ],
+    [
+      "take my prenatal one my vitamin d",
+      false
+    ],
+    [
+      "put it on a plate with some peanut butter",
+      false
+    ],
+    [
+      "make some tea",
+      false
+    ],
+    [
+      "cut up an apple",
+      false
+    ],
+    [
+      "make a snack for myself",
+      false
+    ]
+  ],
+  "1p0_10mini_5_000.mp4": [
+    [
+      "drink my tea",
+      false
+    ],
+    [
+      "eat my snack",
+      false
+    ],
+    [
+      "put my hair in a braid",
+      false
+    ]
+  ],
+  "1p0_10mini_5_001.mp4": [
+    [
+      "drink my tea",
+      false
+    ],
+    [
+      "eat my snack",
+      false
+    ],
+    [
+      "put my hair in a braid",
+      false
+    ]
+  ],
+  "1p0_10mini_5_002.mp4": [
+    [
+      "drink my tea",
+      true
+    ],
+    [
+      "eat my snack",
+      true
+    ],
+    [
+      "put my hair in a braid",
+      false
+    ]
+  ],
+  "1p0_10mini_5_003.mp4": [
+    [
+      "drink my tea",
+      false
+    ],
+    [
+      "eat my snack",
+      false
+    ],
+    [
+      "put my hair in a braid",
+      true
+    ]
+  ],
+  "1p0_10mini_5_004.mp4": [
+    [
+      "drink my tea",
+      false
+    ],
+    [
+      "eat my snack",
+      false
+    ],
+    [
+      "put my hair in a braid",
+      true
+    ]
+  ],
+  "1p0_10mini_5_005.mp4": [
+    [
+      "drink my tea",
+      false
+    ],
+    [
+      "eat my snack",
+      false
+    ],
+    [
+      "put my hair in a braid",
+      true
+    ]
+  ],
+  "1p0_1mini_1_000.mp4": [
+    [
+      "clean up after dinner",
+      false
+    ],
+    [
+      "clean up right after",
+      false
+    ]
+  ],
+  "1p0_1mini_1_001.mp4": [
+    [
+      "clean up after dinner",
+      false
+    ],
+    [
+      "clean up right after",
+      false
+    ]
+  ],
+  "1p0_1mini_1_002.mp4": [
+    [
+      "clean up after dinner",
+      false
+    ],
+    [
+      "clean up right after",
+      false
+    ]
+  ],
+  "1p0_1mini_1_003.mp4": [
+    [
+      "clean up after dinner",
+      false
+    ],
+    [
+      "clean up right after",
+      false
+    ]
+  ],
+  "1p0_1mini_1_004.mp4": [
+    [
+      "clean up after dinner",
+      true
+    ],
+    [
+      "clean up right after",
+      true
+    ]
+  ],
+  "1p0_1mini_1_005.mp4": [
+    [
+      "clean up after dinner",
+      true
+    ],
+    [
+      "clean up right after",
+      true
+    ]
+  ],
+  "1p0_1mini_2_000.mp4": [
+    [
+      "use baby ganic spa",
+      false
+    ],
+    [
+      "put a little bubble bath in there",
+      false
+    ],
+    [
+      "add a little bit of bubble bath",
+      false
+    ],
+    [
+      "add their toys",
+      false
+    ],
+    [
+      "prep for the boys",
+      false
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      false
+    ],
+    [
+      "clean up",
+      true
+    ],
+    [
+      "make sure the water",
+      false
+    ]
+  ],
+  "1p0_1mini_2_001.mp4": [
+    [
+      "use baby ganic spa",
+      false
+    ],
+    [
+      "put a little bubble bath in there",
+      false
+    ],
+    [
+      "add a little bit of bubble bath",
+      false
+    ],
+    [
+      "add their toys",
+      false
+    ],
+    [
+      "prep for the boys",
+      false
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      false
+    ],
+    [
+      "clean up",
+      true
+    ],
+    [
+      "make sure the water",
+      false
+    ]
+  ],
+  "1p0_1mini_2_002.mp4": [
+    [
+      "use baby ganic spa",
+      false
+    ],
+    [
+      "put a little bubble bath in there",
+      false
+    ],
+    [
+      "add a little bit of bubble bath",
+      false
+    ],
+    [
+      "add their toys",
+      false
+    ],
+    [
+      "prep for the boys",
+      false
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      false
+    ],
+    [
+      "clean up",
+      false
+    ],
+    [
+      "make sure the water",
+      true
+    ]
+  ],
+  "1p0_1mini_2_003.mp4": [
+    [
+      "use baby ganic spa",
+      false
+    ],
+    [
+      "put a little bubble bath in there",
+      false
+    ],
+    [
+      "add a little bit of bubble bath",
+      false
+    ],
+    [
+      "add their toys",
+      true
+    ],
+    [
+      "prep for the boys",
+      true
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      false
+    ],
+    [
+      "clean up",
+      false
+    ],
+    [
+      "make sure the water",
+      false
+    ]
+  ],
+  "1p0_1mini_2_004.mp4": [
+    [
+      "use baby ganic spa",
+      true
+    ],
+    [
+      "put a little bubble bath in there",
+      false
+    ],
+    [
+      "add a little bit of bubble bath",
+      true
+    ],
+    [
+      "add their toys",
+      false
+    ],
+    [
+      "prep for the boys",
+      false
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      true
+    ],
+    [
+      "clean up",
+      false
+    ],
+    [
+      "make sure the water",
+      false
+    ]
+  ],
+  "1p0_1mini_2_005.mp4": [
+    [
+      "use baby ganic spa",
+      true
+    ],
+    [
+      "put a little bubble bath in there",
+      true
+    ],
+    [
+      "add a little bit of bubble bath",
+      true
+    ],
+    [
+      "add their toys",
+      false
+    ],
+    [
+      "prep for the boys",
+      false
+    ],
+    [
+      "use the seventh generation coconut care mousse shampoo for both of them it",
+      true
+    ],
+    [
+      "clean up",
+      false
+    ],
+    [
+      "make sure the water",
+      false
+    ]
+  ],
+  "1p0_1mini_3_000.mp4": [
+    [
+      "get them dress for bedtime pajamas",
+      false
+    ],
+    [
+      "remove them from the bath",
+      false
+    ]
+  ],
+  "1p0_1mini_3_001.mp4": [
+    [
+      "get them dress for bedtime pajamas",
+      false
+    ],
+    [
+      "remove them from the bath",
+      false
+    ]
+  ],
+  "1p0_1mini_3_002.mp4": [
+    [
+      "get them dress for bedtime pajamas",
+      false
+    ],
+    [
+      "remove them from the bath",
+      false
+    ]
+  ],
+  "1p0_1mini_3_003.mp4": [
+    [
+      "get them dress for bedtime pajamas",
+      false
+    ],
+    [
+      "remove them from the bath",
+      false
+    ]
+  ],
+  "1p0_1mini_3_004.mp4": [
+    [
+      "get them dress for bedtime pajamas",
+      true
+    ],
+    [
+      "remove them from the bath",
+      true
+    ]
+  ],
+  "1p0_1mini_4_000.mp4": [
+    [
+      "wind down with both of them",
+      false
+    ]
+  ],
+  "1p0_1mini_4_001.mp4": [
+    [
+      "wind down with both of them",
+      false
+    ]
+  ],
+  "1p0_1mini_4_002.mp4": [
+    [
+      "wind down with both of them",
+      false
+    ]
+  ],
+  "1p0_1mini_4_003.mp4": [
+    [
+      "wind down with both of them",
+      false
+    ]
+  ],
+  "1p0_1mini_4_004.mp4": [
+    [
+      "wind down with both of them",
+      true
+    ]
+  ],
+  "1p0_1mini_4_005.mp4": [
+    [
+      "wind down with both of them",
+      false
+    ]
+  ],
+  "1p0_1mini_5_000.mp4": [
+    [
+      "do our own thing for a few hours",
+      true
+    ],
+    [
+      "built a home studio music",
+      false
+    ]
+  ],
+  "1p0_1mini_5_001.mp4": [
+    [
+      "do our own thing for a few hours",
+      true
+    ],
+    [
+      "built a home studio music",
+      false
+    ]
+  ],
+  "1p0_1mini_5_002.mp4": [
+    [
+      "do our own thing for a few hours",
+      true
+    ],
+    [
+      "built a home studio music",
+      false
+    ]
+  ],
+  "1p0_1mini_5_003.mp4": [
+    [
+      "do our own thing for a few hours",
+      false
+    ],
+    [
+      "built a home studio music",
+      false
+    ]
+  ],
+  "1p0_1mini_5_004.mp4": [
+    [
+      "do our own thing for a few hours",
+      false
+    ],
+    [
+      "built a home studio music",
+      false
+    ]
+  ],
+  "1p0_1mini_5_005.mp4": [
+    [
+      "do our own thing for a few hours",
+      false
+    ],
+    [
+      "built a home studio music",
+      true
+    ]
+  ],
+  "1p0_1mini_7_000.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      false
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      true
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_7_001.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      false
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      true
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_7_002.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      true
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      false
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_7_003.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      true
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      false
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_7_004.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      true
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      false
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_7_005.mp4": [
+    [
+      "use the coconut body lotion in combination with a lavender oil",
+      false
+    ],
+    [
+      "clean my body with my exfoliate gloves",
+      false
+    ],
+    [
+      "blow-dry my hair",
+      false
+    ]
+  ],
+  "1p0_1mini_8_000.mp4": [
+    [
+      "create that kind of zen space",
+      false
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      false
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      true
+    ],
+    [
+      "head to bed",
+      false
+    ]
+  ],
+  "1p0_1mini_8_001.mp4": [
+    [
+      "create that kind of zen space",
+      true
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      false
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      false
+    ],
+    [
+      "head to bed",
+      false
+    ]
+  ],
+  "1p0_1mini_8_002.mp4": [
+    [
+      "create that kind of zen space",
+      true
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      false
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      false
+    ],
+    [
+      "head to bed",
+      false
+    ]
+  ],
+  "1p0_1mini_8_003.mp4": [
+    [
+      "create that kind of zen space",
+      false
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      true
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      false
+    ],
+    [
+      "head to bed",
+      true
+    ]
+  ],
+  "1p0_1mini_8_004.mp4": [
+    [
+      "create that kind of zen space",
+      false
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      false
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      false
+    ],
+    [
+      "head to bed",
+      false
+    ]
+  ],
+  "1p0_1mini_8_005.mp4": [
+    [
+      "create that kind of zen space",
+      false
+    ],
+    [
+      "call it my rest nest with a candle some crystals from the shop",
+      false
+    ],
+    [
+      "put some hyaluronic acid serum on my face",
+      false
+    ],
+    [
+      "head to bed",
+      false
+    ]
+  ],
+  "1p0_2mini_1_000.mp4": [
+    [
+      "clean my skin",
+      false
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      false
+    ],
+    [
+      "use my clarisonic",
+      false
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      false
+    ],
+    [
+      "use the clarisonic mia",
+      false
+    ]
+  ],
+  "1p0_2mini_1_001.mp4": [
+    [
+      "clean my skin",
+      false
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      false
+    ],
+    [
+      "use my clarisonic",
+      false
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      false
+    ],
+    [
+      "use the clarisonic mia",
+      false
+    ]
+  ],
+  "1p0_2mini_1_002.mp4": [
+    [
+      "clean my skin",
+      true
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      false
+    ],
+    [
+      "use my clarisonic",
+      true
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      true
+    ],
+    [
+      "use the clarisonic mia",
+      true
+    ]
+  ],
+  "1p0_2mini_1_003.mp4": [
+    [
+      "clean my skin",
+      true
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      false
+    ],
+    [
+      "use my clarisonic",
+      true
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      false
+    ],
+    [
+      "use the clarisonic mia",
+      true
+    ]
+  ],
+  "1p0_2mini_1_004.mp4": [
+    [
+      "clean my skin",
+      true
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      true
+    ],
+    [
+      "use my clarisonic",
+      false
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      false
+    ],
+    [
+      "use the clarisonic mia",
+      false
+    ]
+  ],
+  "1p0_2mini_1_005.mp4": [
+    [
+      "clean my skin",
+      false
+    ],
+    [
+      "remove cream cleansers with a damp cloth",
+      false
+    ],
+    [
+      "use my clarisonic",
+      false
+    ],
+    [
+      "use that with the clarisonic cleanser",
+      false
+    ],
+    [
+      "use the clarisonic mia",
+      false
+    ]
+  ],
+  "1p0_2mini_2_000.mp4": [
+    [
+      "put it on your skin",
+      true
+    ]
+  ],
+  "1p0_2mini_2_001.mp4": [
+    [
+      "put it on your skin",
+      true
+    ]
+  ],
+  "1p0_2mini_2_002.mp4": [
+    [
+      "put it on your skin",
+      true
+    ]
+  ],
+  "1p0_2mini_2_003.mp4": [
+    [
+      "put it on your skin",
+      false
+    ]
+  ],
+  "1p0_2mini_3_000.mp4": [
+    [
+      "put it all over my entire body",
+      false
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      false
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      true
+    ]
+  ],
+  "1p0_2mini_3_001.mp4": [
+    [
+      "put it all over my entire body",
+      false
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      false
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      true
+    ]
+  ],
+  "1p0_2mini_3_002.mp4": [
+    [
+      "put it all over my entire body",
+      false
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      false
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      true
+    ]
+  ],
+  "1p0_2mini_3_003.mp4": [
+    [
+      "put it all over my entire body",
+      false
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      false
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      false
+    ]
+  ],
+  "1p0_2mini_3_004.mp4": [
+    [
+      "put it all over my entire body",
+      true
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      true
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      false
+    ]
+  ],
+  "1p0_2mini_3_005.mp4": [
+    [
+      "put it all over my entire body",
+      true
+    ],
+    [
+      "focus on my arms or the areas of my body",
+      true
+    ],
+    [
+      "use the vitamin c peel pads for my face",
+      false
+    ]
+  ],
+  "1p0_2mini_5_000.mp4": [
+    [
+      "use the cc cream",
+      false
+    ],
+    [
+      "use a foundation brush",
+      false
+    ]
+  ],
+  "1p0_2mini_5_001.mp4": [
+    [
+      "use the cc cream",
+      false
+    ],
+    [
+      "use a foundation brush",
+      false
+    ]
+  ],
+  "1p0_2mini_5_002.mp4": [
+    [
+      "use the cc cream",
+      false
+    ],
+    [
+      "use a foundation brush",
+      false
+    ]
+  ],
+  "1p0_2mini_5_003.mp4": [
+    [
+      "use the cc cream",
+      true
+    ],
+    [
+      "use a foundation brush",
+      true
+    ]
+  ],
+  "1p0_2mini_5_004.mp4": [
+    [
+      "use the cc cream",
+      true
+    ],
+    [
+      "use a foundation brush",
+      true
+    ]
+  ],
+  "1p0_2mini_5_005.mp4": [
+    [
+      "use the cc cream",
+      true
+    ],
+    [
+      "use a foundation brush",
+      true
+    ]
+  ],
+  "1p0_2mini_6_000.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      false
+    ],
+    [
+      "blush on",
+      false
+    ],
+    [
+      "blush there",
+      false
+    ],
+    [
+      "apply the cc cream",
+      false
+    ],
+    [
+      "cover up",
+      true
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      false
+    ],
+    [
+      "put a concealer under my eyes",
+      false
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      false
+    ],
+    [
+      "go palette by makeup forever",
+      false
+    ]
+  ],
+  "1p0_2mini_6_001.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      false
+    ],
+    [
+      "blush on",
+      false
+    ],
+    [
+      "blush there",
+      false
+    ],
+    [
+      "apply the cc cream",
+      false
+    ],
+    [
+      "cover up",
+      true
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      false
+    ],
+    [
+      "put a concealer under my eyes",
+      false
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      false
+    ],
+    [
+      "go palette by makeup forever",
+      false
+    ]
+  ],
+  "1p0_2mini_6_002.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      false
+    ],
+    [
+      "blush on",
+      false
+    ],
+    [
+      "blush there",
+      false
+    ],
+    [
+      "apply the cc cream",
+      false
+    ],
+    [
+      "cover up",
+      false
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      true
+    ],
+    [
+      "put a concealer under my eyes",
+      true
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      false
+    ],
+    [
+      "go palette by makeup forever",
+      false
+    ]
+  ],
+  "1p0_2mini_6_003.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      false
+    ],
+    [
+      "blush on",
+      false
+    ],
+    [
+      "blush there",
+      false
+    ],
+    [
+      "apply the cc cream",
+      false
+    ],
+    [
+      "cover up",
+      false
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      true
+    ],
+    [
+      "put a concealer under my eyes",
+      true
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      false
+    ],
+    [
+      "go palette by makeup forever",
+      false
+    ]
+  ],
+  "1p0_2mini_6_004.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      true
+    ],
+    [
+      "blush on",
+      true
+    ],
+    [
+      "blush there",
+      true
+    ],
+    [
+      "apply the cc cream",
+      false
+    ],
+    [
+      "cover up",
+      false
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      false
+    ],
+    [
+      "put a concealer under my eyes",
+      false
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      false
+    ],
+    [
+      "go palette by makeup forever",
+      true
+    ]
+  ],
+  "1p0_2mini_6_005.mp4": [
+    [
+      "use this jesse j palette by makeup forever",
+      false
+    ],
+    [
+      "blush on",
+      false
+    ],
+    [
+      "blush there",
+      false
+    ],
+    [
+      "apply the cc cream",
+      true
+    ],
+    [
+      "cover up",
+      false
+    ],
+    [
+      "use something to kind of even out my skin tone the little tiny bit of melasma",
+      false
+    ],
+    [
+      "put a concealer under my eyes",
+      false
+    ],
+    [
+      "blush every single day",
+      false
+    ],
+    [
+      "use the it cosmetics",
+      true
+    ],
+    [
+      "go palette by makeup forever",
+      false
+    ]
+  ],
+  "1p0_2mini_7_000.mp4": [
+    [
+      "use a little bit of mascara",
+      false
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      true
+    ],
+    [
+      "light a candle",
+      false
+    ]
+  ],
+  "1p0_2mini_7_001.mp4": [
+    [
+      "use a little bit of mascara",
+      true
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      false
+    ],
+    [
+      "light a candle",
+      false
+    ]
+  ],
+  "1p0_2mini_7_002.mp4": [
+    [
+      "use a little bit of mascara",
+      true
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      false
+    ],
+    [
+      "light a candle",
+      false
+    ]
+  ],
+  "1p0_2mini_7_003.mp4": [
+    [
+      "use a little bit of mascara",
+      true
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      false
+    ],
+    [
+      "light a candle",
+      false
+    ]
+  ],
+  "1p0_2mini_7_004.mp4": [
+    [
+      "use a little bit of mascara",
+      false
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      false
+    ],
+    [
+      "light a candle",
+      false
+    ]
+  ],
+  "1p0_2mini_7_005.mp4": [
+    [
+      "use a little bit of mascara",
+      false
+    ],
+    [
+      "use the elizabeth arden hour cream on my lips",
+      false
+    ],
+    [
+      "light a candle",
+      true
+    ]
+  ],
+  "1p0_2mini_8_000.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      false
+    ],
+    [
+      "wash my face over the sink",
+      false
+    ]
+  ],
+  "1p0_2mini_8_001.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      false
+    ],
+    [
+      "wash my face over the sink",
+      false
+    ]
+  ],
+  "1p0_2mini_8_002.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      false
+    ],
+    [
+      "wash my face over the sink",
+      true
+    ]
+  ],
+  "1p0_2mini_8_003.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      false
+    ],
+    [
+      "wash my face over the sink",
+      false
+    ]
+  ],
+  "1p0_2mini_8_004.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      true
+    ],
+    [
+      "wash my face over the sink",
+      false
+    ]
+  ],
+  "1p0_2mini_8_005.mp4": [
+    [
+      "use a deep puf stick from kate somerville",
+      false
+    ],
+    [
+      "wash my face over the sink",
+      false
+    ]
+  ],
+  "1p0_2mini_9_000.mp4": [
+    [
+      "try out the laser genesis at kate somerville",
+      true
+    ]
+  ],
+  "1p0_2mini_9_001.mp4": [
+    [
+      "try out the laser genesis at kate somerville",
+      true
+    ]
+  ],
+  "1p0_2mini_9_002.mp4": [
+    [
+      "try out the laser genesis at kate somerville",
+      true
+    ]
+  ],
+  "1p0_2mini_9_003.mp4": [
+    [
+      "try out the laser genesis at kate somerville",
+      true
+    ]
+  ],
+  "1p0_3mini_1_000.mp4": [
+    [
+      "do custom blends",
+      false
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_1_001.mp4": [
+    [
+      "do custom blends",
+      false
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_1_002.mp4": [
+    [
+      "do custom blends",
+      false
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_1_003.mp4": [
+    [
+      "do custom blends",
+      true
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_1_004.mp4": [
+    [
+      "do custom blends",
+      false
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_1_005.mp4": [
+    [
+      "do custom blends",
+      false
+    ],
+    [
+      "blend that",
+      false
+    ]
+  ],
+  "1p0_3mini_2_000.mp4": [
+    [
+      "stretch routine",
+      true
+    ]
+  ],
+  "1p0_3mini_2_001.mp4": [
+    [
+      "stretch routine",
+      true
+    ]
+  ],
+  "1p0_3mini_2_002.mp4": [
+    [
+      "stretch routine",
+      true
+    ]
+  ],
+  "1p0_3mini_2_003.mp4": [
+    [
+      "stretch routine",
+      true
+    ]
+  ],
+  "1p0_3mini_2_004.mp4": [
+    [
+      "stretch routine",
+      true
+    ]
+  ],
+  "1p0_3mini_2_005.mp4": [
+    [
+      "stretch routine",
+      false
+    ]
+  ],
+  "1p0_3mini_3_000.mp4": [
+    [
+      "put that into silicone molds",
+      false
+    ],
+    [
+      "mix together ingredients",
+      true
+    ]
+  ],
+  "1p0_3mini_3_001.mp4": [
+    [
+      "put that into silicone molds",
+      false
+    ],
+    [
+      "mix together ingredients",
+      false
+    ]
+  ],
+  "1p0_3mini_3_002.mp4": [
+    [
+      "put that into silicone molds",
+      false
+    ],
+    [
+      "mix together ingredients",
+      false
+    ]
+  ],
+  "1p0_3mini_3_003.mp4": [
+    [
+      "put that into silicone molds",
+      true
+    ],
+    [
+      "mix together ingredients",
+      false
+    ]
+  ],
+  "1p0_3mini_3_004.mp4": [
+    [
+      "put that into silicone molds",
+      true
+    ],
+    [
+      "mix together ingredients",
+      false
+    ]
+  ],
+  "1p0_3mini_3_005.mp4": [
+    [
+      "put that into silicone molds",
+      false
+    ],
+    [
+      "mix together ingredients",
+      false
+    ]
+  ],
+  "1p0_3mini_5_000.mp4": [
+    [
+      "warm it",
+      true
+    ],
+    [
+      "relieve your cramping",
+      true
+    ],
+    [
+      "put in the microwave",
+      false
+    ],
+    [
+      "put it on your lower abdomen",
+      true
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      true
+    ],
+    [
+      "pull out a few stress relief products",
+      false
+    ]
+  ],
+  "1p0_3mini_5_001.mp4": [
+    [
+      "warm it",
+      false
+    ],
+    [
+      "relieve your cramping",
+      true
+    ],
+    [
+      "put in the microwave",
+      true
+    ],
+    [
+      "put it on your lower abdomen",
+      true
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      false
+    ],
+    [
+      "pull out a few stress relief products",
+      false
+    ]
+  ],
+  "1p0_3mini_5_002.mp4": [
+    [
+      "warm it",
+      false
+    ],
+    [
+      "relieve your cramping",
+      false
+    ],
+    [
+      "put in the microwave",
+      false
+    ],
+    [
+      "put it on your lower abdomen",
+      false
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      false
+    ],
+    [
+      "pull out a few stress relief products",
+      false
+    ]
+  ],
+  "1p0_3mini_5_003.mp4": [
+    [
+      "warm it",
+      false
+    ],
+    [
+      "relieve your cramping",
+      false
+    ],
+    [
+      "put in the microwave",
+      false
+    ],
+    [
+      "put it on your lower abdomen",
+      false
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      false
+    ],
+    [
+      "pull out a few stress relief products",
+      false
+    ]
+  ],
+  "1p0_3mini_5_004.mp4": [
+    [
+      "warm it",
+      false
+    ],
+    [
+      "relieve your cramping",
+      false
+    ],
+    [
+      "put in the microwave",
+      false
+    ],
+    [
+      "put it on your lower abdomen",
+      false
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      false
+    ],
+    [
+      "pull out a few stress relief products",
+      false
+    ]
+  ],
+  "1p0_3mini_5_005.mp4": [
+    [
+      "warm it",
+      false
+    ],
+    [
+      "relieve your cramping",
+      false
+    ],
+    [
+      "put in the microwave",
+      false
+    ],
+    [
+      "put it on your lower abdomen",
+      false
+    ],
+    [
+      "stick in the microwave ten to thirty seconds",
+      false
+    ],
+    [
+      "pull out a few stress relief products",
+      true
+    ]
+  ],
+  "1p0_3mini_6_000.mp4": [
+    [
+      "make a lentil kale soup",
+      false
+    ],
+    [
+      "reach for products",
+      false
+    ],
+    [
+      "make something hearty",
+      false
+    ],
+    [
+      "reduce redness or puffiness",
+      true
+    ],
+    [
+      "reduce any redness or puffiness",
+      true
+    ],
+    [
+      "add some onions",
+      false
+    ]
+  ],
+  "1p0_3mini_6_001.mp4": [
+    [
+      "make a lentil kale soup",
+      false
+    ],
+    [
+      "reach for products",
+      false
+    ],
+    [
+      "make something hearty",
+      false
+    ],
+    [
+      "reduce redness or puffiness",
+      true
+    ],
+    [
+      "reduce any redness or puffiness",
+      true
+    ],
+    [
+      "add some onions",
+      false
+    ]
+  ],
+  "1p0_3mini_6_002.mp4": [
+    [
+      "make a lentil kale soup",
+      true
+    ],
+    [
+      "reach for products",
+      true
+    ],
+    [
+      "make something hearty",
+      true
+    ],
+    [
+      "reduce redness or puffiness",
+      false
+    ],
+    [
+      "reduce any redness or puffiness",
+      false
+    ],
+    [
+      "add some onions",
+      false
+    ]
+  ],
+  "1p0_3mini_6_003.mp4": [
+    [
+      "make a lentil kale soup",
+      true
+    ],
+    [
+      "reach for products",
+      true
+    ],
+    [
+      "make something hearty",
+      true
+    ],
+    [
+      "reduce redness or puffiness",
+      false
+    ],
+    [
+      "reduce any redness or puffiness",
+      false
+    ],
+    [
+      "add some onions",
+      false
+    ]
+  ],
+  "1p0_3mini_6_004.mp4": [
+    [
+      "make a lentil kale soup",
+      true
+    ],
+    [
+      "reach for products",
+      true
+    ],
+    [
+      "make something hearty",
+      true
+    ],
+    [
+      "reduce redness or puffiness",
+      false
+    ],
+    [
+      "reduce any redness or puffiness",
+      false
+    ],
+    [
+      "add some onions",
+      true
+    ]
+  ],
+  "1p0_3mini_6_005.mp4": [
+    [
+      "make a lentil kale soup",
+      true
+    ],
+    [
+      "reach for products",
+      false
+    ],
+    [
+      "make something hearty",
+      true
+    ],
+    [
+      "reduce redness or puffiness",
+      false
+    ],
+    [
+      "reduce any redness or puffiness",
+      false
+    ],
+    [
+      "add some onions",
+      false
+    ]
+  ],
+  "1p0_3mini_7_000.mp4": [
+    [
+      "chop kale in",
+      false
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      false
+    ],
+    [
+      "add spice to mine after the fact",
+      false
+    ]
+  ],
+  "1p0_3mini_7_001.mp4": [
+    [
+      "chop kale in",
+      false
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      false
+    ],
+    [
+      "add spice to mine after the fact",
+      true
+    ]
+  ],
+  "1p0_3mini_7_002.mp4": [
+    [
+      "chop kale in",
+      false
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      false
+    ],
+    [
+      "add spice to mine after the fact",
+      false
+    ]
+  ],
+  "1p0_3mini_7_003.mp4": [
+    [
+      "chop kale in",
+      false
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      false
+    ],
+    [
+      "add spice to mine after the fact",
+      false
+    ]
+  ],
+  "1p0_3mini_7_004.mp4": [
+    [
+      "chop kale in",
+      true
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      true
+    ],
+    [
+      "add spice to mine after the fact",
+      false
+    ]
+  ],
+  "1p0_3mini_7_005.mp4": [
+    [
+      "chop kale in",
+      true
+    ],
+    [
+      "stick it in a crock pot",
+      true
+    ],
+    [
+      "add some rosemary from the garden",
+      false
+    ],
+    [
+      "keep it mild",
+      false
+    ],
+    [
+      "add",
+      false
+    ],
+    [
+      "add spice to mine after the fact",
+      false
+    ]
+  ],
+  "1p0_3mini_8_000.mp4": [
+    [
+      "garnish it",
+      false
+    ],
+    [
+      "take the rosemary out",
+      true
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      false
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      false
+    ],
+    [
+      "put it in a bowl",
+      false
+    ]
+  ],
+  "1p0_3mini_8_001.mp4": [
+    [
+      "garnish it",
+      false
+    ],
+    [
+      "take the rosemary out",
+      false
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      false
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      false
+    ],
+    [
+      "put it in a bowl",
+      true
+    ]
+  ],
+  "1p0_3mini_8_002.mp4": [
+    [
+      "garnish it",
+      true
+    ],
+    [
+      "take the rosemary out",
+      false
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      false
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      true
+    ],
+    [
+      "put it in a bowl",
+      false
+    ]
+  ],
+  "1p0_3mini_8_003.mp4": [
+    [
+      "garnish it",
+      false
+    ],
+    [
+      "take the rosemary out",
+      false
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      true
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      false
+    ],
+    [
+      "put it in a bowl",
+      false
+    ]
+  ],
+  "1p0_3mini_8_004.mp4": [
+    [
+      "garnish it",
+      false
+    ],
+    [
+      "take the rosemary out",
+      false
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      true
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      false
+    ],
+    [
+      "put it in a bowl",
+      false
+    ]
+  ],
+  "1p0_3mini_8_005.mp4": [
+    [
+      "garnish it",
+      false
+    ],
+    [
+      "take the rosemary out",
+      false
+    ],
+    [
+      "make your own bath salts with epsom salt",
+      true
+    ],
+    [
+      "add the kale in there",
+      false
+    ],
+    [
+      "mix together",
+      false
+    ],
+    [
+      "put it in a bowl",
+      false
+    ]
+  ],
+  "1p0_3mini_9_000.mp4": [
+    [
+      "sign up for a newsletter",
+      false
+    ]
+  ],
+  "1p0_3mini_9_001.mp4": [
+    [
+      "sign up for a newsletter",
+      false
+    ]
+  ],
+  "1p0_3mini_9_002.mp4": [
+    [
+      "sign up for a newsletter",
+      true
+    ]
+  ],
+  "1p0_3mini_9_003.mp4": [
+    [
+      "sign up for a newsletter",
+      false
+    ]
+  ],
+  "1p0_3mini_9_004.mp4": [
+    [
+      "sign up for a newsletter",
+      false
+    ]
+  ],
+  "1p0_3mini_9_005.mp4": [
+    [
+      "sign up for a newsletter",
+      false
+    ]
+  ],
+  "1p0_4mini_1_000.mp4": [
+    [
+      "put on my makeup",
+      false
+    ],
+    [
+      "apply my cc cream from it cosmetics",
+      false
+    ]
+  ],
+  "1p0_4mini_1_001.mp4": [
+    [
+      "put on my makeup",
+      false
+    ],
+    [
+      "apply my cc cream from it cosmetics",
+      false
+    ]
+  ],
+  "1p0_4mini_1_002.mp4": [
+    [
+      "put on my makeup",
+      false
+    ],
+    [
+      "apply my cc cream from it cosmetics",
+      true
+    ]
+  ],
+  "1p0_4mini_1_003.mp4": [
+    [
+      "put on my makeup",
+      false
+    ],
+    [
+      "apply my cc cream from it cosmetics",
+      true
+    ]
+  ],
+  "1p0_4mini_1_004.mp4": [
+    [
+      "put on my makeup",
+      false
+    ],
+    [
+      "apply my cc cream from it cosmetics",
+      false
+    ]
+  ],
+  "1p0_4mini_3_000.mp4": [
+    [
+      "use the it cosmetics concealer",
+      true
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      false
+    ]
+  ],
+  "1p0_4mini_3_001.mp4": [
+    [
+      "use the it cosmetics concealer",
+      true
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      false
+    ]
+  ],
+  "1p0_4mini_3_002.mp4": [
+    [
+      "use the it cosmetics concealer",
+      false
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      true
+    ]
+  ],
+  "1p0_4mini_3_003.mp4": [
+    [
+      "use the it cosmetics concealer",
+      false
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      true
+    ]
+  ],
+  "1p0_4mini_3_004.mp4": [
+    [
+      "use the it cosmetics concealer",
+      false
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      true
+    ]
+  ],
+  "1p0_4mini_3_005.mp4": [
+    [
+      "use the it cosmetics concealer",
+      false
+    ],
+    [
+      "use a few matte colors for around my eyes that light brown color",
+      true
+    ]
+  ],
+  "1p0_4mini_4_000.mp4": [
+    [
+      "apply your eyebrow powder",
+      true
+    ],
+    [
+      "put some mascara on",
+      false
+    ]
+  ],
+  "1p0_4mini_4_001.mp4": [
+    [
+      "apply your eyebrow powder",
+      true
+    ],
+    [
+      "put some mascara on",
+      false
+    ]
+  ],
+  "1p0_4mini_4_002.mp4": [
+    [
+      "apply your eyebrow powder",
+      false
+    ],
+    [
+      "put some mascara on",
+      true
+    ]
+  ],
+  "1p0_4mini_4_003.mp4": [
+    [
+      "apply your eyebrow powder",
+      false
+    ],
+    [
+      "put some mascara on",
+      true
+    ]
+  ],
+  "1p0_4mini_4_004.mp4": [
+    [
+      "apply your eyebrow powder",
+      false
+    ],
+    [
+      "put some mascara on",
+      false
+    ]
+  ],
+  "1p0_4mini_4_005.mp4": [
+    [
+      "apply your eyebrow powder",
+      false
+    ],
+    [
+      "put some mascara on",
+      false
+    ]
+  ],
+  "1p0_4mini_5_000.mp4": [
+    [
+      "side lipstick",
+      false
+    ],
+    [
+      "blush color on my lips",
+      false
+    ]
+  ],
+  "1p0_4mini_5_001.mp4": [
+    [
+      "side lipstick",
+      false
+    ],
+    [
+      "blush color on my lips",
+      false
+    ]
+  ],
+  "1p0_4mini_5_002.mp4": [
+    [
+      "side lipstick",
+      false
+    ],
+    [
+      "blush color on my lips",
+      false
+    ]
+  ],
+  "1p0_4mini_5_003.mp4": [
+    [
+      "side lipstick",
+      true
+    ],
+    [
+      "blush color on my lips",
+      true
+    ]
+  ],
+  "1p0_4mini_5_004.mp4": [
+    [
+      "side lipstick",
+      true
+    ],
+    [
+      "blush color on my lips",
+      true
+    ]
+  ],
+  "1p0_4mini_6_000.mp4": [
+    [
+      "iron it",
+      false
+    ],
+    [
+      "it straight",
+      false
+    ],
+    [
+      "use my flat iron",
+      false
+    ],
+    [
+      "iron my hair",
+      false
+    ]
+  ],
+  "1p0_4mini_6_001.mp4": [
+    [
+      "iron it",
+      false
+    ],
+    [
+      "it straight",
+      false
+    ],
+    [
+      "use my flat iron",
+      false
+    ],
+    [
+      "iron my hair",
+      false
+    ]
+  ],
+  "1p0_4mini_6_002.mp4": [
+    [
+      "iron it",
+      true
+    ],
+    [
+      "it straight",
+      true
+    ],
+    [
+      "use my flat iron",
+      true
+    ],
+    [
+      "iron my hair",
+      true
+    ]
+  ],
+  "1p0_4mini_6_003.mp4": [
+    [
+      "iron it",
+      true
+    ],
+    [
+      "it straight",
+      true
+    ],
+    [
+      "use my flat iron",
+      true
+    ],
+    [
+      "iron my hair",
+      true
+    ]
+  ],
+  "1p0_4mini_6_004.mp4": [
+    [
+      "iron it",
+      false
+    ],
+    [
+      "it straight",
+      false
+    ],
+    [
+      "use my flat iron",
+      false
+    ],
+    [
+      "iron my hair",
+      false
+    ]
+  ],
+  "1p0_4mini_7_000.mp4": [
+    [
+      "use a instant bronzer",
+      false
+    ]
+  ],
+  "1p0_4mini_7_001.mp4": [
+    [
+      "use a instant bronzer",
+      false
+    ]
+  ],
+  "1p0_4mini_7_002.mp4": [
+    [
+      "use a instant bronzer",
+      true
+    ]
+  ],
+  "1p0_4mini_7_003.mp4": [
+    [
+      "use a instant bronzer",
+      true
+    ]
+  ],
+  "1p0_4mini_7_004.mp4": [
+    [
+      "use a instant bronzer",
+      true
+    ]
+  ],
+  "1p0_4mini_7_005.mp4": [
+    [
+      "use a instant bronzer",
+      true
+    ]
+  ],
+  "1p0_5mini_1_000.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      false
+    ]
+  ],
+  "1p0_5mini_1_001.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      false
+    ]
+  ],
+  "1p0_5mini_1_002.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      false
+    ]
+  ],
+  "1p0_5mini_1_003.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      true
+    ]
+  ],
+  "1p0_5mini_1_004.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      true
+    ]
+  ],
+  "1p0_5mini_1_005.mp4": [
+    [
+      "add a little bit of water it",
+      false
+    ],
+    [
+      "cleanse my skin with the clean oil",
+      false
+    ]
+  ],
+  "1p0_5mini_14_000.mp4": [
+    [
+      "try different products",
+      false
+    ]
+  ],
+  "1p0_5mini_14_001.mp4": [
+    [
+      "try different products",
+      false
+    ]
+  ],
+  "1p0_5mini_14_002.mp4": [
+    [
+      "try different products",
+      false
+    ]
+  ],
+  "1p0_5mini_14_003.mp4": [
+    [
+      "try different products",
+      true
+    ]
+  ],
+  "1p0_5mini_14_004.mp4": [
+    [
+      "try different products",
+      true
+    ]
+  ],
+  "1p0_5mini_14_005.mp4": [
+    [
+      "try different products",
+      true
+    ]
+  ],
+  "1p0_5mini_2_000.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      false
+    ],
+    [
+      "use this",
+      false
+    ]
+  ],
+  "1p0_5mini_2_001.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      false
+    ],
+    [
+      "use this",
+      false
+    ]
+  ],
+  "1p0_5mini_2_002.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      false
+    ],
+    [
+      "use this",
+      false
+    ]
+  ],
+  "1p0_5mini_2_003.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      true
+    ],
+    [
+      "use this",
+      true
+    ]
+  ],
+  "1p0_5mini_2_004.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      false
+    ],
+    [
+      "use this",
+      false
+    ]
+  ],
+  "1p0_5mini_2_005.mp4": [
+    [
+      "wash it",
+      false
+    ],
+    [
+      "use a little bit of that into your skin",
+      false
+    ],
+    [
+      "use this",
+      false
+    ]
+  ],
+  "1p0_5mini_3_000.mp4": [
+    [
+      "smell like tangerine",
+      true
+    ]
+  ],
+  "1p0_5mini_3_001.mp4": [
+    [
+      "smell like tangerine",
+      true
+    ]
+  ],
+  "1p0_5mini_3_002.mp4": [
+    [
+      "smell like tangerine",
+      false
+    ]
+  ],
+  "1p0_5mini_3_003.mp4": [
+    [
+      "smell like tangerine",
+      false
+    ]
+  ],
+  "1p0_5mini_3_004.mp4": [
+    [
+      "smell like tangerine",
+      false
+    ]
+  ],
+  "1p0_5mini_3_005.mp4": [
+    [
+      "smell like tangerine",
+      false
+    ]
+  ],
+  "1p0_5mini_6_000.mp4": [
+    [
+      "part it like this",
+      false
+    ]
+  ],
+  "1p0_5mini_6_001.mp4": [
+    [
+      "part it like this",
+      false
+    ]
+  ],
+  "1p0_5mini_6_002.mp4": [
+    [
+      "part it like this",
+      false
+    ]
+  ],
+  "1p0_5mini_6_003.mp4": [
+    [
+      "part it like this",
+      true
+    ]
+  ],
+  "1p0_5mini_6_004.mp4": [
+    [
+      "part it like this",
+      true
+    ]
+  ],
+  "1p0_5mini_6_005.mp4": [
+    [
+      "part it like this",
+      true
+    ]
+  ],
+  "1p0_5mini_7_000.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      false
+    ]
+  ],
+  "1p0_5mini_7_001.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      false
+    ]
+  ],
+  "1p0_5mini_7_002.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      false
+    ]
+  ],
+  "1p0_5mini_7_003.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      true
+    ]
+  ],
+  "1p0_5mini_7_004.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      true
+    ]
+  ],
+  "1p0_5mini_7_005.mp4": [
+    [
+      "hydrate facial toner by fresh",
+      false
+    ]
+  ],
+  "1p0_5mini_8_000.mp4": [
+    [
+      "use a serum or an oil underneath",
+      true
+    ],
+    [
+      "put some cc cream on this",
+      false
+    ]
+  ],
+  "1p0_5mini_8_001.mp4": [
+    [
+      "use a serum or an oil underneath",
+      true
+    ],
+    [
+      "put some cc cream on this",
+      false
+    ]
+  ],
+  "1p0_5mini_8_002.mp4": [
+    [
+      "use a serum or an oil underneath",
+      false
+    ],
+    [
+      "put some cc cream on this",
+      false
+    ]
+  ],
+  "1p0_5mini_8_003.mp4": [
+    [
+      "use a serum or an oil underneath",
+      false
+    ],
+    [
+      "put some cc cream on this",
+      false
+    ]
+  ],
+  "1p0_5mini_8_004.mp4": [
+    [
+      "use a serum or an oil underneath",
+      false
+    ],
+    [
+      "put some cc cream on this",
+      true
+    ]
+  ],
+  "1p0_5mini_8_005.mp4": [
+    [
+      "use a serum or an oil underneath",
+      false
+    ],
+    [
+      "put some cc cream on this",
+      true
+    ]
+  ],
+  "1p0_6mini_2_000.mp4": [
+    [
+      "take a comb",
+      false
+    ],
+    [
+      "use this coconut water shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_2_001.mp4": [
+    [
+      "take a comb",
+      false
+    ],
+    [
+      "use this coconut water shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_2_002.mp4": [
+    [
+      "take a comb",
+      false
+    ],
+    [
+      "use this coconut water shampoo",
+      true
+    ]
+  ],
+  "1p0_6mini_2_003.mp4": [
+    [
+      "take a comb",
+      false
+    ],
+    [
+      "use this coconut water shampoo",
+      true
+    ]
+  ],
+  "1p0_6mini_2_004.mp4": [
+    [
+      "take a comb",
+      true
+    ],
+    [
+      "use this coconut water shampoo",
+      true
+    ]
+  ],
+  "1p0_6mini_2_005.mp4": [
+    [
+      "take a comb",
+      false
+    ],
+    [
+      "use this coconut water shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_3_000.mp4": [
+    [
+      "get rid of any knots",
+      true
+    ],
+    [
+      "get them out",
+      true
+    ],
+    [
+      "go under the hair",
+      false
+    ],
+    [
+      "use a comb in the shower",
+      true
+    ],
+    [
+      "take a shower",
+      true
+    ],
+    [
+      "blow it",
+      false
+    ],
+    [
+      "start with my hands",
+      false
+    ]
+  ],
+  "1p0_6mini_3_001.mp4": [
+    [
+      "get rid of any knots",
+      false
+    ],
+    [
+      "get them out",
+      false
+    ],
+    [
+      "go under the hair",
+      false
+    ],
+    [
+      "use a comb in the shower",
+      false
+    ],
+    [
+      "take a shower",
+      false
+    ],
+    [
+      "blow it",
+      false
+    ],
+    [
+      "start with my hands",
+      true
+    ]
+  ],
+  "1p0_6mini_3_002.mp4": [
+    [
+      "get rid of any knots",
+      false
+    ],
+    [
+      "get them out",
+      false
+    ],
+    [
+      "go under the hair",
+      true
+    ],
+    [
+      "use a comb in the shower",
+      false
+    ],
+    [
+      "take a shower",
+      false
+    ],
+    [
+      "blow it",
+      true
+    ],
+    [
+      "start with my hands",
+      false
+    ]
+  ],
+  "1p0_6mini_3_003.mp4": [
+    [
+      "get rid of any knots",
+      false
+    ],
+    [
+      "get them out",
+      false
+    ],
+    [
+      "go under the hair",
+      false
+    ],
+    [
+      "use a comb in the shower",
+      false
+    ],
+    [
+      "take a shower",
+      false
+    ],
+    [
+      "blow it",
+      true
+    ],
+    [
+      "start with my hands",
+      false
+    ]
+  ],
+  "1p0_6mini_3_004.mp4": [
+    [
+      "get rid of any knots",
+      false
+    ],
+    [
+      "get them out",
+      false
+    ],
+    [
+      "go under the hair",
+      false
+    ],
+    [
+      "use a comb in the shower",
+      false
+    ],
+    [
+      "take a shower",
+      false
+    ],
+    [
+      "blow it",
+      false
+    ],
+    [
+      "start with my hands",
+      false
+    ]
+  ],
+  "1p0_6mini_4_000.mp4": [
+    [
+      "put the dry shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_4_001.mp4": [
+    [
+      "put the dry shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_4_002.mp4": [
+    [
+      "put the dry shampoo",
+      true
+    ]
+  ],
+  "1p0_6mini_4_003.mp4": [
+    [
+      "put the dry shampoo",
+      true
+    ]
+  ],
+  "1p0_6mini_4_004.mp4": [
+    [
+      "put the dry shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_4_005.mp4": [
+    [
+      "put the dry shampoo",
+      false
+    ]
+  ],
+  "1p0_6mini_6_000.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      false
+    ],
+    [
+      "add it to some hot water",
+      false
+    ],
+    [
+      "put my hair in two braids",
+      true
+    ]
+  ],
+  "1p0_6mini_6_001.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      false
+    ],
+    [
+      "add it to some hot water",
+      false
+    ],
+    [
+      "put my hair in two braids",
+      true
+    ]
+  ],
+  "1p0_6mini_6_002.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      false
+    ],
+    [
+      "add it to some hot water",
+      false
+    ],
+    [
+      "put my hair in two braids",
+      true
+    ]
+  ],
+  "1p0_6mini_6_003.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      true
+    ],
+    [
+      "add it to some hot water",
+      false
+    ],
+    [
+      "put my hair in two braids",
+      false
+    ]
+  ],
+  "1p0_6mini_6_004.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      true
+    ],
+    [
+      "add it to some hot water",
+      true
+    ],
+    [
+      "put my hair in two braids",
+      false
+    ]
+  ],
+  "1p0_6mini_6_005.mp4": [
+    [
+      "use my macadamia nut oil on my damp hair",
+      false
+    ],
+    [
+      "use the beauty water",
+      false
+    ],
+    [
+      "add it to some hot water",
+      false
+    ],
+    [
+      "put my hair in two braids",
+      false
+    ]
+  ],
+  "1p0_6mini_7_000.mp4": [
+    [
+      "curl",
+      false
+    ],
+    [
+      "put my hair in the braids",
+      true
+    ],
+    [
+      "put it in two braids",
+      true
+    ],
+    [
+      "take my hair out of the braids",
+      false
+    ],
+    [
+      "do anything to my hair",
+      false
+    ]
+  ],
+  "1p0_6mini_7_001.mp4": [
+    [
+      "curl",
+      false
+    ],
+    [
+      "put my hair in the braids",
+      true
+    ],
+    [
+      "put it in two braids",
+      true
+    ],
+    [
+      "take my hair out of the braids",
+      false
+    ],
+    [
+      "do anything to my hair",
+      false
+    ]
+  ],
+  "1p0_6mini_7_002.mp4": [
+    [
+      "curl",
+      false
+    ],
+    [
+      "put my hair in the braids",
+      true
+    ],
+    [
+      "put it in two braids",
+      true
+    ],
+    [
+      "take my hair out of the braids",
+      false
+    ],
+    [
+      "do anything to my hair",
+      false
+    ]
+  ],
+  "1p0_6mini_7_003.mp4": [
+    [
+      "curl",
+      true
+    ],
+    [
+      "put my hair in the braids",
+      false
+    ],
+    [
+      "put it in two braids",
+      false
+    ],
+    [
+      "take my hair out of the braids",
+      false
+    ],
+    [
+      "do anything to my hair",
+      true
+    ]
+  ],
+  "1p0_6mini_7_004.mp4": [
+    [
+      "curl",
+      true
+    ],
+    [
+      "put my hair in the braids",
+      false
+    ],
+    [
+      "put it in two braids",
+      false
+    ],
+    [
+      "take my hair out of the braids",
+      true
+    ],
+    [
+      "do anything to my hair",
+      true
+    ]
+  ],
+  "1p0_8mini_1_000.mp4": [
+    [
+      "start with my ecco bella day cream",
+      false
+    ],
+    [
+      "use concealer",
+      false
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      false
+    ],
+    [
+      "apply that first",
+      false
+    ]
+  ],
+  "1p0_8mini_1_001.mp4": [
+    [
+      "start with my ecco bella day cream",
+      true
+    ],
+    [
+      "use concealer",
+      false
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      false
+    ],
+    [
+      "apply that first",
+      false
+    ]
+  ],
+  "1p0_8mini_1_002.mp4": [
+    [
+      "start with my ecco bella day cream",
+      true
+    ],
+    [
+      "use concealer",
+      false
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      true
+    ],
+    [
+      "apply that first",
+      true
+    ]
+  ],
+  "1p0_8mini_1_003.mp4": [
+    [
+      "start with my ecco bella day cream",
+      true
+    ],
+    [
+      "use concealer",
+      false
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      true
+    ],
+    [
+      "apply that first",
+      true
+    ]
+  ],
+  "1p0_8mini_1_004.mp4": [
+    [
+      "start with my ecco bella day cream",
+      false
+    ],
+    [
+      "use concealer",
+      true
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      false
+    ],
+    [
+      "apply that first",
+      false
+    ]
+  ],
+  "1p0_8mini_1_005.mp4": [
+    [
+      "start with my ecco bella day cream",
+      false
+    ],
+    [
+      "use concealer",
+      false
+    ],
+    [
+      "share with my current makeup routine the products",
+      true
+    ],
+    [
+      "works really beautifully under makeup some moisturizers",
+      false
+    ],
+    [
+      "apply that first",
+      false
+    ]
+  ],
+  "1p0_8mini_2_000.mp4": [
+    [
+      "use the highlighter",
+      true
+    ],
+    [
+      "blend it out with a beauty blender",
+      false
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      false
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      false
+    ]
+  ],
+  "1p0_8mini_2_001.mp4": [
+    [
+      "use the highlighter",
+      true
+    ],
+    [
+      "blend it out with a beauty blender",
+      false
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      false
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      false
+    ]
+  ],
+  "1p0_8mini_2_002.mp4": [
+    [
+      "use the highlighter",
+      false
+    ],
+    [
+      "blend it out with a beauty blender",
+      false
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      true
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      false
+    ]
+  ],
+  "1p0_8mini_2_003.mp4": [
+    [
+      "use the highlighter",
+      false
+    ],
+    [
+      "blend it out with a beauty blender",
+      true
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      true
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      false
+    ]
+  ],
+  "1p0_8mini_2_004.mp4": [
+    [
+      "use the highlighter",
+      false
+    ],
+    [
+      "blend it out with a beauty blender",
+      false
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      true
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      true
+    ]
+  ],
+  "1p0_8mini_2_005.mp4": [
+    [
+      "use the highlighter",
+      false
+    ],
+    [
+      "blend it out with a beauty blender",
+      false
+    ],
+    [
+      "use the magic foundation by charlotte tilbury",
+      true
+    ],
+    [
+      "apply bronzer on to my cheekbones",
+      false
+    ]
+  ],
+  "1p0_8mini_3_000.mp4": [
+    [
+      "give them a really nice full look",
+      true
+    ],
+    [
+      "fill in any spaces",
+      true
+    ]
+  ],
+  "1p0_8mini_3_001.mp4": [
+    [
+      "give them a really nice full look",
+      true
+    ],
+    [
+      "fill in any spaces",
+      true
+    ]
+  ],
+  "1p0_8mini_3_002.mp4": [
+    [
+      "give them a really nice full look",
+      false
+    ],
+    [
+      "fill in any spaces",
+      false
+    ]
+  ],
+  "1p0_8mini_3_003.mp4": [
+    [
+      "give them a really nice full look",
+      false
+    ],
+    [
+      "fill in any spaces",
+      false
+    ]
+  ],
+  "1p0_8mini_3_004.mp4": [
+    [
+      "give them a really nice full look",
+      false
+    ],
+    [
+      "fill in any spaces",
+      false
+    ]
+  ],
+  "1p0_8mini_3_005.mp4": [
+    [
+      "give them a really nice full look",
+      false
+    ],
+    [
+      "fill in any spaces",
+      false
+    ]
+  ],
+  "1p0_8mini_4_000.mp4": [
+    [
+      "apply this product",
+      true
+    ],
+    [
+      "apply it",
+      true
+    ],
+    [
+      "do one coat",
+      false
+    ]
+  ],
+  "1p0_8mini_4_001.mp4": [
+    [
+      "apply this product",
+      true
+    ],
+    [
+      "apply it",
+      true
+    ],
+    [
+      "do one coat",
+      false
+    ]
+  ],
+  "1p0_8mini_4_002.mp4": [
+    [
+      "apply this product",
+      true
+    ],
+    [
+      "apply it",
+      true
+    ],
+    [
+      "do one coat",
+      false
+    ]
+  ],
+  "1p0_8mini_4_003.mp4": [
+    [
+      "apply this product",
+      true
+    ],
+    [
+      "apply it",
+      true
+    ],
+    [
+      "do one coat",
+      true
+    ]
+  ],
+  "1p0_8mini_4_004.mp4": [
+    [
+      "apply this product",
+      false
+    ],
+    [
+      "apply it",
+      true
+    ],
+    [
+      "do one coat",
+      true
+    ]
+  ],
+  "1p0_8mini_4_005.mp4": [
+    [
+      "apply this product",
+      false
+    ],
+    [
+      "apply it",
+      false
+    ],
+    [
+      "do one coat",
+      false
+    ]
+  ],
+  "1p0_8mini_5_000.mp4": [
+    [
+      "do my hair in that case",
+      false
+    ],
+    [
+      "dry naturally the rest of my hair",
+      false
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      true
+    ],
+    [
+      "dry naturally",
+      false
+    ]
+  ],
+  "1p0_8mini_5_001.mp4": [
+    [
+      "do my hair in that case",
+      false
+    ],
+    [
+      "dry naturally the rest of my hair",
+      false
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      true
+    ],
+    [
+      "dry naturally",
+      false
+    ]
+  ],
+  "1p0_8mini_5_002.mp4": [
+    [
+      "do my hair in that case",
+      false
+    ],
+    [
+      "dry naturally the rest of my hair",
+      false
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      true
+    ],
+    [
+      "dry naturally",
+      false
+    ]
+  ],
+  "1p0_8mini_5_003.mp4": [
+    [
+      "do my hair in that case",
+      false
+    ],
+    [
+      "dry naturally the rest of my hair",
+      false
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      true
+    ],
+    [
+      "dry naturally",
+      false
+    ]
+  ],
+  "1p0_8mini_5_004.mp4": [
+    [
+      "do my hair in that case",
+      true
+    ],
+    [
+      "dry naturally the rest of my hair",
+      true
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      false
+    ],
+    [
+      "dry naturally",
+      true
+    ]
+  ],
+  "1p0_8mini_5_005.mp4": [
+    [
+      "do my hair in that case",
+      true
+    ],
+    [
+      "dry naturally the rest of my hair",
+      true
+    ],
+    [
+      "use the naked palette the good old naked palette in the color buck",
+      false
+    ],
+    [
+      "dry naturally",
+      true
+    ]
+  ],
+  "1p0_9mini_1_000.mp4": [
+    [
+      "stay clean",
+      true
+    ]
+  ],
+  "1p0_9mini_1_001.mp4": [
+    [
+      "stay clean",
+      true
+    ]
+  ],
+  "1p0_9mini_1_002.mp4": [
+    [
+      "stay clean",
+      true
+    ]
+  ],
+  "1p0_9mini_1_003.mp4": [
+    [
+      "stay clean",
+      false
+    ]
+  ],
+  "1p0_9mini_1_004.mp4": [
+    [
+      "stay clean",
+      false
+    ]
+  ],
+  "1p0_9mini_1_005.mp4": [
+    [
+      "stay clean",
+      false
+    ]
+  ],
+  "1p0_9mini_10_000.mp4": [
+    [
+      "clean the shower doors",
+      false
+    ],
+    [
+      "clean the glass",
+      false
+    ],
+    [
+      "clean the bathtub",
+      true
+    ],
+    [
+      "use that with a scrubber",
+      false
+    ]
+  ],
+  "1p0_9mini_10_001.mp4": [
+    [
+      "clean the shower doors",
+      true
+    ],
+    [
+      "clean the glass",
+      false
+    ],
+    [
+      "clean the bathtub",
+      false
+    ],
+    [
+      "use that with a scrubber",
+      true
+    ]
+  ],
+  "1p0_9mini_10_002.mp4": [
+    [
+      "clean the shower doors",
+      true
+    ],
+    [
+      "clean the glass",
+      true
+    ],
+    [
+      "clean the bathtub",
+      false
+    ],
+    [
+      "use that with a scrubber",
+      false
+    ]
+  ],
+  "1p0_9mini_10_003.mp4": [
+    [
+      "clean the shower doors",
+      true
+    ],
+    [
+      "clean the glass",
+      true
+    ],
+    [
+      "clean the bathtub",
+      false
+    ],
+    [
+      "use that with a scrubber",
+      false
+    ]
+  ],
+  "1p0_9mini_10_004.mp4": [
+    [
+      "clean the shower doors",
+      true
+    ],
+    [
+      "clean the glass",
+      true
+    ],
+    [
+      "clean the bathtub",
+      false
+    ],
+    [
+      "use that with a scrubber",
+      false
+    ]
+  ],
+  "1p0_9mini_10_005.mp4": [
+    [
+      "clean the shower doors",
+      true
+    ],
+    [
+      "clean the glass",
+      true
+    ],
+    [
+      "clean the bathtub",
+      false
+    ],
+    [
+      "use that with a scrubber",
+      false
+    ]
+  ],
+  "1p0_9mini_11_000.mp4": [
+    [
+      "clean the kitchen",
+      true
+    ],
+    [
+      "clean this",
+      false
+    ]
+  ],
+  "1p0_9mini_11_001.mp4": [
+    [
+      "clean the kitchen",
+      true
+    ],
+    [
+      "clean this",
+      false
+    ]
+  ],
+  "1p0_9mini_11_002.mp4": [
+    [
+      "clean the kitchen",
+      false
+    ],
+    [
+      "clean this",
+      true
+    ]
+  ],
+  "1p0_9mini_11_003.mp4": [
+    [
+      "clean the kitchen",
+      false
+    ],
+    [
+      "clean this",
+      true
+    ]
+  ],
+  "1p0_9mini_11_004.mp4": [
+    [
+      "clean the kitchen",
+      false
+    ],
+    [
+      "clean this",
+      false
+    ]
+  ],
+  "1p0_9mini_2_000.mp4": [
+    [
+      "make your bed every morning",
+      false
+    ],
+    [
+      "fix the bed",
+      false
+    ],
+    [
+      "make the bedroom look really clean",
+      false
+    ]
+  ],
+  "1p0_9mini_2_001.mp4": [
+    [
+      "make your bed every morning",
+      false
+    ],
+    [
+      "fix the bed",
+      false
+    ],
+    [
+      "make the bedroom look really clean",
+      false
+    ]
+  ],
+  "1p0_9mini_2_002.mp4": [
+    [
+      "make your bed every morning",
+      true
+    ],
+    [
+      "fix the bed",
+      true
+    ],
+    [
+      "make the bedroom look really clean",
+      true
+    ]
+  ],
+  "1p0_9mini_2_003.mp4": [
+    [
+      "make your bed every morning",
+      false
+    ],
+    [
+      "fix the bed",
+      false
+    ],
+    [
+      "make the bedroom look really clean",
+      true
+    ]
+  ],
+  "1p0_9mini_2_004.mp4": [
+    [
+      "make your bed every morning",
+      false
+    ],
+    [
+      "fix the bed",
+      false
+    ],
+    [
+      "make the bedroom look really clean",
+      true
+    ]
+  ],
+  "1p0_9mini_2_005.mp4": [
+    [
+      "make your bed every morning",
+      false
+    ],
+    [
+      "fix the bed",
+      false
+    ],
+    [
+      "make the bedroom look really clean",
+      false
+    ]
+  ],
+  "1p0_9mini_4_000.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      true
+    ],
+    [
+      "use it on my refrigerator",
+      false
+    ],
+    [
+      "get to the stainless steel",
+      false
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      false
+    ]
+  ],
+  "1p0_9mini_4_001.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      true
+    ],
+    [
+      "use it on my refrigerator",
+      false
+    ],
+    [
+      "get to the stainless steel",
+      false
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      false
+    ]
+  ],
+  "1p0_9mini_4_002.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      false
+    ],
+    [
+      "use it on my refrigerator",
+      true
+    ],
+    [
+      "get to the stainless steel",
+      true
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      true
+    ]
+  ],
+  "1p0_9mini_4_003.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      false
+    ],
+    [
+      "use it on my refrigerator",
+      true
+    ],
+    [
+      "get to the stainless steel",
+      true
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      true
+    ]
+  ],
+  "1p0_9mini_4_004.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      false
+    ],
+    [
+      "use it on my refrigerator",
+      false
+    ],
+    [
+      "get to the stainless steel",
+      true
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      true
+    ]
+  ],
+  "1p0_9mini_4_005.mp4": [
+    [
+      "clean the kitchen every day",
+      true
+    ],
+    [
+      "clean the counters",
+      false
+    ],
+    [
+      "use it on my refrigerator",
+      false
+    ],
+    [
+      "get to the stainless steel",
+      true
+    ],
+    [
+      "clean the surface of my kitchen",
+      true
+    ],
+    [
+      "work great really like this method stainless steel cleaner",
+      true
+    ]
+  ],
+  "1p0_9mini_5_000.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      true
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      false
+    ]
+  ],
+  "1p0_9mini_5_001.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      false
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      false
+    ]
+  ],
+  "1p0_9mini_5_002.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      false
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      false
+    ]
+  ],
+  "1p0_9mini_5_003.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      false
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      true
+    ]
+  ],
+  "1p0_9mini_5_004.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      false
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      true
+    ]
+  ],
+  "1p0_9mini_5_005.mp4": [
+    [
+      "make my house look really clean",
+      true
+    ],
+    [
+      "try to spray",
+      false
+    ],
+    [
+      "sweep the house obviously with hardwood floors",
+      true
+    ]
+  ],
+  "1p0_9mini_6_000.mp4": [
+    [
+      "divide the laundry",
+      false
+    ],
+    [
+      "put fabric softener",
+      false
+    ]
+  ],
+  "1p0_9mini_6_001.mp4": [
+    [
+      "divide the laundry",
+      true
+    ],
+    [
+      "put fabric softener",
+      false
+    ]
+  ],
+  "1p0_9mini_6_002.mp4": [
+    [
+      "divide the laundry",
+      true
+    ],
+    [
+      "put fabric softener",
+      false
+    ]
+  ],
+  "1p0_9mini_6_003.mp4": [
+    [
+      "divide the laundry",
+      false
+    ],
+    [
+      "put fabric softener",
+      false
+    ]
+  ],
+  "1p0_9mini_6_004.mp4": [
+    [
+      "divide the laundry",
+      false
+    ],
+    [
+      "put fabric softener",
+      true
+    ]
+  ],
+  "1p0_9mini_6_005.mp4": [
+    [
+      "divide the laundry",
+      false
+    ],
+    [
+      "put fabric softener",
+      true
+    ]
+  ],
+  "1p0_9mini_7_000.mp4": [
+    [
+      "mop",
+      true
+    ],
+    [
+      "try to steam the floors every three days",
+      true
+    ],
+    [
+      "use the steam mop every day",
+      true
+    ],
+    [
+      "make sure that sweep",
+      true
+    ]
+  ],
+  "1p0_9mini_7_001.mp4": [
+    [
+      "mop",
+      true
+    ],
+    [
+      "try to steam the floors every three days",
+      true
+    ],
+    [
+      "use the steam mop every day",
+      true
+    ],
+    [
+      "make sure that sweep",
+      false
+    ]
+  ],
+  "1p0_9mini_7_002.mp4": [
+    [
+      "mop",
+      true
+    ],
+    [
+      "try to steam the floors every three days",
+      true
+    ],
+    [
+      "use the steam mop every day",
+      true
+    ],
+    [
+      "make sure that sweep",
+      false
+    ]
+  ],
+  "1p0_9mini_7_003.mp4": [
+    [
+      "mop",
+      false
+    ],
+    [
+      "try to steam the floors every three days",
+      false
+    ],
+    [
+      "use the steam mop every day",
+      false
+    ],
+    [
+      "make sure that sweep",
+      false
+    ]
+  ],
+  "1p0_9mini_7_004.mp4": [
+    [
+      "mop",
+      false
+    ],
+    [
+      "try to steam the floors every three days",
+      false
+    ],
+    [
+      "use the steam mop every day",
+      false
+    ],
+    [
+      "make sure that sweep",
+      false
+    ]
+  ],
+  "1p0_9mini_7_005.mp4": [
+    [
+      "mop",
+      false
+    ],
+    [
+      "try to steam the floors every three days",
+      false
+    ],
+    [
+      "use the steam mop every day",
+      false
+    ],
+    [
+      "make sure that sweep",
+      false
+    ]
+  ],
+  "1p0_9mini_8_000.mp4": [
+    [
+      "mop in my master bathroom",
+      true
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      false
+    ],
+    [
+      "try to dust once a week",
+      false
+    ]
+  ],
+  "1p0_9mini_8_001.mp4": [
+    [
+      "mop in my master bathroom",
+      true
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      false
+    ],
+    [
+      "try to dust once a week",
+      false
+    ]
+  ],
+  "1p0_9mini_8_002.mp4": [
+    [
+      "mop in my master bathroom",
+      false
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      true
+    ],
+    [
+      "try to dust once a week",
+      true
+    ]
+  ],
+  "1p0_9mini_8_003.mp4": [
+    [
+      "mop in my master bathroom",
+      false
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      true
+    ],
+    [
+      "try to dust once a week",
+      true
+    ]
+  ],
+  "1p0_9mini_8_004.mp4": [
+    [
+      "mop in my master bathroom",
+      false
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      true
+    ],
+    [
+      "try to dust once a week",
+      true
+    ]
+  ],
+  "1p0_9mini_8_005.mp4": [
+    [
+      "mop in my master bathroom",
+      false
+    ],
+    [
+      "dust with a little duster in the bathroom",
+      false
+    ],
+    [
+      "try to dust once a week",
+      false
+    ]
+  ],
+  "1p0_9mini_9_000.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      false
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      false
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      false
+    ],
+    [
+      "clean the shower",
+      true
+    ]
+  ],
+  "1p0_9mini_9_001.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      false
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      true
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      true
+    ],
+    [
+      "clean the shower",
+      false
+    ]
+  ],
+  "1p0_9mini_9_002.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      false
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      true
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      true
+    ],
+    [
+      "clean the shower",
+      false
+    ]
+  ],
+  "1p0_9mini_9_003.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      true
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      true
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      true
+    ],
+    [
+      "clean the shower",
+      false
+    ]
+  ],
+  "1p0_9mini_9_004.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      false
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      false
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      false
+    ],
+    [
+      "clean the shower",
+      false
+    ]
+  ],
+  "1p0_9mini_9_005.mp4": [
+    [
+      "use the anti back tile it cleaner",
+      false
+    ],
+    [
+      "clean those up",
+      true
+    ],
+    [
+      "clean the toilets",
+      false
+    ],
+    [
+      "clean once",
+      true
+    ],
+    [
+      "clean the toilet",
+      false
+    ],
+    [
+      "clean the shower",
+      false
+    ]
+  ]
+}
