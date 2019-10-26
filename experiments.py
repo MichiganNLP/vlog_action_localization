@@ -19,7 +19,7 @@ import tensorflow as tf
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
 def create_MPU_model(input_dim_video, input_dim_text):
-    action_input = Input(shape=(1,), dtype=tf.string)
+    action_input = Input(shape=(input_dim_text,), name='action_input')
     action_output = Dense(64)(action_input)
 
     video_input = Input(shape=(input_dim_video,), dtype='float32', name='video_input')
@@ -101,6 +101,9 @@ def create_data_for_model(type_action_emb, path_all_annotations, channel_val, ch
                 data_clips_train.append(viz_feat)
                 data_actions_train.append(action_emb)
                 labels_train.append(label)
+        ## for debug
+        # if len(labels_val) > 0 and len(labels_test) > 0 and len(labels_train) > 0:
+        #     break
 
     print(tabulate([['Train', 'Val', 'Test'], [len(labels_train), len(labels_val), len(labels_test)]],
                    headers="firstrow"))
@@ -127,13 +130,8 @@ def baseline_2(train_data, val_data, test_data, model_name, type_action_emb):
     [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
     [data_clips_test, data_actions_test, labels_test] = train_data, val_data, test_data
 
-    input_dim_text = 0
-    #TODO: Automatize
-    if type_action_emb == "GloVe":
-        input_dim_text = 50
-    if type_action_emb == "ELMo":
-        input_dim_text = 1024
-    input_dim_video = 1024
+    input_dim_text = data_actions_val[0].shape[0]
+    input_dim_video = data_clips_val[0].shape[0]
 
     if model_name == "MPU":
         model = create_MPU_model(input_dim_video, input_dim_text)
