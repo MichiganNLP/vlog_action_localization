@@ -2,7 +2,7 @@ import itertools
 import json
 from collections import Counter
 
-import np
+import numpy as np
 from keras import Model
 from tabulate import tabulate
 
