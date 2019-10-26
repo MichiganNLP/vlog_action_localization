@@ -4,12 +4,12 @@ import os
 import numpy as np
 
 global path_I3D_features
-path_I3D_features = "/local/oignat/Action_Recog/keras-kinetics-i3d/data/results_features/"
+path_I3D_features = "../i3d_keras/data/results_features/"
 
 
-def create_10s_clips(path_input_video="/local/oignat/Action_Recog/temporal_annotation/miniclips/"):
+def create_10s_clips(path_input_video="../temporal_annotation/miniclips/"):
     miniclip = path_input_video.split("/")[-1][:-4]
-    path_output_video = "/local/oignat/Action_Recog/large_data/10s_clips/"
+    path_output_video = "../large_data/10s_clips/"
     if not os.path.exists(path_output_video):
         os.makedirs(path_output_video)
 
@@ -17,13 +17,9 @@ def create_10s_clips(path_input_video="/local/oignat/Action_Recog/temporal_annot
               + path_output_video + miniclip + "_%03d.mp4"
     os.system(command)
 
-    # show_sec = "ffprobe -i <file> -show_entries format=duration -v quiet -of csv=p=0"
-    # os.system(command)
-
-
 # TODO: more exact split ?
 def get_clip_time_per_miniclip():
-    path_input_video = "/local/oignat/Action_Recog/temporal_annotation/miniclips/"
+    path_input_video = "../temporal_annotation/miniclips/"
     list_videos = glob.glob(path_input_video + "*.mp4")
     dict_clip_time_per_miniclip = {}
 
@@ -105,7 +101,7 @@ def create_action_clip_labels():
 
 
 def create_clips():
-    path_input_video = "/local/oignat/Action_Recog/temporal_annotation/miniclips/"
+    path_input_video = "../temporal_annotation/miniclips/"
     list_videos = glob.glob(path_input_video + "*.mp4")
 
     for video_file in list_videos:
@@ -139,7 +135,7 @@ def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
-    path_I3D_features = "/local/oignat/Action_Recog/keras-kinetics-i3d/data/results_features/"
+    path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
     # get_clip_time_per_miniclip()
     create_action_clip_labels()

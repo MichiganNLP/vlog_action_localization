@@ -29,7 +29,7 @@ WORD = re.compile(r'\w+')
 plt.style.use('ggplot')
 
 embeddings_index = dict()
-with open("/local/oignat/Action_Recog/vlog_action_recognition/data/glove.6B.50d.txt") as f:
+with open("data/glove.6B.50d.txt") as f:
     for line in f:
         values = line.split()
         word = values[0]
