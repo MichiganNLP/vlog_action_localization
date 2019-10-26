@@ -1,20 +1,25 @@
 import itertools
+import json
+from collections import Counter
 
+import np
 from keras import Model
+from tabulate import tabulate
 
-from utils_data_text import create_average_action_embedding, process_data_channel, \
-    process_data, create_action_embedding
+from utils_data_text import create_action_emb, color, print_results
 
-from keras.models import Sequential
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.layers import Dense, Activation, Input, Multiply, Add, concatenate, Dropout, Reshape, dot
 
 from utils_data_video import load_data_from_I3D
-import numpy as np
+
+import tensorflow as tf
+
 
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
 def create_MPU_model(input_dim_video, input_dim_text):
-    action_input = Input(shape=(input_dim_text,), name='action_input')
+    action_input = Input(shape=(1,), dtype=tf.string)
     action_output = Dense(64)(action_input)
 
     video_input = Input(shape=(input_dim_video,), dtype='float32', name='video_input')
@@ -62,49 +67,72 @@ def create_cosine_sim_model(input_dim_video, input_dim_text):
     return model
 
 
-def create_data_for_model(clip_features, action_features):
-    list_clip_features = list(clip_features)
-    list_action_features = list(action_features)
 
-    all_combinations = list(itertools.product(list_action_features, list_clip_features))  # cartesian product
-    labels_fiction = [1, 1] + [0] * 10
+def create_data_for_model(type_action_emb, path_all_annotations, channel_val, channel_test):
+    with open(path_all_annotations) as f:
+        dict_all_annotations = json.loads(f.read())
 
-    list_actions_combined = [a for (a, v) in all_combinations]
-    list_clips_combined = [v for (a, v) in all_combinations]
+    data_clips_train, data_actions_train, labels_train = [], [], []
+    data_clips_val, data_actions_val, labels_val = [], [], []
+    data_clips_test, data_actions_test, labels_test = [], [], []
 
-    data_actions_train = np.array(list_actions_combined[:-2])
-    data_clips_train = np.array(list_clips_combined[:-2])
-    data_actions_train = data_actions_train.reshape(len(all_combinations) - 2, 50)
-    data_clips_train = data_clips_train.reshape(len(all_combinations) - 2, 1024)
-    labels_train = labels_fiction[:-2]
+    dict_miniclip_clip_feature = load_data_from_I3D()
 
-    data_actions_test = np.array(list_actions_combined[-2:])
-    data_clips_test = np.array(list_clips_combined[-2:])
-    data_actions_test = data_actions_test.reshape(2, 50)
-    data_clips_test = data_clips_test.reshape(2, 1024)
-    labels_test = labels_fiction[-2:]
+    for clip in list(dict_all_annotations.keys()):
+        list_action_label = dict_all_annotations[clip]
+        # TODO: Spliting the clips, these were extra
+        if clip[:-4] not in dict_miniclip_clip_feature.keys():
+            continue
+        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
 
-    return [data_clips_train, data_actions_train, labels_train], [data_clips_test, data_actions_test, labels_test]
+        for [action, label] in list_action_label:
+            action_emb = create_action_emb(action, type_action_emb)
+            # if channel_val == clip[:-4].split("_")[0]:
+            if "_".join(clip[:-4].split("_")[0:2]) == channel_val:
+                data_clips_val.append(viz_feat)
+                data_actions_val.append(action_emb)
+                labels_val.append(label)
+            # elif channel_test == clip[:-4].split("_")[0]:
+            elif "_".join(clip[:-4].split("_")[0:2]) == channel_test:
+                data_clips_test.append(viz_feat)
+                data_actions_test.append(action_emb)
+                labels_test.append(label)
+            else:
+                data_clips_train.append(viz_feat)
+                data_actions_train.append(action_emb)
+                labels_train.append(label)
+
+    print(tabulate([['Train', 'Val', 'Test'], [len(labels_train), len(labels_val), len(labels_test)]],
+                   headers="firstrow"))
+    return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
+           [data_clips_test, data_actions_test, labels_test]
 
 
-def baseline_2(val_actions, val_labels, val_video, model_name):
-    # get action embedding (both visible & not visible for now)
-    list_visibile_actions = []
-    for index in range(len(val_actions)):
-        action = val_actions[index]
-        label = val_labels[index]
-        # TODO: Right now get only the GT labeled visible actions
-        if label == 0:
-            list_visibile_actions.append(action)
+def compute_majority_label_baseline_acc(labels_train, labels_test):
+    if Counter(labels_train)[False] > Counter(labels_train)[True]:
+        maj_label = False
+    else:
+        maj_label = True
+    maj_labels = [maj_label] * len(labels_test)
+    nb_correct = 0
+    for i in range(len(labels_test)):
+        if maj_labels[i] == labels_test[i]:
+            nb_correct += 1
+    return nb_correct / len(labels_test)
 
-    clip_features_I3D = load_data_from_I3D(miniclip='1p0_1mini_1')
-    visible_actions_GloVe = create_average_action_embedding(list_visibile_actions)
 
-    [data_clips_train, data_actions_train, labels_train], [data_clips_test, data_actions_test,
-                                                           labels_test] = create_data_for_model(clip_features_I3D,
-                                                                                                visible_actions_GloVe)
+def baseline_2(train_data, val_data, test_data, model_name, type_action_emb):
+    print("---------- Running " + model_name + " + " + type_action_emb + " -------------------")
 
-    input_dim_text = 50
+    [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
+    [data_clips_test, data_actions_test, labels_test] = train_data, val_data, test_data
+
+    input_dim_text = 0
+    #TODO: Automatize
+    if type_action_emb == "GloVe":
+        input_dim_text = 50
+    if type_action_emb == "ELMo":
+        input_dim_text = 1024
     input_dim_video = 1024
 
     if model_name == "MPU":
@@ -114,28 +142,41 @@ def baseline_2(val_actions, val_labels, val_video, model_name):
     else:
         raise ValueError("Wrong model name!")
 
+    checkpointer = ModelCheckpoint(monitor='val_acc',
+                                   filepath='data/Model_params/' + model_name + " + " + type_action_emb + '.hdf5',
+                                   verbose=1,
+                                   save_best_only=True, save_weights_only=True)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
+    callback_list = [checkpointer, earlystopper]
+
     model.fit([data_clips_train, data_actions_train], labels_train,
-              epochs=2, batch_size=32)
+              validation_data=([data_clips_val, data_actions_val], labels_val),
+              epochs=20, batch_size=32, callbacks=callback_list)
 
     score, acc_train = model.evaluate([data_clips_train, data_actions_train], labels_train)
+    score, acc_val = model.evaluate([data_clips_val, data_actions_val], labels_val)
     score, acc_test = model.evaluate([data_clips_test, data_actions_test], labels_test)
 
     predicted = model.predict([data_clips_test, data_actions_test]) > 0.5
-    print(acc_train)
-    print(acc_test)
-    print(predicted)
+    maj_val = compute_majority_label_baseline_acc(labels_train, labels_val)
+    maj_test = compute_majority_label_baseline_acc(labels_train, labels_test)
+
+    return model_name, acc_train, acc_val, acc_test, maj_val, maj_test
+
 
 
 def main():
-    # do this just once!
-    dict_video_actions, train_data, test_data, val_data = process_data_channel()
+    type_action_emb_list = ["GloVe", "ELMo"]
+    type_action_emb = type_action_emb_list[1]
+    model_name_list = ["MPU", "cosine sim"]
+    model_name = model_name_list[0]
 
-    [train_actions, test_actions, val_actions], [train_labels, test_labels, val_labels], [train_video,
-                                                                                          test_video, val_video] = \
-        process_data(train_data, test_data, val_data)
+    train_data, val_data, test_data = create_data_for_model(type_action_emb,
+                                                            path_all_annotations="data/dict_all_annotations.json",
+                                                            channel_val="1p0_10mini", channel_test="1p0_1mini")
 
-    #baseline_2(val_actions, val_labels, val_video, model_name="MPU")
-    baseline_2(val_actions, val_labels, val_video, model_name="cosine sim")
+    model_name, acc_train, acc_val, acc_test, maj_val, maj_test = baseline_2(train_data, val_data, test_data, model_name, type_action_emb)
+    print_results(model_name, acc_train, acc_val, acc_test, maj_val, maj_test)
 
 
 if __name__ == "__main__":

@@ -19,10 +19,10 @@ import re, math
 from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
-
 from nltk import word_tokenize
-
 from tabulate import tabulate
+import tensorflow as tf
+import tensorflow_hub as hub
 
 WORD = re.compile(r'\w+')
 
@@ -891,7 +891,27 @@ def process_data_channel(do_sample=True, channel_test=10, channel_val=1):
 
     return dict_video_actions, train_data, test_data, val_data
 
-def create_action_embedding(action):
+
+
+def embed_elmo2():
+    with tf.Graph().as_default():
+        sentences = tf.placeholder(tf.string)
+        embed = hub.Module("https://tfhub.dev/google/elmo/2", trainable=False)
+        embeddings = embed(sentences)
+        session = tf.train.MonitoredSession()
+    return lambda x: session.run(embeddings, {sentences: x})
+
+
+def create_action_emb(action, type):
+    if type == "GloVe":
+        return avg_GLoVe_action_emb(action)
+    elif type == "ELMo":
+        embed_fn = embed_elmo2()
+        return embed_fn([action]).reshape(1024)
+    else:
+        raise ValueError("Wrong action emb type")
+
+def avg_GLoVe_action_emb(action):
     # no prev or next action: ned to distinguish between cases when action is not recognized
     if action == "":
         average_word_embedding = np.ones((1, dimension_embedding), dtype='float32') * 10
@@ -917,7 +937,7 @@ def create_action_embedding(action):
             # couldn't find any word of the action in the vocabulary -> initialize random
             average_word_embedding = np.random.rand(1, dimension_embedding).astype('float32')
 
-    return average_word_embedding
+    return average_word_embedding.reshape(50)
 
 
 def process_data(train_data, test_data, val_data):
@@ -942,7 +962,7 @@ def create_average_action_embedding(list_actions):
     embedding_matrix_actions = np.zeros((len(list_actions), dimension_embedding))
     index = 0
     for action in list_actions:
-        average_word_embedding = create_action_embedding(action)
+        average_word_embedding = avg_GLoVe_action_emb(action)
         embedding_matrix_actions[index] = average_word_embedding
         index += 1
     return embedding_matrix_actions
@@ -966,6 +986,13 @@ def split_transcript_into_sentences(path_transcripts):
 
     return dict_transcripts_sent
 
+
+def print_results(model_name, acc_train, acc_val, acc_test, maj_val, maj_test):
+    print(color.PURPLE + color.BOLD + model_name + color.END + " Train Acc {0}".format(acc_train))
+    print(color.PURPLE + color.BOLD + model_name + color.END + " Val Acc {0}".format(acc_val))
+    print(color.PURPLE + color.BOLD + model_name + color.END + " Test Acc {0}".format(acc_test))
+    print(color.BLUE + color.BOLD + "majority_label" + color.END + " Val Acc {0}".format(maj_val))
+    print(color.BLUE + color.BOLD + "majority_label" + color.END + " Test Acc {0}".format(maj_test))
 
 
 def main():
