@@ -1,102 +1,41 @@
-import glob
+import os
 import json
-
-'''
-return -1, if time_1 < time_2
-        1, if time_1 > time_2
-        0, if equal
-'''
+from utils_data_video import get_clip_time_per_miniclip, create_action_clip_labels, load_data_from_I3D, create_clips
 
 
-def compare_time(time_1, time_2):
-    minute_1_s, sec_1_s = time_1.split(":")
-    minute_2_s, sec_2_s = time_2.split(":")
+channels = ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1"]
+# channels = ["6p0", "6p1", "7p0", "7p1"]
 
-    if int(minute_1_s) == int(minute_2_s) and int(sec_1_s) == int(sec_2_s):
-        return 0
-    if int(minute_1_s) > int(minute_2_s) or (int(minute_1_s) == int(minute_2_s) and int(sec_1_s) >= int(sec_2_s)):
-        return 1
-    else:
-        return -1
+def compare_json_files():
+    with open("data/dict_action_embeddings_ELMo.json") as file:
+        dict_action_embeddings_ELMo = json.load(file)
 
+    with open("data/dict_actions_cooccurence.json") as file:
+        dict_actions_cooccurence = json.load(file)
 
-def write_clip_length_info():
-    path_clips = "../large_data/10s_clips/"
-    list_mp4_files = [name.split("/")[-1][:-4] for name in glob.glob(path_clips + "*.mp4")]
-    path_output = "data/vlog_movie_length_info.txt"
-    with open(path_output, 'a') as the_file:
-        for clip in list_mp4_files:
-            the_file.write(clip + " " + '10.0' + '\n')
+    print(len(dict_action_embeddings_ELMo.keys()))
+    list_coocurence = list(set(dict_actions_cooccurence["entire_action"]))
 
-
-def write_clip_annotations():
-    with open('data/time_clips.json') as json_file:
-        time_clips = json.load(json_file)
-
-    with open('data/actions_sent_time.json') as json_file:
-        actions_sent_time = json.load(json_file)
-
-    clip_time_actions = {}
-    for clip in time_clips.keys():
-        time_clip = time_clips[clip]
-        start_clip_time = time_clip[0]
-        end_clip_time = time_clip[1]
-        list_actions = []
-
-
-        for key in actions_sent_time.keys():
-            for value in actions_sent_time[key]:
-                [time_action, action, transcript] = value
-                start_action_time = time_action[0]
-                end_action_time = time_action[1]
-
-                # action time equal clip time
-                if compare_time(start_clip_time, start_action_time) == 0 and compare_time(end_clip_time,
-                                                                                         end_action_time) == 0:
-                    list_actions.append(action)
-
-                # action time included in clip time
-                elif compare_time(start_clip_time, start_action_time) == -1 and compare_time(end_clip_time,
-                                                                                             end_action_time) == 1:
-                    list_actions.append(action)
-
-                # clip time included in action time
-                elif compare_time(start_action_time, start_clip_time) == -1 and compare_time(end_action_time,
-                                                                                             end_clip_time) == 1:
-                    list_actions.append(action)
-
-                # action time intersects clip time
-                elif compare_time(start_action_time, end_clip_time) == -1 and compare_time(end_action_time, start_clip_time) == 1:
-                    list_actions.append(action)
-
-        clip_time_actions[clip] = [time_clip, list_actions]
-
-    for clip in clip_time_actions:
-        print(clip, clip_time_actions[clip])
-
-def sort_dict_pos():
-    path_pos_data = "data/dict_action_pos_concreteness.json"
-    sorted_dict_pos = {}
-
-    with open(path_pos_data) as f:
-        dict_pos_actions = json.loads(f.read())
-
-    for action in dict_pos_actions.keys():
-        list_words = action.split()
-        sorted_dict_pos[action] = []
-        for word in list_words:
-            for [word_1, pos_1, score_1] in dict_pos_actions[action]:
-                if word == word_1:
-                    sorted_dict_pos[action].append([word_1, pos_1, score_1])
-                    break
-
-    with open('data/dict_action_pos_concreteness.json', 'w+') as outfile:
-        json.dump(sorted_dict_pos, outfile)
+    print(len(list_coocurence))
+    print(dict_action_embeddings_ELMo.keys() - list_coocurence)
 
 def main():
-    # write_clip_annotations()
-    sort_dict_pos()
+    compare_json_files()
+    # '''
+    #     Annotations
+    # '''
+    # # # get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip.json") # DONE for all channels
+    # create_action_clip_labels("data/dict_clip_time_per_miniclip.json", 'data/dict_all_annotations.json', channels)
 
+    # '''
+    #     Run on LIT1000: preprocess + evaluate Clip I3D features
+    # '''
+    # os.system("rm -r /local2/oignat/large_data/10s_clips/")
+    # create_clips("../temporal_annotation/miniclips/", "/local2/oignat/large_data/10s_clips/", channels[-1])
+    # I3D things ..
+    # os.system("python /local/oignat/Action_Recog/i3d_keras/src/preprocess.py")
+    # run on LIT1000: evaluate_sample.py
+    # load_data_from_I3D("../i3d_keras/data/results_features/")
 
 if __name__ == '__main__':
     main()

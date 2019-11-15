@@ -1,4 +1,5 @@
 import json
+import math
 
 import numpy as np
 
@@ -139,28 +140,51 @@ def compute_accuracy_IOU_threshold(threshold, IOU_vals):
         if max(tIOU) > threshold:
             nb_correct += 1
     tIOU_threshold = nb_correct / nb_total
-    print("Accuracy tIOU = {:.2f} for threshold = {:.1}".format(tIOU_threshold, threshold))
+    print("tIOU@{:.1} = {:.2f}".format(threshold, tIOU_threshold))
     return tIOU_threshold
 
 
 def compute_meanIOU(IOU_vals):
-    mean_tIOU = np.mean(IOU_vals)
-    print("mean tIOU = {:.2f}".format(mean_tIOU))
+    mean_tIOU = np.nanmean([max(x) for x in IOU_vals])
+    print("mIOU = {:.2f}".format(mean_tIOU))
     return mean_tIOU
 
 
 def wrapper_IOU(proposed_1p0, groundtruth_1p0):
     size_vals = len([proposed_1p0.get(next(iter(proposed_1p0)))])
-    IOU_vals = np.empty((0, size_vals), float)
+    # IOU_vals = np.empty((0, size_vals), float)
+    if len(proposed_1p0.keys()) != len(groundtruth_1p0.keys()):
+        # print("proposed and groundtruth data size don't match!!")
+        # print("str(len(groundtruth_1p0.keys() - proposed_1p0.keys()))" + str(len(groundtruth_1p0.keys() - proposed_1p0.keys())))
+        # print("str(len(proposed_1p0.keys() - groundtruth_1p0.keys()))" + str(len(proposed_1p0.keys() - groundtruth_1p0.keys())))
+        # print("str(len(proposed_1p0.keys()))" + str(len(proposed_1p0.keys())))
+        # print("str(len(groundtruth_1p0.keys()))" + str(len(groundtruth_1p0.keys())))
+        count_visible_actions_not_caught = 0
+        for key in groundtruth_1p0.keys() - proposed_1p0.keys():
+            if groundtruth_1p0[key] != ['not visible']:
+                count_visible_actions_not_caught += 1
+                print(key)
+        if count_visible_actions_not_caught:
+            print("count_visible_actions_not_caught: " + str(count_visible_actions_not_caught))
+
+    IOU_vals = []
     for miniclip_action in groundtruth_1p0.keys():
         # TODO: deal with this
         if groundtruth_1p0[miniclip_action] == ['not visible']:
             continue
+        if miniclip_action not in proposed_1p0.keys():
+            continue
+        if proposed_1p0[miniclip_action] == ['not visible']:
+            continue
 
         target_segment = np.array([float(x) for x in groundtruth_1p0[miniclip_action]])
-        candidate_segments = np.array([proposed_1p0[miniclip_action]])
+        # candidate_segments = np.array([proposed_1p0[miniclip_action]])
+        candidate_segments = np.array(proposed_1p0[miniclip_action])
+        # candidate_segments = np.array([[float(j) for j in i] for i in candidate_segments])
         tIOU = segment_iou(target_segment, candidate_segments)
-        IOU_vals = np.append(IOU_vals, np.expand_dims(tIOU, axis=0), axis=0)
+        # tIOU = np.expand_dims(tIOU, axis=1)
+        # IOU_vals = np.append(IOU_vals, tIOU, axis=0)
+        IOU_vals.append(tIOU)
 
     return IOU_vals
 
@@ -176,13 +200,47 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
 #     print("Accuracy tIOU = {:.2f} for threshold = {:.1}".format(tIOU_threshold, threshold))
 #     return tIOU_threshold
 
-
-if __name__ == "__main__":
-    with open("data/stemmed_actions_miniclip_time1p0.json") as f:
+def evaluate(method, channel):
+    print("Results for method {0} on channel {1}:".format(method, channel))
+    with open("data/results/dict_predicted_" + method + channel + ".json") as f:
         proposed_1p0 = json.loads(f.read())
 
-    with open("data/annotations/annotations1p0.json") as f:
+    with open("data/annotations/annotations" + channel + ".json") as f:
         groundtruth_1p0 = json.loads(f.read())
+
+    IOU_vals = wrapper_IOU(proposed_1p0, groundtruth_1p0)
+
+    list_results = []
+    for threshold in np.arange(0.1, 0.9, 0.2):
+        accuracy = compute_accuracy_IOU_threshold(threshold, IOU_vals)
+        list_results.append(str(round(accuracy, 2)))
+    mean_tIOU = compute_meanIOU(IOU_vals)
+    list_results.append(str(round(mean_tIOU, 2)))
+    print("overleaf: " + list_results[0] + " & " + list_results[1] + " & " + list_results[2] + " & " + list_results[
+        3] + " & " + list_results[4])
+
+
+if __name__ == "__main__":
+    # with open("data/stemmed_actions_miniclip_time1p0.json") as f:
+    #     proposed_1p0 = json.loads(f.read())
+
+    # for channel in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1"]:
+    channel = "1p0"
+    with open("data/results/dict_predicted_cosine sim_ELMo" + channel + ".json") as f:
+        proposed_1p0 = json.loads(f.read())
+
+    # with open("data/annotations/annotations5p1.json") as f:
+    #     proposed_1p0 = json.loads(f.read())
+
+    # with open("data/dict_predicted_1p0.json") as f:
+    #     proposed_1p0 = json.loads(f.read())
+
+    with open("data/annotations/annotations" + channel + ".json") as f:
+        groundtruth_1p0 = json.loads(f.read())
+
+    # with open("data/annotations/yuhang_data/results5p1_tonyzhou.json") as f:
+    #     groundtruth_1p0 = json.loads(f.read())
+
     IOU_vals = wrapper_IOU(proposed_1p0, groundtruth_1p0)
 
     # threshold: [0.1, 0.3, 0.5, 0.7]

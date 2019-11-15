@@ -19,24 +19,11 @@ import re, math
 from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
-from nltk import word_tokenize
 from tabulate import tabulate
-import tensorflow as tf
-import tensorflow_hub as hub
 
 WORD = re.compile(r'\w+')
 
 plt.style.use('ggplot')
-
-embeddings_index = dict()
-with open("data/glove.6B.50d.txt") as f:
-    for line in f:
-        values = line.split()
-        word = values[0]
-        coefs = np.asarray(values[1:], dtype='float32')
-        embeddings_index[word] = coefs
-
-dimension_embedding = len(embeddings_index.get("example"))
 
 
 class color:
@@ -112,7 +99,7 @@ def get_time_difference(time_1, time_2):
 def stem_word(word):
     handcraft_rules = {'ad': 'add', 'tri': 'try', 'saut': 'saute', 'danc': 'dance', 'remov': 'remove', 'has': 'have',
                        'did': 'do', 'made': 'make', 'cleans': 'clean', 'creat': 'create', 'dri': 'dry', 'done': 'do',
-                       'ran': 'run', 'ate': 'eat', 'cleaning': 'clean',
+                       'ran': 'run', 'ate': 'eat', 'cleaning': 'clean', 'got': 'get',
                        'snuggl': 'snuggle', 'subscrib': 'subscribe', 'squeez': 'squeeze', 'chose': 'choose',
                        'bundl': 'bundle', 'decid': 'decide', 'empti': 'empty', 'wore': 'wear', 'starv': 'starve',
                        'increas': 'increase', 'incorpor': 'incorporate',
@@ -149,26 +136,32 @@ def stem_word(word):
     return word_stemmed
 
 
-def stemm_list_actions(list_actions, path_pos_data):
-    stemmed_actions = []
+def stem_action(action, path_pos_data):
     with open(path_pos_data) as f:
         dict_pos_actions = json.loads(f.read())
 
+    if action in dict_pos_actions.keys():
+        list_word_pos = dict_pos_actions[action]
+        for [word, pos, concr_score] in list_word_pos:
+            if 'VB' in pos:
+                stemmed_word = stem_word(word)
+                words = action.split()
+                replaced = " ".join([stemmed_word if wd == word else wd for wd in words])
+                action = replaced
+    else:
+        return None
+
+    return action
+
+
+def stemm_list_actions(list_actions, path_pos_data):
+    stemmed_actions = []
     for action in list_actions:
-        if action in dict_pos_actions.keys():
-            list_word_pos = dict_pos_actions[action]
-            for [word, pos, concr_score] in list_word_pos:
-                if 'VB' in pos:
-                    stemmed_word = stem_word(word)
-                    words = action.split()
-                    replaced = " ".join([stemmed_word if wd == word else wd for wd in words])
-                    action = replaced
-
+        stemmed_action = stem_action(action, path_pos_data)
+        if stemmed_action:
             stemmed_actions.append(action)
-
         else:
             print(action + "not in dict_pos_action!")
-
     return stemmed_actions
 
 
@@ -427,6 +420,26 @@ def time_flow_actions(path_miniclips, visible=True):
     return dict_miniclip_actions, dict_video_actions
 
 
+def sort_dict_pos():
+    path_pos_data = "data/dict_action_pos_concreteness.json"
+    sorted_dict_pos = {}
+
+    with open(path_pos_data) as f:
+        dict_pos_actions = json.loads(f.read())
+
+    for action in dict_pos_actions.keys():
+        list_words = action.split()
+        sorted_dict_pos[action] = []
+        for word in list_words:
+            for [word_1, pos_1, score_1] in dict_pos_actions[action]:
+                if word == word_1:
+                    sorted_dict_pos[action].append([word_1, pos_1, score_1])
+                    break
+
+    with open('data/dict_action_pos_concreteness.json', 'w+') as outfile:
+        json.dump(sorted_dict_pos, outfile)
+
+
 def generate_co_occurrence_matrix(corpus):
     vocab = set(corpus)
     vocab = list(vocab)
@@ -456,34 +469,23 @@ def generate_co_occurrence_matrix(corpus):
     # return the matrix and the index
     return co_occurrence_matrix, vocab_index
 
+
 def sort_matrix_by_nb_coocurence(matrix, vocab_index):
     matrix = np.squeeze(np.asarray(matrix))
-    print(matrix)
-    sorted_indices_row = np.argsort(matrix.sum(axis=1))[::-1]  # sort indices by row (sum of the elemnts) & reverse list (to be descending order)
+    sorted_indices_row = np.argsort(matrix.sum(axis=1))[
+                         ::-1]  # sort indices by row (sum of the elemnts) & reverse list (to be descending order)
     sorted_matrix = matrix[:, sorted_indices_row]
 
-
     sorted_indices_col = np.argsort(sorted_matrix.sum(axis=0))[
-                     ::-1]  # sort indices by column (sum of the elemnts) & reverse list (to be descending order)
+                         ::-1]  # sort indices by column (sum of the elemnts) & reverse list (to be descending order)
     sorted_matrix = sorted_matrix[:, sorted_indices_col]
-
-    print(sorted_matrix)
-
-    print("row")
-    print(sorted_indices_row)
-
-    print("col")
-    print(sorted_indices_col)
 
     sorted_indices_row_col = [0] * len(sorted_indices_row)
     for i in range(len(sorted_indices_row)):
         pos = sorted_indices_col[i]
         sorted_indices_row_col[i] = sorted_indices_row[pos]
 
-    print("row col")
-    print(sorted_indices_row_col)
     return sorted_indices_row_col, sorted_matrix
-
 
 
 # TODO: remove stop words
@@ -499,14 +501,13 @@ def test_cooccurence_matrix(text_data):
     for k in vocab_index.keys():
         sorted_vocab_index[k] = sorted_indices.index(vocab_index[k])
 
-
-    sorted_vocab_index_v = [v for (v,_) in sorted(sorted_vocab_index.items(), key=lambda kv: kv[1])]
+    sorted_vocab_index_v = [v for (v, _) in sorted(sorted_vocab_index.items(), key=lambda kv: kv[1])]
 
     data_matrix = pd.DataFrame(matrix, index=vocab_index,
                                columns=vocab_index)
 
     data_matrix_sorted = pd.DataFrame(sorted_matrix, index=sorted_vocab_index,
-                               columns=sorted_vocab_index_v)
+                                      columns=sorted_vocab_index_v)
 
     data_matrix = data_matrix.drop(columns=['END'])
     data_matrix = data_matrix.drop(['END'])
@@ -518,17 +519,15 @@ def test_cooccurence_matrix(text_data):
     data_matrix_sorted = data_matrix_sorted[(data_matrix_sorted.T != 0).any()]
     data_matrix_sorted[data_matrix_sorted == 0] = np.nan
 
-    # column_values = list(data_matrix_sorted.columns.values)
+    column_values = list(data_matrix_sorted.columns.values)
     # print(column_values[0:5])
     # maxValuesObj = data_matrix_sorted.max()
     # print(maxValuesObj)
-    # first_data_matrix = data_matrix_sorted.nlargest(30, column_values[0]) # sort the rows
-    # first_data_matrix = first_data_matrix.iloc[:,:30] # first 50 columns
+    first_data_matrix = data_matrix_sorted.nlargest(30, column_values[0])  # sort the rows
+    first_data_matrix = first_data_matrix.iloc[:, :30]  # first 50 columns
 
-    first_data_matrix = data_matrix_sorted.iloc[:, :50]  # first 50 columns
-    first_data_matrix = first_data_matrix.iloc[:50, :]  # first 50 rows
-
-
+    # first_data_matrix = data_matrix_sorted.iloc[:, :50]  # first 50 columns
+    # first_data_matrix = first_data_matrix.iloc[:50, :]  # first 50 rows
 
     cmap = sns.cm.rocket_r
 
@@ -545,11 +544,7 @@ def test_cooccurence_matrix(text_data):
     sns.heatmap(first_data_matrix, annot=True, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
                 linewidths=1, )
 
-    #sns.clustermap(data_matrix, xticklabels=1, yticklabels=1,cmap=cmap)
-
-
-
-
+    # sns.clustermap(data_matrix, xticklabels=1, yticklabels=1,cmap=cmap)
     plt.show()
 
 
@@ -695,55 +690,65 @@ def separate_mapped_visibile_actions(actions_time_label, video):
     return list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions, list_time_visibile, list_time_not_visibile
 
 
-def get_visibile_actions_verbs(path_pos_data, list_visibile_actions, use_nouns = False, use_particle = False):
-    with open(path_pos_data) as f:
-        dict_pos_actions = json.loads(f.read())
+def get_pos_action(action):
+    text = nltk.word_tokenize(action)
+    list_word_pos = nltk.pos_tag(text)
+    return list_word_pos
+
+
+def get_visibile_actions_verbs(visible_actions, list_miniclips_visibile,
+                               use_nouns=False,
+                               use_particle=False):
+    # with open(path_pos_data) as f:
+    #     dict_pos_actions = json.loads(f.read())
 
     just_visible_verbs = []
-    for action in list_visibile_actions:
-        if action in dict_pos_actions.keys():
-            list_word_pos = dict_pos_actions[action]
-            stemmed_word = ""
-            ok_noun = 0
-            if not use_nouns:
-                ok_noun = 1
-            for [word, pos, concr_score] in list_word_pos:
-                if 'VB' in pos:
-                    stemmed_word += stem_word(word)
-                    stemmed_word += " "
-                    if not use_nouns and not use_particle:
-                        break
-                if use_nouns and stemmed_word and 'NN' in pos:
-                    stemmed_word += word
-                    stemmed_word += " "
-                    ok_noun = 1
-                    if not use_particle:
-                        break
-                if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
-                    stemmed_word += word
-                    stemmed_word += " "
+    visible_miniclips = []
+    index_miniclip = 0
+    for action in visible_actions:
+        # if action in dict_pos_actions.keys():
+        #     list_word_pos = dict_pos_actions[action]
+        list_word_pos = get_pos_action(action)
+        stemmed_word = ""
+        ok_noun = 0
+        if not use_nouns:
+            ok_noun = 1
+        for [word, pos] in list_word_pos:
+            if 'VB' in pos:
+                stemmed_word += word
+                stemmed_word += " "
+                if not use_nouns and not use_particle:
                     break
+            if use_nouns and stemmed_word and 'NN' in pos:
+                stemmed_word += word
+                stemmed_word += " "
+                ok_noun = 1
+                if not use_particle:
+                    break
+            if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
+                stemmed_word += word
+                stemmed_word += " "
+                break
 
-            if stemmed_word and ok_noun:
-                just_visible_verbs.append(stemmed_word.strip())
-    return just_visible_verbs
-
+        if stemmed_word and ok_noun:
+            just_visible_verbs.append(stemmed_word.strip())
+            visible_miniclips.append(list_miniclips_visibile[index_miniclip])
+        index_miniclip += 1
+    return just_visible_verbs, visible_miniclips
 
 
 def get_most_common_visible_actions(list_stemmed_visibile_actions, k):
-
     counter = Counter(list_stemmed_visibile_actions)
     return (counter.most_common(k))
 
 
-def get_ordered_actions_per_miniclip(list_stemmed_visibile_actions, list_miniclips_visibile,
-                                     list_most_common_actions=[]):
+def get_ordered_actions_per_miniclip(visible_miniclips, list_most_common_actions):
     dict = {}
-    for i in range(len(list_stemmed_visibile_actions)):
-        if list_miniclips_visibile[i] not in dict.keys():
-            dict[list_miniclips_visibile[i]] = [list_stemmed_visibile_actions[i]]
+    for i in range(len(list_most_common_actions)):
+        if visible_miniclips[i] not in dict.keys():
+            dict[visible_miniclips[i]] = [list_most_common_actions[i]]
         else:
-            dict[list_miniclips_visibile[i]].append(list_stemmed_visibile_actions[i])
+            dict[visible_miniclips[i]].append(list_most_common_actions[i])
 
     list_all_actions_ordered = []
     action_prev = ""
@@ -838,6 +843,7 @@ def get_data(channel_test, channel_val):
     train_data, test_data, val_data = create_data(dict_train_data, dict_test_data, dict_val_data)
     return dict_video_actions, dict_train_data, dict_test_data, dict_val_data, train_data, test_data, val_data
 
+
 def get_list_actions_for_label(dict_video_actions, miniclip, label_type):
     list_type_actions = []
     list_action_labels = dict_video_actions[miniclip]
@@ -856,7 +862,6 @@ def get_nb_visible_not_visible(dict_video_actions):
     return nb_visible_actions, nb_not_visible_actions
 
 
-
 def print_nb_actions_miniclips_train_test_eval(dict_train_data, dict_test_data, dict_val_data):
     nb_train_actions_visible, nb_train_actions_not_visible = get_nb_visible_not_visible(dict_train_data)
     nb_train_actions = nb_train_actions_visible + nb_train_actions_not_visible
@@ -872,7 +877,6 @@ def print_nb_actions_miniclips_train_test_eval(dict_train_data, dict_test_data, 
                      len(dict_val_data.keys())]], headers=['', 'Train', 'Test', 'Eval'], tablefmt='grid'))
 
 
-
 def process_data_channel(do_sample=True, channel_test=10, channel_val=1):
     dict_video_actions, dict_train_data, dict_test_data, dict_val_data, train_data, test_data, val_data = \
         get_data(channel_test, channel_val)
@@ -880,9 +884,9 @@ def process_data_channel(do_sample=True, channel_test=10, channel_val=1):
     if do_sample:
         dict_video_actions, train_data, test_data, val_data = {k: dict_video_actions[k] for k in
                                                                list(dict_video_actions.keys())[:20]}, train_data[
-                                                                                                0:200], test_data[
-                                                                                                        0:20], val_data[
-                                                                                                        0:20]
+                                                                                                      0:200], test_data[
+                                                                                                              0:20], val_data[
+                                                                                                                     0:20]
 
         dict_val_data = {'1p0_1mini_1.mp4': dict_val_data['1p0_1mini_1.mp4']}
         train_data, test_data, val_data = create_data(dict_train_data, dict_test_data, dict_val_data)
@@ -892,52 +896,48 @@ def process_data_channel(do_sample=True, channel_test=10, channel_val=1):
     return dict_video_actions, train_data, test_data, val_data
 
 
+def get_visual_features_from_data(data_clips_train):
+    # max_nb_frames = data_clips_train[0][1][0].shape[1]
+    max_nb_frames = 100
+    matrix_visual_features = np.zeros(
+        (len(data_clips_train), max_nb_frames, 1024))
 
-def embed_elmo2():
-    with tf.Graph().as_default():
-        sentences = tf.placeholder(tf.string)
-        embed = hub.Module("https://tfhub.dev/google/elmo/2", trainable=False)
-        embeddings = embed(sentences)
-        session = tf.train.MonitoredSession()
-    return lambda x: session.run(embeddings, {sentences: x})
+    index = 0
+    for i in data_clips_train:
+        padded_video_features = i[1]
+        matrix_visual_features[index] = padded_video_features
+        index += 1
+
+    return matrix_visual_features
+
+def get_features_from_data(train_data, val_data, test_data):
+    [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
+    [data_clips_test, data_actions_test, labels_test] = train_data, val_data, test_data
+
+    # features
+    # data_clips_train = [i[1] for i in data_clips_train]
+    data_clips_train = get_visual_features_from_data(data_clips_train)
+    data_actions_train = [i[1] for i in data_actions_train]
+    data_clips_val = get_visual_features_from_data(data_clips_val)
+    data_actions_val = [i[1] for i in data_actions_val]
+    data_clips_test = get_visual_features_from_data(data_clips_test)
+    data_actions_test = [i[1] for i in data_actions_test]
+
+    return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], [
+        data_clips_test,
+        data_actions_test, labels_test]
 
 
-def create_action_emb(action, type):
-    if type == "GloVe":
-        return avg_GLoVe_action_emb(action)
-    elif type == "ELMo":
-        embed_fn = embed_elmo2()
-        return embed_fn([action]).reshape(1024)
-    else:
-        raise ValueError("Wrong action emb type")
+def group(lst, n):
+    """group([0,3,4,10,2,3], 2) => [(0,3), (4,10), (2,3)]
 
-def avg_GLoVe_action_emb(action):
-    # no prev or next action: ned to distinguish between cases when action is not recognized
-    if action == "":
-        average_word_embedding = np.ones((1, dimension_embedding), dtype='float32') * 10
-    else:
-        list_words = word_tokenize(action)
-        set_words_not_in_glove = set()
-        nb_words = 0
-        average_word_embedding = np.zeros((1, dimension_embedding), dtype='float32')
-        for word in list_words:
-            if word in set_words_not_in_glove:
-                continue
-            embedding_vector = embeddings_index.get(word)
-            if embedding_vector is None:
-                set_words_not_in_glove.add(word)
-                continue
-            word_embedding = np.asarray(embedding_vector)
-            average_word_embedding += word_embedding
-            nb_words += 1
-        if nb_words != 0:
-            average_word_embedding = average_word_embedding / nb_words
+    Group a list into consecutive n-tuples. Incomplete tuples are
+    discarded e.g.
 
-        if (average_word_embedding == np.zeros((1,), dtype=np.float32)).all():
-            # couldn't find any word of the action in the vocabulary -> initialize random
-            average_word_embedding = np.random.rand(1, dimension_embedding).astype('float32')
-
-    return average_word_embedding.reshape(50)
+    >>> group(range(10), 3)
+    [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
+    """
+    return [list(a) for a in zip(*[lst[i::n] for i in range(n)])]
 
 
 def process_data(train_data, test_data, val_data):
@@ -955,17 +955,6 @@ def process_data(train_data, test_data, val_data):
 
     return [train_actions, test_actions, val_actions], [train_labels, test_labels, val_labels], [train_video,
                                                                                                  test_video, val_video]
-
-
-def create_average_action_embedding(list_actions):
-
-    embedding_matrix_actions = np.zeros((len(list_actions), dimension_embedding))
-    index = 0
-    for action in list_actions:
-        average_word_embedding = avg_GLoVe_action_emb(action)
-        embedding_matrix_actions[index] = average_word_embedding
-        index += 1
-    return embedding_matrix_actions
 
 
 def split_transcript_into_sentences(path_transcripts):
@@ -995,19 +984,154 @@ def print_results(model_name, acc_train, acc_val, acc_test, maj_val, maj_test):
     print(color.BLUE + color.BOLD + "majority_label" + color.END + " Test Acc {0}".format(maj_test))
 
 
-def main():
-    path_miniclips = "data/miniclip_actions.json"
-    path_pos_data = "data/dict_action_pos_concreteness.json"
-    path_list_actions = "data/stats/list_actions.csv"
-    path_transcripts = "/local/oignat/Action_Recog/vlog_action_recognition/data/Video/new_videos_captions/new_transcripts.json"
-    split_transcript_into_sentences(path_transcripts)
+def get_dict_all_annotations_visible_not():
+    with open("data/stemmed_miniclip_actions.json") as file:
+        stemmed_miniclip_actions = json.load(file)
 
-    #create_stemmed_original_actions(path_miniclips, path_pos_data)
+    list_annotation_files = sorted(glob.glob("data/annotations/*.json"))
+    dict_all_annotations_ordered = {}
+
+    for file_path in list_annotation_files:
+        with open(file_path) as f:
+            video_action_dict = json.load(f)
+
+        for video_action in video_action_dict.keys():
+            video, action = video_action.split(", ")
+            if video not in dict_all_annotations_ordered.keys():
+                dict_all_annotations_ordered[video] = []
+            if video_action_dict[video_action] != ["not visible"]:
+                time = [float(i) for i in video_action_dict[video_action]]
+                dict_all_annotations_ordered[video].append([action, time])
+            else:
+                dict_all_annotations_ordered[video].append([action, ["not visible"]])
+
+    for video in stemmed_miniclip_actions.keys():
+        list_action_label = stemmed_miniclip_actions[video]
+        if video in dict_all_annotations_ordered.keys():
+            for action_label in list_action_label:
+                [action, label] = action_label
+                if action not in [a for [a, _] in dict_all_annotations_ordered[video]]:
+                    dict_all_annotations_ordered[video].append([action, ["not visible"]])
+
+    count_n = 0
+    count_v = 0
+    list_videos = []
+    for key in dict_all_annotations_ordered.keys():
+        list_action_label = dict_all_annotations_ordered[key]
+        for [action, label] in list_action_label:
+            if label == ["not visible"]:
+                count_n += 1
+            else:
+                count_v += 1
+        list_videos.append(key.split("mini")[0])
+
+    print("# miniclips: {0}".format(len(dict_all_annotations_ordered.keys())))
+    print("# videos: {0}".format(len(set(list_videos))))
+    print("# visible actions: {0}".format(count_v))
+    print("# not visible actions: {0}".format(count_n))
+    with open('data/dict_all_annotations_1_7channels.json', 'w+') as outfile:
+        json.dump(dict_all_annotations_ordered, outfile)
+
+
+def get_dict_all_annotations_ordered():
+    list_annotation_files = sorted(glob.glob("data/annotations/*.json"))
+    dict_all_annotations_ordered = {}
+
+    for file_path in list_annotation_files:
+        with open(file_path) as f:
+            video_action_dict = json.load(f)
+
+        for video_action in video_action_dict.keys():
+            video, action = video_action.split(", ")
+            if video not in dict_all_annotations_ordered.keys():
+                dict_all_annotations_ordered[video] = []
+            if video_action_dict[video_action] != ["not visible"]:
+                time = [float(i) for i in video_action_dict[video_action]]
+                dict_all_annotations_ordered[video].append([action, time[0], time[1]])
+
+    for key in dict_all_annotations_ordered.keys():
+        list_elems = dict_all_annotations_ordered[key]
+        list_elems.sort(key=lambda l: l[1])
+        dict_all_annotations_ordered[key] = list_elems
+
+    with open('data/dict_all_annotations_ordered.json', 'w+') as outfile:
+        json.dump(dict_all_annotations_ordered, outfile)
+
+
+def create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visibile_actions_new):
+    dict_actions = {"verb": [], "verb_particle": [], "verb_particle_nouns": []}
+
+    for (use_nouns, use_particle) in [(False, False), (False, True), (True, True)]:
+
+        most_common_visible_actions, visible_miniclips = get_visibile_actions_verbs(list_stemmed_visibile_actions_new,
+                                                                                    list_miniclips_visibile_new,
+                                                                                    use_nouns,
+                                                                                    use_particle)
+
+        list_all_actions_ordered = get_ordered_actions_per_miniclip(visible_miniclips,
+                                                                    most_common_visible_actions)  # list_stemmed_visibile_actions
+
+        if [use_nouns, use_particle] == [False, False]:
+            dict_actions["verb"] = list_all_actions_ordered
+        elif [use_nouns, use_particle] == [False, True]:
+            dict_actions["verb_particle"] = list_all_actions_ordered
+        elif [use_nouns, use_particle] == [True, True]:
+            dict_actions["verb_particle_nouns"] = list_all_actions_ordered
+
+    list_all_actions_ordered = []
+    miniclip_prev = list_miniclips_visibile_new[0]
+    for (miniclip, action) in zip(list_miniclips_visibile_new, list_stemmed_visibile_actions_new):
+        if miniclip != miniclip_prev:
+            list_all_actions_ordered.append("END")
+            miniclip_prev = miniclip
+        list_all_actions_ordered.append(action)
+    dict_actions["entire_action"] = list_all_actions_ordered
+
+    # with open('data/dict_actions_cooccurence.json', 'w+') as outfile:
+    #     json.dump(dict_actions, outfile)
+
+    # test_cooccurence_matrix(dict_actions["verb"])
+    # test_cooccurence_matrix(dict_actions["verb_particle"])
+
+
+# test_cooccurence_matrix(dict_actions["entire_action"])
+
+
+def main():
+    get_dict_all_annotations_visible_not()
+    # get_dict_all_annotations_ordered()
+
+    # with open("data/dict_all_annotations_ordered.json") as file:
+    #     dict_all_annotations_ordered = json.load(file)
+    #
+    # list_stemmed_visibile_actions_new = []
+    # list_miniclips_visibile_new = []
+    #
+    # for miniclip in dict_all_annotations_ordered.keys():
+    #     list_actions_labels = dict_all_annotations_ordered[miniclip]
+    #     for [action, time_s, time_e] in list_actions_labels:
+    #         list_stemmed_visibile_actions_new.append(action)
+    #         list_miniclips_visibile_new.append(miniclip)
+
+    # with open("data/dict_action_embeddings_ELMo.json") as file:
+    #     dict_action_embeddings_ELMo = json.load(file)
+    #
+    # print(len(dict_action_embeddings_ELMo.keys()))
+    # print(len(list(set(list_stemmed_visibile_actions_new))))
+    # create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visibile_actions_new)
+
+    # path_miniclips = "data/miniclip_actions.json"
+    # path_pos_data = "data/dict_action_pos_concreteness.json"
+    # path_list_actions = "data/stats/list_actions.csv"
+    path_transcripts = "/local/oignat/Action_Recog/vlog_action_recognition/data/Video/new_videos_captions/new_transcripts.json"
+    # split_transcript_into_sentences(path_transcripts)
+
+    # create_stemmed_original_actions(path_miniclips, path_pos_data)
     # list_miniclips_visibile, visible_actions, list_miniclips_not_visibile, not_visible_actions = separate_visibile_actions(
     #     path_miniclips, video=None)
     # all_actions = visible_actions + not_visible_actions
 
-    #print("---- Looking at visible actions ----")
+    # print("---- Looking at visible actions ----")
     # stats(all_actions, path_pos_data)
     #
     # list_stemmed_not_visibile_actions = stemm_list_actions(not_visible_actions, path_pos_data)
@@ -1020,20 +1144,46 @@ def main():
     # write_list_to_csv(list_miniclips_visibile, list(visible_actions), list_stemmed_visibile_actions,
     #                   list_miniclips_not_visibile, list(not_visible_actions), list_stemmed_not_visibile_actions)
 
-    # just_visible_verbs = get_visibile_actions_verbs(path_pos_data, list_stemmed_visibile_actions, use_nouns = True, use_particle=True)
+    # with open("data/stemmed_miniclip_actions.json") as file:
+    #     stemmed_miniclip_actions = json.load(file)
     #
-    # list_most_common_actions = [action for action, count in
-    #                             get_most_common_visible_actions(just_visible_verbs, 10)] #list_stemmed_visibile_actions
-    # print(list_most_common_actions)
-    # # list_most_common_actions = [l for l in list_most_common_actions if l not in ['make it', 'show', 'do this', 'make sure']]
-    # #
-    # # print(list_most_common_actions)
-    # list_all_actions_ordered = get_ordered_actions_per_miniclip(just_visible_verbs, list_miniclips_visibile,
-    #                                                             list_most_common_actions) #list_stemmed_visibile_actions
+    # list_stemmed_visibile_actions = []
+    # not_visible_actions = []
+    # list_miniclips_visibile = []
+    # list_miniclips_not_visibile = []
+    #
+    # for miniclip in stemmed_miniclip_actions.keys():
+    #
+    #     list_actions_labels = stemmed_miniclip_actions[miniclip]
+    #     for [action, label] in list_actions_labels:
+    #         if label == 0:
+    #             list_stemmed_visibile_actions.append(action)
+    #             list_miniclips_visibile.append(miniclip)
+    #         else:
+    #             not_visible_actions.append(action)
+    #             list_miniclips_not_visibile.append(miniclip)
+    #
+    # with open("data/dict_action_embeddings_ELMo.json") as file:
+    #     dict_action_embeddings_ELMo = json.load(file)
+    #
+    # visible_actions_new = []
+    # list_miniclips_visibile_new = []
+    # list_stemmed_visibile_actions_new = []
+    # for action_i in range(len(list_stemmed_visibile_actions)):
+    #     if list_stemmed_visibile_actions[action_i] in dict_action_embeddings_ELMo.keys():
+    #         list_miniclips_visibile_new.append(list_miniclips_visibile[action_i])
+    #         list_stemmed_visibile_actions_new.append(list_stemmed_visibile_actions[action_i])
+    #
+    # print(len(list(set(list_stemmed_visibile_actions_new))))
+    # print(len(dict_action_embeddings_ELMo.keys()))
     #
     #
-    # print(len(list_all_actions_ordered))
-    # test_cooccurence_matrix(list_all_actions_ordered)
+    # just_visible_verbs, visible_miniclips = get_visibile_actions_verbs(list_stemmed_visibile_actions_new,
+    #                                                                    list_miniclips_visibile_new, use_nouns=False,
+    #                                                                    use_particle=False)
+    # most_common_visible_verbs = [action for action, count in
+    #                              get_most_common_visible_actions(just_visible_verbs,
+    #                                                              20)]  # list_stemmed_visibile_actions
 
     # list_verbs = ["add", "use", "put", "make", "do", "take", "get", "go", "clean", "give"]
     # analyze_verbs(list_verbs, list_stemmed_visibile_actions)
