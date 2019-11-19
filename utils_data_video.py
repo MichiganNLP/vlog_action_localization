@@ -2,6 +2,7 @@ import glob
 import json
 import os
 import numpy as np
+from sklearn import preprocessing
 from tqdm import tqdm
 
 from compute_text_embeddings import NumpyEncoder
@@ -223,6 +224,21 @@ def load_data_from_I3D():
     # save_data_from_I3D()
     with open('data/dict_I3D_padded.json') as json_file:
         dict_miniclip_clip_feature = json.load(json_file)
+    #dict_test_miniclip = {}
+    # for key in dict_miniclip_clip_feature.keys():
+    #     if "1p0" or "1p1" in key:
+    #         dict_test_miniclip[key] = dict_miniclip_clip_feature[key]
+    # return dict_test_miniclip
+    return dict_miniclip_clip_feature
+
+def average_i3d_features():
+    dict_miniclip_clip_feature = {}
+    for filename in tqdm(os.listdir(path_I3D_features)):
+        features = np.load(path_I3D_features + filename)
+        features_mean = features.mean(axis=tuple(range(1, 4)))[0]
+        # features_mean = preprocessing.normalize(np.asarray(features_mean).reshape(1,-1), norm='l2')
+        # features_mean = np.zeros(1024)
+        dict_miniclip_clip_feature[filename[:-4]] = features_mean.reshape(1024)
     return dict_miniclip_clip_feature
 
 def main():

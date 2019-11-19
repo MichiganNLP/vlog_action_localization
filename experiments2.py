@@ -1,28 +1,17 @@
-import os
-
-from compute_text_embeddings import create_glove_embeddings, create_bert_embeddings, create_elmo_embddings, \
-    ElmoEmbeddingLayer
+from compute_text_embeddings import create_glove_embeddings, create_bert_embeddings, create_elmo_embddings
 from evaluation import evaluate
 import json
 import numpy as np
 from collections import Counter
-from keras import Model
+from tensorflow.keras import Model
 from tabulate import tabulate
 import time
 from utils_data_text import group, get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, Input, Multiply, Add, concatenate, Dropout, Reshape, dot, LSTM
-from utils_data_video import load_data_from_I3D, average_i3d_features
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from tensorflow.keras.layers import Dense, Input, Multiply, Add, concatenate, Dropout, Reshape, dot, LSTM
+from utils_data_video import load_data_from_I3D
 import argparse
-
-import tensorflow as tf
-from keras import backend as K, Model
-from keras import layers
-
-# # Initialize session
-sess = tf.Session()
-K.set_session(sess)
 
 
 def set_random_seed():
@@ -40,11 +29,13 @@ def set_random_seed():
     # 4. Set `tensorflow` pseudo-random generator at a fixed value
     import tensorflow as tf
     tf.set_random_seed(seed_value)
+    # tf.random.set_seed(seed_value)
     # 6 Configure a new global `tensorflow` session
     from keras import backend as K
-    session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-    sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
-    K.set_session(sess)
+    #session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+    session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+    sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
+    tf.compat.v1.keras.backend.set_session(sess)
     import torch
     torch.manual_seed(seed_value)
 
@@ -77,23 +68,17 @@ def set_random_seed():
 #
 #     return model
 
-
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
 def create_MPU_model(input_dim_video, input_dim_text):
-    # Second input
-    action_input = layers.Input(shape=(1,), dtype=tf.string, name='action_input')
-    action_output = ElmoEmbeddingLayer()(action_input)
+    action_input = Input(shape=(input_dim_text,), name='action_input')
+    action_output = Dense(64)(action_input)
 
-    # action_input = Input(shape=(input_dim_text,), name='action_input')
-    action_output = Dense(64)(action_output)
-
-    video_input = Input(shape=(input_dim_video,), dtype='float32', name='video_input')
-    # video_input = Input(shape=(input_dim_video[0], input_dim_video[1],), dtype='float32', name='video_input')
+    video_input = Input(shape=(input_dim_video[0], input_dim_video[1],), dtype='float32', name='video_input')
     # A LSTM will transform the vector sequence into a single vector,
     # containing information about the entire sequence
-    # video_output = LSTM(64)(video_input)
+    video_output = LSTM(64)(video_input)
 
-    video_output = Dense(64)(video_input)
+    # video_output = Dense(64)(video_input)
 
     # MPU
     multiply = Multiply()([action_output, video_output])
@@ -106,7 +91,7 @@ def create_MPU_model(input_dim_video, input_dim_text):
     concat_all = concatenate([concat_multiply_add, FC])
 
     output = Dense(64)(concat_all)
-    output = Dropout(0.5)(output)
+    # output = Dropout(0.5)(output)
 
     # And finally we add the main logistic regression layer
     main_output = Dense(1, activation='sigmoid', name='main_output')(output)
@@ -177,6 +162,8 @@ def create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, di
     data_clips_val, data_actions_val, labels_val = [], [], []
     data_clips_test, data_actions_test, labels_test = [], [], []
 
+    # a_restored = np.asarray(dict_action_embeddings["a"])
+
     set_action_miniclip_train = set()
     set_action_miniclip_test = set()
     set_action_miniclip_val = set()
@@ -187,15 +174,11 @@ def create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, di
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        # viz_feat = 0 # for debug
 
         for [action, label] in list_action_label:
             action_emb = dict_action_embeddings[action]
             # action_emb = np.zeros(1024)
-            # for debug
-            if clip[:-4].split("_")[0] not in {"1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1",
-                                               "6p0", "6p1", "7p0", "7p1"}:
-                continue
-
             if clip[:-4].split("_")[0] == channel_val:
                 # if "_".join(clip[:-4].split("_")[0:2]) == channel_val:
                 data_clips_val.append([clip, viz_feat])
@@ -238,29 +221,17 @@ def compute_majority_label_baseline_acc(labels_train, labels_test):
     return nb_correct / len(labels_test)
 
 
-def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_name):
-    print("---------- Running " + config_name + " -------------------")
+def baseline_2(train_data, val_data, test_data, model_name, type_action_emb, nb_epochs):
+    print("---------- Running " + model_name + " + " + type_action_emb + " -------------------")
 
     [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
     [data_clips_test, data_actions_test, labels_test] = get_features_from_data(train_data, val_data, test_data)
 
     # input_dim_text = data_actions_val[0].shape[0]
     input_dim_text = len(data_actions_train[0])
-    input_dim_video = data_clips_train[0].shape[0]
-    # input_dim_video = data_clips_train[0].shape
-
-    print("before data_clips_train len: {0}".format(input_dim_video))
-    data_actions_train = np.array(data_actions_train, dtype=object)[:, np.newaxis]
-    data_actions_val = np.array(data_actions_val, dtype=object)[:, np.newaxis]
-    data_actions_test = np.array(data_actions_test, dtype=object)[:, np.newaxis]
-
-    data_clips_train = np.array(data_clips_train, dtype=object)
-    data_clips_val = np.array(data_clips_val, dtype=object)
-    data_clips_test = np.array(data_clips_test, dtype=object)
-    print("after data_clips_train.shape: {0}".format(data_clips_train.shape))
-
-
-    print("Elmo actions, data_actions_train.shape: {0}".format(data_actions_train.shape))
+    # input_dim_video = data_clips_train[0].shape[0]
+    input_dim_video = data_clips_train[0].shape
+    print(input_dim_video)
 
     if model_name == "MPU":
         model = create_MPU_model(input_dim_video, input_dim_text)
@@ -269,32 +240,31 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_na
     else:
         raise ValueError("Wrong model name!")
 
-    file_path_best_model = 'data/Model_params/' + config_name + '.hdf5'
-    checkpointer = ModelCheckpoint(monitor='acc',
-                                   filepath=file_path_best_model,
+    checkpointer = ModelCheckpoint(monitor='val_acc',
+                                   filepath='data/Model_params/' + model_name + " + " + type_action_emb + " + " + str(
+                                       nb_epochs) + '.hdf5',
                                    verbose=1,
                                    save_best_only=True, save_weights_only=True)
     earlystopper = EarlyStopping(monitor='val_acc', patience=50)
 
     now = time.strftime("%c")
-    tensorboard = TensorBoard(log_dir="logs/fit/" + now + "_" + config_name, histogram_freq=0, write_graph=True)
+    tensorboard = TensorBoard(log_dir="logs/fit/" + now, histogram_freq=0, write_graph=True)
 
-    callback_list = [checkpointer, tensorboard]
+    callback_list = [checkpointer, earlystopper, tensorboard]
+    # callback_list = [earlystopper, tensorboard]
+    # callback_list = [checkpointer]
 
-    if not os.path.isfile(file_path_best_model):
-        model.fit([data_actions_train, data_clips_train], labels_train,
-                  # validation_data=([data_actions_val, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=64, callbacks=callback_list)
-
-    print("Load best model weights from " + file_path_best_model)
-    model.load_weights(file_path_best_model)
+    model.fit([data_actions_train, data_clips_train], labels_train,
+              validation_data=([data_actions_val, data_clips_val], labels_val),
+              epochs=nb_epochs, batch_size=64, callbacks=callback_list)
 
     score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
+    # score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
 
     score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
     predicted = model.predict([data_actions_test, data_clips_test]) > 0.5
 
-    # maj_val = compute_majority_label_baseline_acc(labels_train, labels_val)
+    #maj_val = compute_majority_label_baseline_acc(labels_train, labels_val)
     maj_test = compute_majority_label_baseline_acc(labels_train, labels_test)
 
     acc_val = None
@@ -380,8 +350,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--type_action_emb', type=str, choices=["GloVe", "ELMo", "Bert", "DNT"], default="ELMo")
     parser.add_argument('-m', '--model_name', type=str, choices=["MPU", "cosine sim"], default="MPU")
-    parser.add_argument('--epochs', type=int, default=65)
-    # parser.add_argument('--epochs', type=int, default=80)
+    # parser.add_argument('--epochs', type=int, default=65)
+    parser.add_argument('--epochs', type=int, default=100)
     args = parser.parse_args()
     return args
 
@@ -395,44 +365,43 @@ def main():
     # test_alignment(path_pos_data)
 
     channel_test = "1p0"
-    channel_val = None
+    channel_val = "1p1"
 
     # load video & text features - time consuming
     with open(path_all_annotations) as f:
         dict_all_annotations = json.loads(f.read())
-    # dict_miniclip_clip_feature = load_data_from_I3D() #if LSTM
-    dict_miniclip_clip_feature = average_i3d_features()
+    dict_miniclip_clip_feature = load_data_from_I3D()
     dict_action_embeddings = load_text_embeddings(args.type_action_emb, dict_all_annotations)
 
     GT = False
-    # for channel_test in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1"]:
+   # for channel_test in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1"]:
     '''
             Create data
     '''
     train_data, val_data, test_data = \
         create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, dict_all_annotations,
                               channel_test, channel_val)
-
     '''
             Create model
     '''
-    config_name = args.model_name + " + " + "finetuned " + args.type_action_emb + " + " + str(args.epochs)
     model_name, acc_train, acc_val, acc_test, maj_val, maj_test, predicted = baseline_2(train_data, val_data,
                                                                                         test_data,
                                                                                         args.model_name,
-                                                                                        args.epochs, config_name)
+                                                                                        args.type_action_emb,
+                                                                                        args.epochs)
     '''
             Evaluate
     '''
     # predicted = []
     # GT = True
-    compute_predicted_IOU(config_name, predicted, test_data, channel_test, GT)
+    compute_predicted_IOU(args.model_name + "_" + args.type_action_emb + "_" + str(args.epochs), predicted,
+                          test_data, channel_test, GT)
     if GT:
         method = "GT_"
         evaluate(method, channel_test)
     else:
         # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)
-        evaluate(config_name, channel_test)
+        evaluate(args.model_name + "_" + args.type_action_emb + "_" + str(args.epochs), channel_test)
 
     # for channel_test in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1","6p0", "6p1", "7p0", "7p1"]:
     #     # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)
