@@ -22,6 +22,8 @@ from keras import layers
 
 # # Initialize session
 sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.7), allow_soft_placement=True)
+# sess_config = tf.ConfigProto()
+# sess_config.gpu_options.allow_growth = True
 sess = tf.Session(config=sess_config)
 K.set_session(sess)
 
@@ -284,7 +286,7 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_na
     if not os.path.isfile(file_path_best_model):
         model.fit([data_actions_train, data_clips_train], labels_train,
                   # validation_data=([data_actions_val, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=8, callbacks=callback_list)
+                  epochs=nb_epochs, batch_size=16, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)

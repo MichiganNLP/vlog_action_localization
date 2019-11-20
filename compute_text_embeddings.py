@@ -10,14 +10,15 @@ from nltk import word_tokenize
 import numpy as np
 import time
 
-import tensorflow as tf
-import tensorflow_hub as hub
 from keras import backend as K, Model
 from keras.engine import Layer
 from keras import layers
-
+import tensorflow_hub as hub
+import tensorflow as tf
 # # Initialize session
 sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.7), allow_soft_placement=True)
+# sess_config = tf.ConfigProto()
+# sess_config.gpu_options.allow_growth = True
 sess = tf.Session(config=sess_config)
 K.set_session(sess)
 
