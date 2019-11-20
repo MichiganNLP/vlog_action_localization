@@ -21,7 +21,8 @@ from keras import backend as K, Model
 from keras import layers
 
 # # Initialize session
-sess = tf.Session()
+sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.7), allow_soft_placement=True)
+sess = tf.Session(config=sess_config)
 K.set_session(sess)
 
 
@@ -258,7 +259,6 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_na
     data_clips_val = np.array(data_clips_val, dtype=object)
     data_clips_test = np.array(data_clips_test, dtype=object)
     print("after data_clips_train.shape: {0}".format(data_clips_train.shape))
-
 
     print("Elmo actions, data_actions_train.shape: {0}".format(data_actions_train.shape))
 
