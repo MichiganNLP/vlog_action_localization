@@ -284,7 +284,7 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_na
     if not os.path.isfile(file_path_best_model):
         model.fit([data_actions_train, data_clips_train], labels_train,
                   # validation_data=([data_actions_val, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=64, callbacks=callback_list)
+                  epochs=nb_epochs, batch_size=8, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)

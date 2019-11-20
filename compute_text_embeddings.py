@@ -17,7 +17,8 @@ from keras.engine import Layer
 from keras import layers
 
 # # Initialize session
-sess = tf.Session()
+sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.7), allow_soft_placement=True)
+sess = tf.Session(config=sess_config)
 K.set_session(sess)
 
 embeddings_index = dict()
@@ -29,10 +30,6 @@ with open("data/glove.6B.50d.txt") as f:
         embeddings_index[word] = coefs
 
 dimension_embedding = len(embeddings_index.get("example"))
-
-
-
-
 
 
 class ElmoEmbeddingLayer(Layer):
