@@ -1,5 +1,7 @@
 import os
 
+from sklearn.metrics import f1_score
+
 from compute_text_embeddings import create_glove_embeddings, create_bert_embeddings, create_elmo_embddings, \
     ElmoEmbeddingLayer
 from evaluation import evaluate
@@ -82,13 +84,17 @@ def set_random_seed():
 
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
-def create_MPU_model(input_dim_video, input_dim_text):
+def create_MPU_model(input_dim_video, input_dim_text, finetune):
     # Second input
-    action_input = layers.Input(shape=(1,), dtype=tf.string, name='action_input')
-    action_output = ElmoEmbeddingLayer()(action_input)
+    if finetune:
+        action_input = layers.Input(shape=(1,), dtype=tf.string, name='action_input')
+        action_emb = ElmoEmbeddingLayer()(action_input)
+        action_output = Dense(64)(action_emb)
 
-    # action_input = Input(shape=(input_dim_text,), name='action_input')
-    action_output = Dense(64)(action_output)
+    else:
+        print("no finetune")
+        action_input = Input(shape=(input_dim_text,), name='action_input')
+        action_output = Dense(64)(action_input)
 
     video_input = Input(shape=(input_dim_video,), dtype='float32', name='video_input')
     # video_input = Input(shape=(input_dim_video[0], input_dim_video[1],), dtype='float32', name='video_input')
@@ -195,18 +201,18 @@ def create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, di
             action_emb = dict_action_embeddings[action]
             # action_emb = np.zeros(1024)
             # for debug
-            if clip[:-4].split("_")[0] not in {"1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1",
-                                               "6p0", "6p1", "7p0", "7p1"}:
-                continue
+            # if clip[:-4].split("_")[0] not in {"1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1",
+            #                                    "6p0", "6p1", "7p0", "7p1"}:
+            #     continue
 
-            if clip[:-4].split("_")[0] == channel_val:
+            if clip[:-4].split("_")[0] in channel_val:
                 # if "_".join(clip[:-4].split("_")[0:2]) == channel_val:
                 data_clips_val.append([clip, viz_feat])
                 data_actions_val.append([action, action_emb])
                 labels_val.append(label)
                 set_action_miniclip_val.add(clip[:-8] + ", " + action)
 
-            elif clip[:-4].split("_")[0] == channel_test:
+            elif clip[:-4].split("_")[0] in channel_test:
                 # elif "_".join(clip[:-4].split("_")[0:2]) == channel_test:
                 data_clips_test.append([clip, viz_feat])
                 data_actions_test.append([action, action_emb])
@@ -222,8 +228,13 @@ def create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, di
         #     break
 
     print(tabulate([['Train', 'Val', 'Test'],
-                    [len(set_action_miniclip_train), len(set_action_miniclip_val), len(set_action_miniclip_test)]],
+                    # [len(set_action_miniclip_train), len(set_action_miniclip_val), len(set_action_miniclip_test)]],
+                    [len(data_actions_train), len(data_actions_val), len(data_actions_test)]],
                    headers="firstrow"))
+    print(Counter(labels_train))
+    print(Counter(labels_val))
+    print(Counter(labels_test))
+
     return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
            [data_clips_test, data_actions_test, labels_test]
 
@@ -234,45 +245,56 @@ def compute_majority_label_baseline_acc(labels_train, labels_test):
     else:
         maj_label = True
     maj_labels = [maj_label] * len(labels_test)
+    # maj_labels = [True] * len(labels_test)
     nb_correct = 0
     for i in range(len(labels_test)):
         if maj_labels[i] == labels_test[i]:
             nb_correct += 1
-    return nb_correct / len(labels_test)
+    return nb_correct / len(labels_test), maj_labels
 
-
-def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_name):
+def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
     print("---------- Running " + config_name + " -------------------")
 
-    [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
-    [data_clips_test, data_actions_test, labels_test] = get_features_from_data(train_data, val_data, test_data)
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+                                                                                     labels_val,
+                                                                                     data_actions_names_val], \
+    [data_clips_test, data_actions_test, labels_test, data_actions_names_test] = get_features_from_data(train_data,
+                                                                                                        val_data,
+                                                                                                        test_data)
 
     # input_dim_text = data_actions_val[0].shape[0]
     input_dim_text = len(data_actions_train[0])
     input_dim_video = data_clips_train[0].shape[0]
     # input_dim_video = data_clips_train[0].shape
 
-    print("before data_clips_train len: {0}".format(input_dim_video))
-    data_actions_train = np.array(data_actions_train, dtype=object)[:, np.newaxis]
-    data_actions_val = np.array(data_actions_val, dtype=object)[:, np.newaxis]
-    data_actions_test = np.array(data_actions_test, dtype=object)[:, np.newaxis]
+    if config_name.split(" + ")[1] == "finetuned ELMo":
+        print("before data_clips_train len: {0}".format(input_dim_video))
+        data_actions_train = np.array(data_actions_names_train, dtype=object)[:, np.newaxis]
+        data_actions_val = np.array(data_actions_names_val, dtype=object)[:, np.newaxis]
+        data_actions_test = np.array(data_actions_names_test, dtype=object)[:, np.newaxis]
 
-    data_clips_train = np.array(data_clips_train, dtype=object)
-    data_clips_val = np.array(data_clips_val, dtype=object)
-    data_clips_test = np.array(data_clips_test, dtype=object)
-    print("after data_clips_train.shape: {0}".format(data_clips_train.shape))
+        data_clips_train = np.array(data_clips_train, dtype=object)
+        data_clips_val = np.array(data_clips_val, dtype=object)
+        data_clips_test = np.array(data_clips_test, dtype=object)
+        print("after data_clips_train.shape: {0}".format(data_clips_train.shape))
 
-    print("Elmo actions, data_actions_train.shape: {0}".format(data_actions_train.shape))
+        print("Elmo actions, data_actions_train.shape: {0}".format(data_actions_train.shape))
+        finetune = True
+    else:
+        finetune = False
 
     if model_name == "MPU":
-        model = create_MPU_model(input_dim_video, input_dim_text)
+        model = create_MPU_model(input_dim_video, input_dim_text, finetune)
     elif model_name == "cosine sim":
         model = create_cosine_sim_model(input_dim_video, input_dim_text)
     else:
         raise ValueError("Wrong model name!")
 
-    file_path_best_model = 'data/Model_params/' + config_name + '.hdf5'
-    checkpointer = ModelCheckpoint(monitor='acc',
+    if balance:
+        file_path_best_model = 'data/Model_params/' + config_name + '.hdf5'
+    else:
+        file_path_best_model = 'data/model_params_unbalanced/' + config_name + '.hdf5'
+    checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
                                    verbose=1,
                                    save_best_only=True, save_weights_only=True)
@@ -285,42 +307,71 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, config_na
 
     if not os.path.isfile(file_path_best_model):
         model.fit([data_actions_train, data_clips_train], labels_train,
-                  # validation_data=([data_actions_val, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=16, callbacks=callback_list)
+                  validation_data=([data_actions_val, data_clips_val], labels_val),
+                  epochs=nb_epochs, batch_size=64, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)
 
     score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
-
     score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
-    predicted = model.predict([data_actions_test, data_clips_test]) > 0.5
+    list_predictions = model.predict([data_actions_test, data_clips_test])
+    predicted = list_predictions > 0.5
+    print(Counter(x for xs in predicted for x in set(xs)))
+    print(Counter(labels_test))
+    score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
+    # list_predictions = model.predict([data_actions_val, data_clips_val])
+    # predicted = list_predictions > 0.5
 
-    # maj_val = compute_majority_label_baseline_acc(labels_train, labels_val)
-    maj_test = compute_majority_label_baseline_acc(labels_train, labels_test)
-
-    acc_val = None
-    maj_val = None
-    return model_name, acc_train, acc_val, acc_test, maj_val, maj_test, predicted
+    # acc_test = None
+    f1_test = f1_score(labels_test, predicted)
+    return model_name, acc_train, acc_val, acc_test, f1_test, predicted, list_predictions
 
 
-def compute_predicted_IOU(model_name, predicted_labels_test, test_data, channel, GT):
-    with open("data/dict_clip_time_per_miniclip.json") as f:
-        dict_clip_time_per_miniclip = json.loads(f.read())
+def compute_final_proposal(list_all_times):
+    groups = group(list_all_times, 3)
+    groups1 = group(list_all_times, 3)
+    list_proposals = []
+    (t0_s, t0_e, score0) = groups[0]
+    if len(groups) == 1:
+        list_proposals = [[t0_s, t0_e, score0]]
+    for [t1_s, t1_e, score1] in groups[1:]:
+        if t1_s == t0_e:
+            t0_e = t1_e
+            if score1 > score0:
+                score0 = score1
+            if len(groups) <= 2:
+                list_proposals.append([t0_s, t0_e, score0])
+        else:
+            list_proposals.append([t0_s, t0_e, score0])
+            if len(groups) <= 2:
+                list_proposals.append([t1_s, t1_e, score1])
+            t0_e = t1_e
+            t0_s = t1_s
+            score0 = score1
+        del groups[0]
 
+    list_proposals.sort(key=lambda x: x[2], reverse=True)  # highest scored proposal
+    proposal = [list_proposals[0][:-1]]
+    # print("groups1: {0}, proposals: {1}, final: {2}".format(groups1, list_proposals, proposal))
+    return proposal
+
+
+def compute_predicted_IOU(model_name, predicted_labels_test, test_data, channel, GT, dict_clip_time_per_miniclip,
+                          list_predictions=None):
     [data_clips_test, data_actions_test, gt_labels_test] = test_data
     data_clips_test_names = [i[0] for i in data_clips_test]
     data_actions_test_names = [i[0] for i in data_actions_test]
 
     dict_predicted_GT = {}
     if GT:
-        data = zip(data_clips_test_names, data_actions_test_names, gt_labels_test)
+        data = zip(data_clips_test_names, data_actions_test_names, gt_labels_test, list_predictions)
         output = "data/results/dict_predicted_GT_" + channel + ".json"
     else:
-        data = zip(data_clips_test_names, data_actions_test_names, predicted_labels_test)
+        data = zip(data_clips_test_names, data_actions_test_names, predicted_labels_test, list_predictions)
         output = "data/results/dict_predicted_" + model_name + channel + ".json"
 
-    for [clip, action, label] in data:
+    for [clip, action, label, score] in data:
         miniclip = clip[:-8] + ".mp4"
         if label:
             if miniclip + ", " + action not in dict_predicted_GT.keys():
@@ -329,6 +380,7 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, channel,
             [time_s, time_e] = dict_clip_time_per_miniclip[clip]
             dict_predicted_GT[miniclip + ", " + action].append(time_s)
             dict_predicted_GT[miniclip + ", " + action].append(time_e)
+            dict_predicted_GT[miniclip + ", " + action].append(score[0])
         else:
             if miniclip + ", " + action not in dict_predicted_GT.keys():
                 dict_predicted_GT[miniclip + ", " + action] = []
@@ -337,15 +389,18 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, channel,
         if not dict_predicted_GT[key]:
             dict_predicted_GT[key].append(-1)
             dict_predicted_GT[key].append(-1)
+            dict_predicted_GT[key].append(-1)
 
     if GT:
         for key in dict_predicted_GT.keys():
+            # TODO: REMOVE SCORE
             list_all_times = dict_predicted_GT[key]
             dict_predicted_GT[key] = [[min(list_all_times), max(list_all_times)]]
     else:
-        for key in dict_predicted_GT.keys():
+        for key in list(dict_predicted_GT.keys()):
             list_all_times = dict_predicted_GT[key]
-            dict_predicted_GT[key] = group(list_all_times, 2)
+            # dict_predicted_GT[key] = group(list_all_times, 2)
+            dict_predicted_GT[key] = compute_final_proposal(list_all_times)
 
         # for key in dict_predicted_GT.keys():
         #     list_all_times = dict_predicted_GT[key]
@@ -382,29 +437,59 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--type_action_emb', type=str, choices=["GloVe", "ELMo", "Bert", "DNT"], default="ELMo")
     parser.add_argument('-m', '--model_name', type=str, choices=["MPU", "cosine sim"], default="MPU")
+    parser.add_argument('-f', '--finetune', type=bool, choices=[True, False], default=False)
     parser.add_argument('--epochs', type=int, default=65)
-    # parser.add_argument('--epochs', type=int, default=80)
+    parser.add_argument('-cl', '--clip_length', type=str, choices=["3s", "10s"], default="3s")
+    parser.add_argument('-b', '--balance', type=bool, choices=[True, False], default=True)
     args = parser.parse_args()
     return args
 
+def balance_data(dict_all_annotations, clip_length):
+    ok_count = 0
+    if clip_length == "3s":
+        ok_count = 2
+    elif clip_length == "10s":
+        ok_count = 1
+    dict_balanced_annotations = {}
+    for clip in list(dict_all_annotations.keys()):
+        list_action_label = dict_all_annotations[clip]
+        dict_balanced_annotations[clip] = []
+        ok = 0
+        for [action, label] in list_action_label:
+            if label or ok == ok_count:
+                dict_balanced_annotations[clip].append([action,label])
+            else:
+                ok += 1
+    return dict_balanced_annotations
 
 def main():
     set_random_seed()
     args = parse_args()
 
     path_pos_data = "/local/oignat/Action_Recog/vlog_action_recognition/data/dict_action_pos_concreteness.json"
-    path_all_annotations = "data/dict_all_annotations.json"
+    # path_all_annotations = "data/dict_all_annotations.json"
+    path_all_annotations = "data/dict_all_annotations" + args.clip_length + ".json"
+    with open("data/dict_clip_time_per_miniclip" + args.clip_length + ".json") as f:
+        dict_clip_time_per_miniclip = json.loads(f.read())
+
     # test_alignment(path_pos_data)
 
-    channel_test = "1p0"
-    channel_val = None
+    channels_test = ["1p0"]
+    channels_val = ["1p1", "3p0"]
 
     # load video & text features - time consuming
     with open(path_all_annotations) as f:
-        dict_all_annotations = json.loads(f.read())
+        dict_all_annotations = json.load(f)
+
+    if args.balance:
+        print("Balance data")
+        dict_all_annotations = balance_data(dict_all_annotations, args.clip_length)
+
     # dict_miniclip_clip_feature = load_data_from_I3D() #if LSTM
     dict_miniclip_clip_feature = average_i3d_features()
     dict_action_embeddings = load_text_embeddings(args.type_action_emb, dict_all_annotations)
+
+
 
     GT = False
     # for channel_test in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1"]:
@@ -413,28 +498,64 @@ def main():
     '''
     train_data, val_data, test_data = \
         create_data_for_model(dict_miniclip_clip_feature, dict_action_embeddings, dict_all_annotations,
-                              channel_test, channel_val)
+                              channels_test, channels_val)
+
+
 
     '''
             Create model
     '''
-    config_name = args.model_name + " + " + "finetuned " + args.type_action_emb + " + " + str(args.epochs)
-    model_name, acc_train, acc_val, acc_test, maj_val, maj_test, predicted = baseline_2(train_data, val_data,
-                                                                                        test_data,
-                                                                                        args.model_name,
-                                                                                        args.epochs, config_name)
+    if args.finetune:
+        config_name = args.clip_length + " + " + args.model_name + " + " + "finetuned " + args.type_action_emb + " + " + str(
+            args.epochs)
+    else:
+        config_name = args.clip_length + " + " + args.model_name + " + " + args.type_action_emb + " + " + str(
+            args.epochs)
+    model_name, acc_train, acc_val, acc_test, f1, predicted, list_predictions = baseline_2(train_data, val_data,
+                                                                                           test_data,
+                                                                                           args.model_name,
+                                                                                           args.epochs, args.balance,
+                                                                                           config_name)
+    '''
+        Majority (actions are visible in all clips)
+    '''
+    [_, _, labels_train, _], [_, _, labels_val, _], [_, _, labels_test, _] = get_features_from_data(train_data,
+                                                                                                    val_data,
+                                                                                                    test_data)
+    maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
+    maj_test, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_test)
+    print("maj_val: {:0.2f}".format(maj_val))
+    print("maj_test: {:0.2f}".format(maj_test))
+    print("acc_val: {:0.2f}".format(acc_val))
+    print("acc_test: {:0.2f}".format(acc_test))
+    print("f1_test: {:0.2f}".format(f1))
+
     '''
             Evaluate
     '''
     # predicted = []
     # GT = True
-    compute_predicted_IOU(config_name, predicted, test_data, channel_test, GT)
-    if GT:
-        method = "GT_"
-        evaluate(method, channel_test)
-    else:
-        # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)
-        evaluate(config_name, channel_test)
+    for channel_test in channels_test:
+        compute_predicted_IOU(config_name, predicted, test_data, channel_test, GT, dict_clip_time_per_miniclip,
+                              list_predictions)
+        if GT:
+            method = "GT_"
+            # evaluate(method, channel_test)
+            evaluate(method, channel_test)
+        else:
+            # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)
+            # evaluate(config_name, channel_test)
+            evaluate(config_name, channel_test)
+    # config_name = "majority"
+    # compute_predicted_IOU(config_name, maj_labels, val_data, channel_val, GT)
+    # if GT:
+    #     method = "GT_"
+    #     # evaluate(method, channel_test)
+    #     evaluate(method, channel_val)
+    # else:
+    #     # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)
+    #     # evaluate(config_name, channel_test)
+    #     evaluate(config_name, channel_val)
 
     # for channel_test in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1","6p0", "6p1", "7p0", "7p1"]:
     #     # evaluate(args.model_name + "_" + args.type_action_emb, channel_test)

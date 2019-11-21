@@ -65,31 +65,38 @@ def find_overlapping_actions(new_dict):
             print("----------------------")
 
 
-def plot_hist_length_actions():
-    with open("data/dict_all_annotations_1_7channels.json") as file:
-        annotations = json.load(file)
-
+def plot_hist_length_actions(annotations):
     list_duration = []
     for miniclip in annotations.keys():
+        if "1p0" not in miniclip:
+            continue
         list_action_label = annotations[miniclip]
         for [action, label] in list_action_label:
             if label != ["not visible"]:
                 [time_s, time_e] = label
-                action_duration = int(time_e - time_s)
-                # 5 -> 0; 6 -> 10
-                rounded_duration = str(int(round(action_duration, -1)))
+                if time_e == time_s == -1:
+                    rounded_duration = "-1"
+                else:
+                    action_duration = int(time_e - time_s)
+                    # 5 -> 0; 6 -> 10
+                    rounded_duration = str(int(round(action_duration, -1)))
                 list_duration.append(rounded_duration)
 
     counter = Counter(list_duration)
-    counter = counter.most_common()
+    # counter = counter.most_common()
+    counter = sorted(counter.items())
     labels, values = zip(*counter)
+    for l in ['-1', '0', '10', '20', '30', '40', '50', '60']:
+        if l not in labels:
+            counter.append((l, 0))
 
+    # counter = sorted(counter.items())
+    print(counter)
+    labels, values = zip(*counter)
     indexes = np.arange(len(labels))
     width = 1
 
-    print(counter)
-
-    plt.bar(indexes, values, width)
+    plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange","purple"])
     plt.xticks(indexes + width * 0.5, labels)
     plt.ylabel('count', fontsize=18)
     plt.xlabel('rounded seconds', fontsize=16)
@@ -121,27 +128,45 @@ def count_how_many_times_actions_overlap():
                 if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]) or set(
                         list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
                     count_inclusion += 1
-                    #if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]):
-                        # print(miniclip, list_actions[x] + " -> " + list_actions[y])
-                        # print(list_intervals[x], list_intervals[y])
-                    #elif set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
-                        # print(miniclip, list_actions[y] + " -> " + list_actions[x])
-                        # print(list_intervals[y], list_intervals[x])
+                    # if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]):
+                    # print(miniclip, list_actions[x] + " -> " + list_actions[y])
+                    # print(list_intervals[x], list_intervals[y])
+                    # elif set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
+                    # print(miniclip, list_actions[y] + " -> " + list_actions[x])
+                    # print(list_intervals[y], list_intervals[x])
                     if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]) and set(
                             list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
                         print(miniclip, list_actions[y] + " = " + list_actions[x])
                         print(list_intervals[y], list_intervals[x])
                         count_exact_time += 1
 
-
     print(count_overlap)
     print(count_inclusion)
     print(count_exact_time)
 
 
+def change_format():
+    new_format_dict = {}
+    with open("data/results/dict_predicted_MPU + ELMo + 651p0.json") as file:
+        predicted = json.load(file)
+
+    for video_action in predicted.keys():
+        video, action = video_action.split(", ")
+        if video not in new_format_dict.keys():
+            new_format_dict[video] = []
+            time = [float(i) for i in predicted[video_action][0]]
+            new_format_dict[video].append([action, time])
+
+    return new_format_dict
+
+
 def main():
-    # plot_hist_length_actions()
-    count_how_many_times_actions_overlap()
+    new_format_dict = change_format()
+    with open("data/dict_all_annotations_1_7channels.json") as file:
+        annotations = json.load(file)
+    # plot_hist_length_actions(annotations)
+    plot_hist_length_actions(new_format_dict)
+    # count_how_many_times_actions_overlap()
     # path_annotations = Path("data/annotations/")
     #
     # new_dict = collect_data(path_annotations)

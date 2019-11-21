@@ -9,7 +9,7 @@ from compute_text_embeddings import NumpyEncoder
 
 global path_I3D_features
 # on lit1000:  scp results_features/7p* oignat@lit09.eecs.umich.edu:/local/oignat/Action_Recog/i3d_keras/data/results_features/
-path_I3D_features = "../i3d_keras/data/results_features/"
+path_I3D_features = "../i3d_keras/data/results_features_3s/"
 
 def create_10s_clips(path_input_video, path_output_video):
     miniclip = path_input_video.split("/")[-1][:-4]
@@ -22,35 +22,46 @@ def create_10s_clips(path_input_video, path_output_video):
     os.system(command)
 
 # TODO: more exact split ?
-def get_clip_time_per_miniclip(path_input, path_output):
+def get_clip_time_per_miniclip(path_input, path_output, path_I3D_features, clip_length):
     list_videos = glob.glob(path_input + "*.mp4")
     dict_clip_time_per_miniclip = {}
+    clip_length = int(clip_length[0])
 
     for video_file in list_videos:
         clip_name_root = video_file.split("/")[-1][:-4]
         show_sec_time = "ffprobe -i " + video_file + " -show_entries format=duration -v quiet -of csv=p=0"
         time_miniclip = float(os.popen(show_sec_time).read())
-        nb_clips = np.math.ceil(time_miniclip / 10)  # for 10s clips
+        nb_clips = np.math.ceil(time_miniclip / clip_length)  # for clip_length clips
         for index in range(nb_clips):
             clip_name = clip_name_root + "_" + str(index).zfill(3) + ".mp4"
             if index == 0:
                 start_time = 0
-                if time_miniclip >= 10:
-                    end_time = 10
+                if time_miniclip >= clip_length:
+                    end_time = clip_length
                 else:
-                    end_time = 10 - time_miniclip
+                    end_time = clip_length - time_miniclip
             else:
-                start_time = index * 10
-                if time_miniclip >= 10:
-                    end_time = start_time + 10
+                start_time = index * clip_length
+                if time_miniclip >= clip_length:
+                    end_time = start_time + clip_length
                 else:
                     end_time = start_time + time_miniclip
 
-            time_miniclip = time_miniclip - 10
+            time_miniclip = time_miniclip - clip_length
             dict_clip_time_per_miniclip[clip_name] = [start_time, end_time]
 
+    list_i3d_files = []
+    for filename in tqdm(os.listdir(path_I3D_features)):
+        list_i3d_files.append(filename[:-4] + ".mp4")
+
+    new_dict_clip_time_per_miniclip = dict_clip_time_per_miniclip.copy()
+
+    for key in dict_clip_time_per_miniclip.keys():
+        if key not in list_i3d_files:
+            del new_dict_clip_time_per_miniclip[key]
+
     with open(path_output, 'w+') as outfile:
-        json.dump(dict_clip_time_per_miniclip, outfile)
+        json.dump(new_dict_clip_time_per_miniclip, outfile)
 
 
 def get_all_keys_for_substring(substring, dict):

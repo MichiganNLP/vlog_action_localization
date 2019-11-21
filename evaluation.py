@@ -163,7 +163,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
         for key in groundtruth_1p0.keys() - proposed_1p0.keys():
             if groundtruth_1p0[key] != ['not visible']:
                 count_visible_actions_not_caught += 1
-                print(key)
+                #print(key)
         if count_visible_actions_not_caught:
             print("count_visible_actions_not_caught: " + str(count_visible_actions_not_caught))
 
@@ -214,6 +214,7 @@ def evaluate(method, channel):
     for threshold in np.arange(0.1, 0.9, 0.2):
         accuracy = compute_accuracy_IOU_threshold(threshold, IOU_vals)
         list_results.append(str(round(accuracy, 2)))
+
     mean_tIOU = compute_meanIOU(IOU_vals)
     list_results.append(str(round(mean_tIOU, 2)))
     print("overleaf: " + list_results[0] + " & " + list_results[1] + " & " + list_results[2] + " & " + list_results[
