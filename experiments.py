@@ -291,9 +291,9 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
         raise ValueError("Wrong model name!")
 
     if balance:
-        file_path_best_model = 'data/Model_params/' + config_name + '.hdf5'
+        file_path_best_model = 'model/Model_params/' + config_name + '.hdf5'
     else:
-        file_path_best_model = 'data/model_params_unbalanced/' + config_name + '.hdf5'
+        file_path_best_model = 'model/model_params_unbalanced/' + config_name + '.hdf5'
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
                                    verbose=1,
