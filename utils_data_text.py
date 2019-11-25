@@ -696,6 +696,41 @@ def get_pos_action(action):
     return list_word_pos
 
 
+def compute_action(action, use_nouns, use_particle):
+    list_word_pos = get_pos_action(action)
+    stemmed_word = ""
+    ok_noun = 0
+    if not use_nouns:
+        ok_noun = 1
+    for [word, pos] in list_word_pos:
+        if 'VB' in pos:
+            stemmed_word += word
+            stemmed_word += " "
+            if not use_nouns and not use_particle:
+                break
+            continue
+        # if use_nouns and stemmed_word and 'NN' in pos:
+        if use_nouns and 'NN' in pos:
+            stemmed_word += word
+            stemmed_word += " "
+            ok_noun = 1
+            if not use_particle:
+                break
+            continue
+        # if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
+        if use_particle and ('PRT' == pos or 'RP' == pos):
+            stemmed_word += word
+            stemmed_word += " "
+            # break
+            continue
+
+    stemmed_word = stemmed_word.strip()
+    if not stemmed_word:
+        stemmed_word = action
+
+    print(action + " -> " + stemmed_word)
+    return stemmed_word, ok_noun
+
 def get_visibile_actions_verbs(visible_actions, list_miniclips_visibile,
                                use_nouns=False,
                                use_particle=False):
@@ -708,27 +743,29 @@ def get_visibile_actions_verbs(visible_actions, list_miniclips_visibile,
     for action in visible_actions:
         # if action in dict_pos_actions.keys():
         #     list_word_pos = dict_pos_actions[action]
-        list_word_pos = get_pos_action(action)
-        stemmed_word = ""
-        ok_noun = 0
-        if not use_nouns:
-            ok_noun = 1
-        for [word, pos] in list_word_pos:
-            if 'VB' in pos:
-                stemmed_word += word
-                stemmed_word += " "
-                if not use_nouns and not use_particle:
-                    break
-            if use_nouns and stemmed_word and 'NN' in pos:
-                stemmed_word += word
-                stemmed_word += " "
-                ok_noun = 1
-                if not use_particle:
-                    break
-            if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
-                stemmed_word += word
-                stemmed_word += " "
-                break
+
+        stemmed_word, ok_noun = compute_action(action, use_nouns, use_particle)
+        # list_word_pos = get_pos_action(action)
+        # stemmed_word = ""
+        # ok_noun = 0
+        # if not use_nouns:
+        #     ok_noun = 1
+        # for [word, pos] in list_word_pos:
+        #     if 'VB' in pos:
+        #         stemmed_word += word
+        #         stemmed_word += " "
+        #         if not use_nouns and not use_particle:
+        #             break
+        #     if use_nouns and stemmed_word and 'NN' in pos:
+        #         stemmed_word += word
+        #         stemmed_word += " "
+        #         ok_noun = 1
+        #         if not use_particle:
+        #             break
+        #     if use_particle and stemmed_word and ('PRT' == pos or 'RP' == pos):
+        #         stemmed_word += word
+        #         stemmed_word += " "
+        #         break
 
         if stemmed_word and ok_noun:
             just_visible_verbs.append(stemmed_word.strip())
@@ -912,27 +949,28 @@ def get_visual_features_from_data(data_clips_train):
 
 
 def get_features_from_data(train_data, val_data, test_data):
+
     [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
     [data_clips_test, data_actions_test, labels_test] = train_data, val_data, test_data
 
     # features
     data_clips_train = [i[1] for i in data_clips_train]
     # data_clips_train = get_visual_features_from_data(data_clips_train)
-    data_actions_train = [i[1] for i in data_actions_train]
+    data_actions_emb_train = [i[1] for i in data_actions_train]
     data_actions_names_train = [i[0] for i in data_actions_train]
 
     data_clips_val = [i[1] for i in data_clips_val]
     # data_clips_val = get_visual_features_from_data(data_clips_val)
-    data_actions_val = [i[1] for i in data_actions_val]
+    data_actions_emb_val = [i[1] for i in data_actions_val]
     data_actions_names_val = [i[0] for i in data_actions_val]
 
     data_clips_test = [i[1] for i in data_clips_test]
     # data_clips_test = get_visual_features_from_data(data_clips_test)
-    data_actions_test = [i[1] for i in data_actions_test]
+    data_actions_emb_test = [i[1] for i in data_actions_test]
     data_actions_names_test = [i[0] for i in data_actions_test]
 
-    return [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val, labels_val, data_actions_names_val], [
-        data_clips_test, data_actions_test, labels_test, data_actions_names_test]
+    return [data_clips_train, data_actions_emb_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+        data_clips_test, data_actions_emb_test, labels_test, data_actions_names_test]
 
 
 def group(lst, n):

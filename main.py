@@ -27,10 +27,10 @@ def main():
         Annotations
     '''
     clip_length = "3s"
-    # path_I3D_features = "../i3d_keras/data/results_features_"+ clip_length + "/"
-    #get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip"+ clip_length  +".json", path_I3D_features, clip_length) # DONE for all channels
-    # create_action_clip_labels("data/dict_clip_time_per_miniclip" + clip_length + ".json",
-    #                           'data/dict_all_annotations' + clip_length + '.json', channels)
+    path_I3D_features = "../i3d_keras/data/results_features_"+ clip_length + "/"
+    get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip"+ clip_length  +".json", path_I3D_features, clip_length) # DONE for all channels
+    create_action_clip_labels("data/dict_clip_time_per_miniclip" + clip_length + ".json",
+                              'data/dict_all_annotations' + clip_length + '.json', channels)
 
     # '''
     #     Run on LIT1000: preprocess + evaluate Clip I3D features

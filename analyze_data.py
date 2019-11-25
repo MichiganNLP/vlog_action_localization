@@ -65,11 +65,12 @@ def find_overlapping_actions(new_dict):
             print("----------------------")
 
 
-def plot_hist_length_actions(annotations):
+def plot_hist_length_actions(annotations, channel=None):
     list_duration = []
     for miniclip in annotations.keys():
-        if "1p0" not in miniclip:
-            continue
+        if channel:
+            if channel not in miniclip:
+                continue
         list_action_label = annotations[miniclip]
         for [action, label] in list_action_label:
             if label != ["not visible"]:
@@ -96,7 +97,7 @@ def plot_hist_length_actions(annotations):
     indexes = np.arange(len(labels))
     width = 1
 
-    plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange","purple"])
+    plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange", "purple"])
     plt.xticks(indexes + width * 0.5, labels)
     plt.ylabel('count', fontsize=18)
     plt.xlabel('rounded seconds', fontsize=16)
@@ -164,8 +165,8 @@ def main():
     new_format_dict = change_format()
     with open("data/dict_all_annotations_1_7channels.json") as file:
         annotations = json.load(file)
-    # plot_hist_length_actions(annotations)
-    plot_hist_length_actions(new_format_dict)
+    plot_hist_length_actions(annotations)
+    # plot_hist_length_actions(annotations, "4p0")
     # count_how_many_times_actions_overlap()
     # path_annotations = Path("data/annotations/")
     #

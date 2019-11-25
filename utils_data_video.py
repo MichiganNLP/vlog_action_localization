@@ -7,9 +7,8 @@ from tqdm import tqdm
 
 from compute_text_embeddings import NumpyEncoder
 
-global path_I3D_features
+# global path_I3D_features
 # on lit1000:  scp results_features/7p* oignat@lit09.eecs.umich.edu:/local/oignat/Action_Recog/i3d_keras/data/results_features/
-path_I3D_features = "../i3d_keras/data/results_features_3s/"
 
 def create_10s_clips(path_input_video, path_output_video):
     miniclip = path_input_video.split("/")[-1][:-4]
@@ -41,7 +40,8 @@ def get_clip_time_per_miniclip(path_input, path_output, path_I3D_features, clip_
                 else:
                     end_time = clip_length - time_miniclip
             else:
-                start_time = index * clip_length
+                # start_time = index * clip_length # if non-overlapping
+                start_time = index + clip_length
                 if time_miniclip >= clip_length:
                     end_time = start_time + clip_length
                 else:
@@ -242,7 +242,7 @@ def load_data_from_I3D():
     # return dict_test_miniclip
     return dict_miniclip_clip_feature
 
-def average_i3d_features():
+def average_i3d_features(path_I3D_features):
     dict_miniclip_clip_feature = {}
     for filename in tqdm(os.listdir(path_I3D_features)):
         features = np.load(path_I3D_features + filename)
@@ -256,10 +256,10 @@ def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
-    path_I3D_features = "../i3d_keras/data/results_features/"
+    # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
     # get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip.json")
-    create_action_clip_labels("data/dict_clip_time_per_miniclip.json", 'data/dict_all_annotations.json', ["1p0"])
+    #create_action_clip_labels("data/dict_clip_time_per_miniclip.json", 'data/dict_all_annotations.json', ["1p0"])
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import json, codecs
 import torch
 from keras_preprocessing.sequence import pad_sequences
 from tqdm import tqdm
-from transformers import BertTokenizer
+from transformers import BertTokenizer, PreTrainedModel
 from transformers.tokenization_auto import AutoTokenizer
 from transformers.modeling_bert import BertModel
 from nltk import word_tokenize
@@ -15,6 +15,8 @@ from keras.engine import Layer
 from keras import layers
 import tensorflow_hub as hub
 import tensorflow as tf
+from bert.tokenization import FullTokenizer
+
 # # Initialize session
 sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.7), allow_soft_placement=True)
 # sess_config = tf.ConfigProto()
@@ -113,6 +115,171 @@ def load_elmo_embedding(train_data):
     return K.eval(embeddings)
 
 
+class BertLayer(tf.layers.Layer):
+    def __init__(self, n_fine_tune_layers=10, **kwargs):
+        self.n_fine_tune_layers = n_fine_tune_layers
+        self.trainable = True
+        self.output_size = 768
+        super(BertLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.bert = hub.Module(
+            "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1",
+            trainable=self.trainable,
+            name="{}_module".format(self.name)
+        )
+        trainable_vars = self.bert.variables
+
+        # Remove unused layers
+        trainable_vars = [var for var in trainable_vars if not "/cls/" in var.name]
+
+        # Select how many layers to fine tune
+        trainable_vars = trainable_vars[-self.n_fine_tune_layers:]
+
+        # Add to trainable weights
+        for var in trainable_vars:
+            self._trainable_weights.append(var)
+
+        # Add non-trainable weights
+        for var in self.bert.variables:
+            if var not in self._trainable_weights:
+                self._non_trainable_weights.append(var)
+
+        super(BertLayer, self).build(input_shape)
+
+    def call(self, inputs):
+        inputs = [K.cast(x, dtype="int32") for x in inputs]
+        input_ids, input_mask, segment_ids = inputs
+        bert_inputs = dict(
+            input_ids=input_ids, input_mask=input_mask, segment_ids=segment_ids
+        )
+        result = self.bert(inputs=bert_inputs, signature="tokens", as_dict=True)[
+            "pooled_output"
+        ]
+        return result
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.output_size)
+
+class PaddingInputExample(object):
+    """Fake example so the num input examples is a multiple of the batch size.
+  When running eval/predict on the TPU, we need to pad the number of examples
+  to be a multiple of the batch size, because the TPU requires a fixed batch
+  size. The alternative is to drop the last batch, which is bad because it means
+  the entire output data won't be generated.
+  We use this class instead of `None` because treating `None` as padding
+  battches could cause silent errors.
+  """
+
+
+class InputExample(object):
+    """A single training/test example for simple sequence classification."""
+
+    def __init__(self, guid, text_a, text_b=None, label=None):
+        """Constructs a InputExample.
+    Args:
+      guid: Unique id for the example.
+      text_a: string. The untokenized text of the first sequence. For single
+        sequence tasks, only this sequence must be specified.
+      text_b: (Optional) string. The untokenized text of the second sequence.
+        Only must be specified for sequence pair tasks.
+      label: (Optional) string. The label of the example. This should be
+        specified for train and dev examples, but not for test examples.
+    """
+        self.guid = guid
+        self.text_a = text_a
+        self.text_b = text_b
+        self.label = label
+
+
+def create_tokenizer_from_hub_module(bert_path):
+    """Get the vocab file and casing info from the Hub module."""
+    bert_module = hub.Module(bert_path)
+    tokenization_info = bert_module(signature="tokenization_info", as_dict=True)
+    vocab_file, do_lower_case = sess.run(
+        [tokenization_info["vocab_file"], tokenization_info["do_lower_case"]]
+    )
+
+    return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
+
+
+
+
+def convert_single_example(tokenizer, example, max_seq_length=256):
+    """Converts a single `InputExample` into a single `InputFeatures`."""
+
+    if isinstance(example, PaddingInputExample):
+        input_ids = [0] * max_seq_length
+        input_mask = [0] * max_seq_length
+        segment_ids = [0] * max_seq_length
+        label = 0
+        return input_ids, input_mask, segment_ids, label
+
+    tokens_a = tokenizer.tokenize(example.text_a)
+    if len(tokens_a) > max_seq_length - 2:
+        tokens_a = tokens_a[0 : (max_seq_length - 2)]
+
+    tokens = []
+    segment_ids = []
+    tokens.append("[CLS]")
+    segment_ids.append(0)
+    for token in tokens_a:
+        tokens.append(token)
+        segment_ids.append(0)
+    tokens.append("[SEP]")
+    segment_ids.append(0)
+
+    input_ids = tokenizer.convert_tokens_to_ids(tokens)
+
+    # The mask has 1 for real tokens and 0 for padding tokens. Only real
+    # tokens are attended to.
+    input_mask = [1] * len(input_ids)
+
+    # Zero-pad up to the sequence length.
+    while len(input_ids) < max_seq_length:
+        input_ids.append(0)
+        input_mask.append(0)
+        segment_ids.append(0)
+
+    assert len(input_ids) == max_seq_length
+    assert len(input_mask) == max_seq_length
+    assert len(segment_ids) == max_seq_length
+
+    return input_ids, input_mask, segment_ids, example.label
+
+
+
+
+def convert_examples_to_features(tokenizer, examples, max_seq_length=256):
+    """Convert a set of `InputExample`s to a list of `InputFeatures`."""
+
+    input_ids, input_masks, segment_ids, labels = [], [], [], []
+    for example in tqdm(examples, desc="Converting examples to features"):
+        input_id, input_mask, segment_id, label = convert_single_example(
+            tokenizer, example, max_seq_length
+        )
+        input_ids.append(input_id)
+        input_masks.append(input_mask)
+        segment_ids.append(segment_id)
+        labels.append(label)
+    return (
+        np.array(input_ids),
+        np.array(input_masks),
+        np.array(segment_ids),
+        np.array(labels).reshape(-1, 1),
+    )
+
+
+def convert_text_to_examples(texts, labels):
+    """Create InputExamples"""
+    InputExamples = []
+    for text, label in zip(texts, labels):
+        InputExamples.append(
+            InputExample(guid=None, text_a=" ".join(text), text_b=None, label=label)
+        )
+    return InputExamples
+
+
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -159,8 +326,17 @@ def embed_elmo2():
         session = tf.train.MonitoredSession()
     return lambda x: session.run(embeddings, {sentences: x})
 
+def create_elmo_embedding(action):
+    start = time.time()
+    embed_fn = embed_elmo2()
+    end = time.time()
+    print("Load ELMo model took " + str(end - start))
+    print("Running ELMo ... ")
+    emb_action = embed_fn([action]).reshape(-1)
+    return emb_action
 
-def create_elmo_embddings(list_all_actions):
+
+def save_elmo_embddings(list_all_actions):
     dict_action_embeddings = {}
     start = time.time()
     embed_fn = embed_elmo2()
@@ -172,7 +348,7 @@ def create_elmo_embddings(list_all_actions):
         emb_action = embed_fn([action]).reshape(-1)
         dict_action_embeddings[action] = emb_action
 
-    with open('data/dict_action_embeddings_ELMo.json', 'w+') as outfile:
+    with open('data/dict_action_embeddings_ELMo_vb_particle.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
 
     return dict_action_embeddings
@@ -187,12 +363,16 @@ def create_glove_embeddings(list_all_actions):
 
 
 def create_bert_embeddings(list_all_actions):
+    tokenizer_name = 'bert-base-uncased'
+
+    # pretrained_model_name = 'data/epoch_29/'
+    pretrained_model_name = tokenizer_name
+
     start = time.time()
     # Load pre-trained model tokenizer (vocabulary)
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     # Load pre-trained model (weights)
-    pretrained_model_name = 'data/epoch_29/'
-    model = BertModel.from_pretrained(pretrained_model_name)
+    model = PreTrainedModel.from_pretrained(pretrained_model_name)
     # Put the model in "evaluation" mode, meaning feed-forward operation.
     model.eval()
     end = time.time()
@@ -204,7 +384,7 @@ def create_bert_embeddings(list_all_actions):
         # emb_action = finetune_bert(model,tokenizer, action)
         dict_action_embeddings[action] = emb_action.reshape(-1)
 
-    with open('data/dict_action_embeddings_Bert2.json', 'w+') as outfile:
+    with open('data/dict_action_embeddings_Bert.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 
@@ -234,9 +414,9 @@ def create_bert_embeddings(list_all_actions):
 #         sentence_embedding = torch.Tensor.numpy(mean_sentence_embedding)  # average token embeddings
 #         return sentence_embedding
 
+
 #domain adaptation
 def get_bert_finetuned_embeddings(model, tokenizer, action):
-
     marked_text = "[CLS] " + action + " [SEP]"
     tokenized_text = tokenizer.tokenize(marked_text)
 
@@ -252,9 +432,11 @@ def get_bert_finetuned_embeddings(model, tokenizer, action):
         model_output = model(tokens_tensor, segments_tensors)
         last_hidden_states = model_output[0]  # The last hidden-state is the first element of the output tuple
 
-    mean_sentence_embedding = torch.mean(last_hidden_states, 1)  # average token embeddings
-    sentence_embedding = torch.Tensor.numpy(mean_sentence_embedding)  # average token embeddings
-    return sentence_embedding
+    # [CLS] token representation would be: sentence_embedding = last_hidden_states[:, 0, :]
+
+    sentence_embedding = torch.mean(last_hidden_states, 1)  # average token embeddings
+
+    return sentence_embedding.cpu().numpy()
 
 
 def main():

@@ -3,6 +3,8 @@ import math
 
 import numpy as np
 
+from utils_data_text import color
+
 
 def calculate_IoU(i0, i1):
     union = (min(i0[0], i1[0]), max(i0[1], i1[1]))
@@ -146,7 +148,7 @@ def compute_accuracy_IOU_threshold(threshold, IOU_vals):
 
 def compute_meanIOU(IOU_vals):
     mean_tIOU = np.nanmean([max(x) for x in IOU_vals])
-    print("mIOU = {:.2f}".format(mean_tIOU))
+    print(color.PURPLE + color.BOLD + "mIOU" + color.END + " = {:.2f}".format(mean_tIOU))
     return mean_tIOU
 
 
@@ -201,6 +203,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
 #     return tIOU_threshold
 
 def evaluate(method, channel):
+    print("-----------------------------------------------------------")
     print("Results for method {0} on channel {1}:".format(method, channel))
     with open("data/results/dict_predicted_" + method + channel + ".json") as f:
         proposed_1p0 = json.loads(f.read())
@@ -209,6 +212,7 @@ def evaluate(method, channel):
         groundtruth_1p0 = json.loads(f.read())
 
     IOU_vals = wrapper_IOU(proposed_1p0, groundtruth_1p0)
+    print("#test points: " + str(len(IOU_vals)))
 
     list_results = []
     for threshold in np.arange(0.1, 0.9, 0.2):
@@ -217,7 +221,7 @@ def evaluate(method, channel):
 
     mean_tIOU = compute_meanIOU(IOU_vals)
     list_results.append(str(round(mean_tIOU, 2)))
-    print("overleaf: " + list_results[0] + " & " + list_results[1] + " & " + list_results[2] + " & " + list_results[
+    print(color.GREEN + color.BOLD + "overleaf: " + color.END + list_results[0] + " & " + list_results[1] + " & " + list_results[2] + " & " + list_results[
         3] + " & " + list_results[4])
 
 
