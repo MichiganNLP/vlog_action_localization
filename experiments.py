@@ -402,21 +402,21 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
     if finetune_bert:
         score, acc_train = model.evaluate([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train)
         score, acc_test = model.evaluate([test_input_ids, test_input_masks, test_segment_ids, data_clips_test], labels_test)
+        score, acc_val = model.evaluate([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val)
+
         list_predictions = model.predict([test_input_ids, test_input_masks, test_segment_ids, data_clips_test])
 
     else:
         score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
         score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
+        score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
         list_predictions = model.predict([data_actions_test, data_clips_test])
-
-
 
 
     predicted = list_predictions > 0.5
     print("GT test data: " + str(Counter(labels_test)))
     print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
 
-    score, acc_val = model.evaluate([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val)
     # list_predictions = model.predict([data_actions_val, data_clips_val])
     # predicted = list_predictions > 0.5
 
@@ -556,12 +556,11 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--type_action_emb', type=str, choices=["GloVe", "ELMo", "Bert", "DNT"], default="Bert")
     parser.add_argument('-m', '--model_name', type=str, choices=["MPU", "cosine sim"], default="MPU")
-    # parser.add_argument('-f', '--finetune', type=bool, choices=[True, False], default=True)
     parser.add_argument('-f', '--finetune', action='store_true')
     parser.add_argument('--epochs', type=int, default=65)
     parser.add_argument('-cl', '--clip_length', type=str, choices=["3s", "10s"], default="3s")
     parser.add_argument('-b', '--balance', type=bool, choices=[True, False], default=True)
-    parser.add_argument('-c', '--add_cluster', type=bool, choices=[True, False], default=False)
+    parser.add_argument('-c', '--add_cluster', action='store_true')
     args = parser.parse_args()
     return args
 
