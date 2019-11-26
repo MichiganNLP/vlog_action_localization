@@ -405,9 +405,9 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
         list_predictions = model.predict([test_input_ids, test_input_masks, test_segment_ids, data_clips_test])
 
     else:
-        score, acc_train = model.evaluate([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train)
-        score, acc_test = model.evaluate([test_input_ids, test_input_masks, test_segment_ids, data_clips_test], labels_test)
-        list_predictions = model.predict([test_input_ids, test_input_masks, test_segment_ids, data_clips_test])
+        score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
+        score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
+        list_predictions = model.predict([data_actions_test, data_clips_test])
 
 
 
@@ -415,7 +415,7 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
     predicted = list_predictions > 0.5
     print(Counter(x for xs in predicted for x in set(xs)))
     print(Counter(labels_test))
-    score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
+    score, acc_val = model.evaluate([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val)
     # list_predictions = model.predict([data_actions_val, data_clips_val])
     # predicted = list_predictions > 0.5
 
