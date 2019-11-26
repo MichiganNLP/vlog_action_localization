@@ -413,8 +413,9 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
 
 
     predicted = list_predictions > 0.5
-    print(Counter(x for xs in predicted for x in set(xs)))
-    print(Counter(labels_test))
+    print("GT test data: " + str(Counter(labels_test)))
+    print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
+
     score, acc_val = model.evaluate([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val)
     # list_predictions = model.predict([data_actions_val, data_clips_val])
     # predicted = list_predictions > 0.5
