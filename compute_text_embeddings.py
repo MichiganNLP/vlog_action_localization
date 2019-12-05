@@ -348,7 +348,8 @@ def save_elmo_embddings(list_all_actions):
         emb_action = embed_fn([action]).reshape(-1)
         dict_action_embeddings[action] = emb_action
 
-    with open('data/dict_action_embeddings_ELMo_vb_particle.json', 'w+') as outfile:
+    # with open('data/dict_action_embeddings_ELMo_vb_particle.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_ELMo.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
 
     return dict_action_embeddings
@@ -365,14 +366,15 @@ def create_glove_embeddings(list_all_actions):
 def create_bert_embeddings(list_all_actions):
     tokenizer_name = 'bert-base-uncased'
 
-    # pretrained_model_name = 'data/epoch_29/'
-    pretrained_model_name = tokenizer_name
+    pretrained_model_name = 'data/epoch_29/'
+    # pretrained_model_name = tokenizer_name
 
     start = time.time()
     # Load pre-trained model tokenizer (vocabulary)
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     # Load pre-trained model (weights)
-    model = PreTrainedModel.from_pretrained(pretrained_model_name)
+    # model = PreTrainedModel.from_pretrained(pretrained_model_name)
+    model = BertModel.from_pretrained(pretrained_model_name)
     # Put the model in "evaluation" mode, meaning feed-forward operation.
     model.eval()
     end = time.time()
@@ -384,7 +386,7 @@ def create_bert_embeddings(list_all_actions):
         # emb_action = finetune_bert(model,tokenizer, action)
         dict_action_embeddings[action] = emb_action.reshape(-1)
 
-    with open('data/dict_action_embeddings_Bert.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_Bert2.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 

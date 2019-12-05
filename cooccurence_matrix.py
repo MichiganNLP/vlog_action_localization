@@ -41,8 +41,8 @@ def cluster_co_occurrence_matrix(corpus, keywords):
     plt.figure(figsize=(15, 15))
     cmap = "RdBu_r"
     sns.set(font_scale=1.6)
-    sns.heatmap(data_matrix, annot=True, center=0, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
-                linewidths=1, annot_kws={"size": 13})
+    sns.heatmap(data_matrix, annot=False, center=0, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
+                linewidths=1)#, annot_kws={"size": 13})
     plt.show()
 
 
@@ -236,14 +236,14 @@ def main():
     entire_action = dict_actions_cooccurence["entire_action"]
 
     clusters = entire_action_cluster(entire_action, out_path)
-    # test_cooccurence_matrix(clusters)
+    test_cooccurence_matrix(clusters)
     keywords = cluster_name(out_path)
-    save_dict_action_cluster(entire_action, clusters, keywords, "data/clusters/dict_actions_clusters.json")
+    # save_dict_action_cluster(entire_action, clusters, keywords, "data/clusters/dict_actions_clusters.json")
 
 
 
     # keywords = range(0, 30)
-    # cluster_co_occurrence_matrix(clusters, keywords)
+    cluster_co_occurrence_matrix(clusters, keywords)
 
 
 if __name__ == '__main__':

@@ -159,7 +159,7 @@ def stemm_list_actions(list_actions, path_pos_data):
     for action in list_actions:
         stemmed_action = stem_action(action, path_pos_data)
         if stemmed_action:
-            stemmed_actions.append(action)
+            stemmed_actions.append(stemmed_action)
         else:
             print(action + "not in dict_pos_action!")
     return stemmed_actions
@@ -1070,13 +1070,34 @@ def get_dict_all_annotations_visible_not():
                 count_v += 1
         list_videos.append(key.split("mini")[0])
 
-    print("# miniclips: {0}".format(len(dict_all_annotations_ordered.keys())))
     print("# videos: {0}".format(len(set(list_videos))))
+    print("# miniclips: {0}".format(len(dict_all_annotations_ordered.keys())))
+    print("# actions: {0}".format(count_v + count_n))
     print("# visible actions: {0}".format(count_v))
     print("# not visible actions: {0}".format(count_n))
-    with open('data/dict_all_annotations_1_7channels.json', 'w+') as outfile:
+    with open('data/dict_all_annotations_1_10channels.json', 'w+') as outfile:
         json.dump(dict_all_annotations_ordered, outfile)
 
+def add_cluster_data(dict_action_embeddings):
+    with open("data/clusters/dict_actions_clusters.json") as file:
+        dict_actions_clusters = json.load(file)
+    for action in dict_action_embeddings.keys():
+        [cluster_nb, cluster_name, cluster_name_emb] = dict_actions_clusters[action]
+        cluster_nb_normalized = (cluster_nb - 0) / (29 - 0)
+        # dict_action_embeddings[action].append(cluster_nb_normalized)
+
+        # avg action emb and cluster emb
+        action_emb = dict_action_embeddings[action]
+        dict_action_embeddings[action] = list(map(add, action_emb, cluster_name_emb))
+        # dict_action_embeddings[action].append(cluster_nb_normalized)
+        dict_action_embeddings[action] = [x / 2 for x in dict_action_embeddings[action]]
+
+        # only cluster emb
+        # dict_action_embeddings[action] == cluster_name_emb
+
+        # concatenate cluster & action emb
+        # dict_action_embeddings[action] += cluster_name_emb
+        return dict_action_embeddings
 
 def get_dict_all_annotations_ordered():
     list_annotation_files = sorted(glob.glob("data/annotations/*.json"))

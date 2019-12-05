@@ -2,8 +2,6 @@ import os
 import json
 from utils_data_video import get_clip_time_per_miniclip, create_action_clip_labels, load_data_from_I3D, create_clips
 
-channels = ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1"]
-
 
 # channels = ["6p0", "6p1", "7p0", "7p1"]
 
@@ -27,8 +25,13 @@ def main():
         Annotations
     '''
     clip_length = "3s"
-    path_I3D_features = "../i3d_keras/data/results_features_"+ clip_length + "/"
-    get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip"+ clip_length  +".json", path_I3D_features, clip_length) # DONE for all channels
+    # path_I3D_features = "../i3d_keras/data/results_features_" + clip_length + "/"
+    path_I3D_features = "../i3d_keras/data/results_features_overlapping_" + clip_length + "/"
+    # get_clip_time_per_miniclip("../temporal_annotation/miniclips/",
+    #                            "data/dict_clip_time_per_miniclip" + clip_length + ".json", path_I3D_features,
+    #                            clip_length)  # DONE for all channels
+    channels = ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1", "8p0",
+                "8p1", "9p0", "9p1", "10p0", "10p1"]
     create_action_clip_labels("data/dict_clip_time_per_miniclip" + clip_length + ".json",
                               'data/dict_all_annotations' + clip_length + '.json', channels)
 

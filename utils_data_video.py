@@ -30,7 +30,8 @@ def get_clip_time_per_miniclip(path_input, path_output, path_I3D_features, clip_
         clip_name_root = video_file.split("/")[-1][:-4]
         show_sec_time = "ffprobe -i " + video_file + " -show_entries format=duration -v quiet -of csv=p=0"
         time_miniclip = float(os.popen(show_sec_time).read())
-        nb_clips = np.math.ceil(time_miniclip / clip_length)  # for clip_length clips
+        # nb_clips = np.math.ceil(time_miniclip / clip_length)  # for clip_length clips
+        nb_clips = int(time_miniclip)  # for clip_length clips
         for index in range(nb_clips):
             clip_name = clip_name_root + "_" + str(index).zfill(3) + ".mp4"
             if index == 0:
@@ -41,13 +42,14 @@ def get_clip_time_per_miniclip(path_input, path_output, path_I3D_features, clip_
                     end_time = clip_length - time_miniclip
             else:
                 # start_time = index * clip_length # if non-overlapping
-                start_time = index + clip_length
+                start_time = index - 3 + clip_length
                 if time_miniclip >= clip_length:
                     end_time = start_time + clip_length
                 else:
                     end_time = start_time + time_miniclip
 
-            time_miniclip = time_miniclip - clip_length
+            # time_miniclip = time_miniclip - clip_length
+            time_miniclip = time_miniclip - 1
             dict_clip_time_per_miniclip[clip_name] = [start_time, end_time]
 
     list_i3d_files = []

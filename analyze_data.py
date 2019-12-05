@@ -81,13 +81,16 @@ def plot_hist_length_actions(annotations, channel=None):
                     action_duration = int(time_e - time_s)
                     # 5 -> 0; 6 -> 10
                     rounded_duration = str(int(round(action_duration, -1)))
+                if int(rounded_duration) < 0:
+                    print(miniclip, action)
                 list_duration.append(rounded_duration)
 
     counter = Counter(list_duration)
     # counter = counter.most_common()
     counter = sorted(counter.items())
     labels, values = zip(*counter)
-    for l in ['-1', '0', '10', '20', '30', '40', '50', '60']:
+    # for l in ['-1', '0', '10', '20', '30', '40', '50', '60']:
+    for l in ['0', '10', '20', '30', '40', '50', '60']:
         if l not in labels:
             counter.append((l, 0))
 
@@ -97,7 +100,8 @@ def plot_hist_length_actions(annotations, channel=None):
     indexes = np.arange(len(labels))
     width = 1
 
-    plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange", "purple"])
+    # plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange", "purple"])
+    plt.bar(indexes, values, width)
     plt.xticks(indexes + width * 0.5, labels)
     plt.ylabel('count', fontsize=18)
     plt.xlabel('rounded seconds', fontsize=16)
@@ -146,9 +150,9 @@ def count_how_many_times_actions_overlap():
     print(count_exact_time)
 
 
-def change_format():
+def change_format(initial):
     new_format_dict = {}
-    with open("data/results/dict_predicted_MPU + ELMo + 651p0.json") as file:
+    with open(initial) as file:
         predicted = json.load(file)
 
     for video_action in predicted.keys():
@@ -162,8 +166,8 @@ def change_format():
 
 
 def main():
-    new_format_dict = change_format()
-    with open("data/dict_all_annotations_1_7channels.json") as file:
+    # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")
+    with open("data/dict_all_annotations_1_10channels.json") as file:
         annotations = json.load(file)
     plot_hist_length_actions(annotations)
     # plot_hist_length_actions(annotations, "4p0")

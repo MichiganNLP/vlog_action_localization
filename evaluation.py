@@ -153,8 +153,6 @@ def compute_meanIOU(IOU_vals):
 
 
 def wrapper_IOU(proposed_1p0, groundtruth_1p0):
-    size_vals = len([proposed_1p0.get(next(iter(proposed_1p0)))])
-    # IOU_vals = np.empty((0, size_vals), float)
     if len(proposed_1p0.keys()) != len(groundtruth_1p0.keys()):
         # print("proposed and groundtruth data size don't match!!")
         # print("str(len(groundtruth_1p0.keys() - proposed_1p0.keys()))" + str(len(groundtruth_1p0.keys() - proposed_1p0.keys())))
@@ -183,6 +181,8 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
         # candidate_segments = np.array([proposed_1p0[miniclip_action]])
         candidate_segments = np.array(proposed_1p0[miniclip_action])
         # candidate_segments = np.array([[float(j) for j in i] for i in candidate_segments])
+
+
         tIOU = segment_iou(target_segment, candidate_segments)
         # tIOU = np.expand_dims(tIOU, axis=1)
         # IOU_vals = np.append(IOU_vals, tIOU, axis=0)
@@ -205,7 +205,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
 def evaluate(method, channel):
     print("-----------------------------------------------------------")
     print("Results for method {0} on channel {1}:".format(method, channel))
-    with open("data/results/dict_predicted_" + method + channel + ".json") as f:
+    with open("data/results/dict_predicted_" + method + ".json") as f:
         proposed_1p0 = json.loads(f.read())
 
     with open("data/annotations/annotations" + channel + ".json") as f:
