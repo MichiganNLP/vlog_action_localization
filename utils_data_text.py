@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import itertools
+import random
 
 from nltk import bigrams
 import numpy as np
@@ -20,6 +21,9 @@ from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
 from tabulate import tabulate
+
+from compute_text_embeddings import create_glove_embeddings
+from utils_data_video import average_i3d_features
 
 WORD = re.compile(r'\w+')
 
@@ -152,6 +156,350 @@ def stem_action(action, path_pos_data):
         return None
 
     return action
+
+
+def balance_data(dict_val_data):
+    dict_balance_annotation = {}
+    nb_visible_actions, nb_not_visible_actions = get_nb_visible_not_visible(dict_val_data)
+
+    if nb_not_visible_actions >= nb_visible_actions:
+        ratio_visible_not_visible = int(nb_not_visible_actions / nb_visible_actions)
+    else:
+        ratio_visible_not_visible = int(nb_visible_actions / nb_not_visible_actions)
+
+    # Downsample data --> delete the non-visible actions
+    for video_name in dict_val_data.keys():
+        list_not_visible_actions = get_list_actions_for_label(dict_val_data, video_name, False)
+        index = 0
+        list_all_actions = dict_val_data[video_name]
+        for elem in list_not_visible_actions:
+            if ratio_visible_not_visible > 1 and index % ratio_visible_not_visible == 0:
+                list_all_actions.remove([elem, False])
+            index += 1
+        dict_balance_annotation[video_name] = list_all_actions
+
+    nb_visible_actions, nb_not_visible_actions = get_nb_visible_not_visible(dict_balance_annotation)
+    diff_nb_actions = abs(nb_not_visible_actions - nb_visible_actions)
+
+    while diff_nb_actions:
+        # this makes the # actions to vary in Train, Test Eval after each run
+        # run it once and save the list
+        random_video_name = random.choice(list(dict_balance_annotation))
+        list_not_visible_actions = get_list_actions_for_label(dict_balance_annotation, random_video_name, False)
+        if list_not_visible_actions:
+            list_all_actions = dict_balance_annotation[random_video_name]
+            list_all_actions.remove([list_not_visible_actions[0], False])
+            diff_nb_actions -= 1
+
+    return dict_balance_annotation
+
+
+def merge_intervals(intervals, overlapping_sec):
+    intervals.sort(key=lambda x: x[0])
+
+    merged = []
+    for interval in intervals:
+        # if the list of merged intervals is empty or if the current
+        # interval does not overlap with the previous, simply append it.
+        if not merged or merged[-1][1] < interval[0] - overlapping_sec:
+            merged.append(interval)
+        else:
+            # otherwise, there is overlap, so we merge the current and previous
+            # intervals.
+            merged[-1][1] = max(merged[-1][1], interval[1])
+            merged[-1][2] = max(merged[-1][2], interval[2])
+
+    return merged
+
+
+def compute_final_proposal(list_all_times):
+    groups = group(list_all_times, 3)
+    overlapping_sec = 5
+    # print(groups)
+    merged_intervals = merge_intervals(groups, overlapping_sec)
+
+    merged_intervals.sort(key=lambda x: x[2], reverse=True)  # highest scored proposal
+    # print(merged_intervals)
+    proposal = [merged_intervals[0][:-1]]
+    return proposal
+
+
+def compute_predicted_IOU_GT(test_data, clip_length):
+    with open("data/dict_clip_time_per_miniclip" + clip_length + ".json") as f:
+        dict_clip_time_per_miniclip = json.loads(f.read())
+
+    [data_clips_test, data_actions_test, gt_labels_test] = test_data
+    data_clips_test_names = [i[0] for i in data_clips_test]
+    data_actions_test_names = [i[0] for i in data_actions_test]
+    dict_predicted = {}
+
+    data = zip(data_clips_test_names, data_actions_test_names, gt_labels_test)
+    output = "data/results/dict_predicted_GT.json"
+
+    for [clip, action, label] in data:
+        miniclip = clip[:-8] + ".mp4"
+        if label:
+            if miniclip + ", " + action not in dict_predicted.keys():
+                dict_predicted[miniclip + ", " + action] = []
+
+            [time_s, time_e] = dict_clip_time_per_miniclip[clip]
+            dict_predicted[miniclip + ", " + action].append(time_s)
+            dict_predicted[miniclip + ", " + action].append(time_e)
+        else:
+            if miniclip + ", " + action not in dict_predicted.keys():
+                dict_predicted[miniclip + ", " + action] = []
+
+    for key in dict_predicted.keys():
+        if not dict_predicted[key]:
+            dict_predicted[key].append(-1)
+            dict_predicted[key].append(-1)
+
+    for key in dict_predicted.keys():
+        list_all_times = dict_predicted[key]
+        dict_predicted[key] = [[min(list_all_times), max(list_all_times)]]
+
+    with open(output, 'w+') as fp:
+        json.dump(dict_predicted, fp)
+
+def get_nb_visible_not_visible(dict_val_data):
+    nb_visible_actions = 0
+    nb_not_visible_actions = 0
+    for clip in list(dict_val_data.keys()):
+        list_action_label = dict_val_data[clip]
+        for [_, label] in list_action_label:
+            if label:
+                nb_visible_actions += 1
+            else:
+                nb_not_visible_actions += 1
+    return nb_visible_actions, nb_not_visible_actions
+
+
+def get_list_actions_for_label(dict_video_actions, miniclip, label_type):
+    list_type_actions = []
+    list_action_labels = dict_video_actions[miniclip]
+    for [action, label] in list_action_labels:
+        if label == label_type:
+            list_type_actions.append(action)
+    return list_type_actions
+
+
+def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annotations, path_I3D_features, channels_val,
+                          channels_test, hold_out_test_channels):
+    with open(path_all_annotations) as f:
+        dict_all_annotations = json.load(f)
+
+    # dict_miniclip_clip_feature = load_data_from_I3D() #if LSTM
+    dict_miniclip_clip_feature = average_i3d_features(path_I3D_features)
+    dict_action_embeddings = load_text_embeddings(type_action_emb, dict_all_annotations, all_actions=True,
+                                                  use_nouns=False, use_particle=True)
+
+    if add_cluster:
+        dict_action_embeddings = add_cluster_data(dict_action_embeddings)
+
+    dict_train_annotations, dict_val_annotations, dict_test_annotations = split_data_train_val_test(
+        dict_all_annotations,
+        channels_val,
+        channels_test,
+        hold_out_test_channels)
+
+    data_clips_train, data_actions_train, labels_train = [], [], []
+    data_clips_val, data_actions_val, labels_val = [], [], []
+    data_clips_test, data_actions_test, labels_test = [], [], []
+
+    set_action_miniclip_train = set()
+    set_action_miniclip_test = set()
+    set_action_miniclip_val = set()
+
+    if balance:
+        print("Balance data (train & val)")
+
+        # with open("data/train_test_val/dict_balanced_annotations_train.json") as f:
+        #     dict_train_annotations = json.loads(f.read())
+        # dict_train_annotations = balance_data(dict_train_annotations)
+        with open("data/train_test_val/dict_balanced_annotations_train.json", 'w+') as fp:
+            json.dump(dict_train_annotations, fp)
+
+        with open("data/train_test_val/dict_balanced_annotations_val.json") as f:
+            dict_val_annotations = json.loads(f.read())
+        # dict_val_annotations = balance_data(dict_val_annotations)
+        # with open("data/train_test_val/dict_balanced_annotations_val.json", 'w+') as fp:
+        #     json.dump(dict_val_annotations, fp)
+
+        # No balancing the test!!!
+        # with open("data/train_test_val/dict_balanced_annotations_test.json") as f:
+        #     dict_test_annotations = json.loads(f.read())
+        # dict_test_annotations = balance_data(dict_test_annotations)
+        # with open("data/train_test_val/dict_balanced_annotations_test.json", 'w+') as fp:
+        #     json.dump(dict_test_annotations, fp)
+
+    for clip in list(dict_train_annotations.keys()):
+        list_action_label = dict_train_annotations[clip]
+        # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
+        if clip[:-4] not in dict_miniclip_clip_feature.keys():
+            continue
+        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+
+        for [action, label] in list_action_label:
+            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
+            action_emb = dict_action_embeddings[action]
+            # action_emb = np.zeros(1024)
+            data_clips_train.append([clip, viz_feat])
+            data_actions_train.append([action, action_emb])
+            labels_train.append(label)
+            set_action_miniclip_train.add(clip[:-8] + ", " + action)
+
+    for clip in list(dict_val_annotations.keys()):
+        list_action_label = dict_val_annotations[clip]
+        # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
+        if clip[:-4] not in dict_miniclip_clip_feature.keys():
+            continue
+        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+
+        for [action, label] in list_action_label:
+            action_emb = dict_action_embeddings[action]
+            # action_emb = np.zeros(1024)
+            data_clips_val.append([clip, viz_feat])
+            data_actions_val.append([action, action_emb])
+            labels_val.append(label)
+            set_action_miniclip_val.add(clip[:-8] + ", " + action)
+
+    list_test_clip_names = []
+    list_test_action_names = []
+    for clip in list(dict_test_annotations.keys()):
+        list_action_label = dict_test_annotations[clip]
+        # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
+        if clip[:-4] not in dict_miniclip_clip_feature.keys():
+            continue
+        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+
+        for [action, label] in list_action_label:
+            action_emb = dict_action_embeddings[action]
+            # action_emb = np.zeros(1024)
+            data_clips_test.append([clip, viz_feat])
+            data_actions_test.append([action, action_emb])
+            labels_test.append(label)
+            set_action_miniclip_test.add(clip[:-8] + ", " + action)
+            list_test_clip_names.append(clip)
+            list_test_action_names.append(action)
+
+    # np.save("data/clip_names1p1.npy", list_test_clip_names)
+    # np.save("data/action_names1p1.npy", list_test_action_names)
+    # np.save("data/labels1p1.npy", labels_test)
+
+    print(tabulate([['Total', 'Train', 'Val', 'Test'],
+                    [len(data_actions_train) + len(data_actions_val) + len(data_actions_test), len(data_actions_train),
+                     len(data_actions_val), len(data_actions_test)]],
+                   headers="firstrow"))
+
+    print(Counter(labels_train))
+    print(Counter(labels_val))
+    print(Counter(labels_test))
+
+    return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
+           [data_clips_test, data_actions_test, labels_test]
+
+
+
+def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use_nouns, use_particle):
+    set_actions = set()
+    for clip in list(dict_all_annotations.keys()):
+        list_action_label = dict_all_annotations[clip]
+        for [action, _] in list_action_label:
+            if not all_actions:
+                action, _ = compute_action(action, use_nouns, use_particle)
+            set_actions.add(action)
+    list_all_actions = list(set_actions)
+
+    if type_action_emb == "GloVe":
+        return create_glove_embeddings(list_all_actions)
+    elif type_action_emb == "ELMo":
+        with open('data/embeddings/dict_action_embeddings_ELMo.json') as f:
+            # with open('data/embeddings/dict_action_embeddings_ELMo_vb_particle.json') as f:
+            json_load = json.loads(f.read())
+        return json_load
+        # return save_elmo_embddings(list_all_actions)  # if need to create new
+    elif type_action_emb == "Bert":
+        with open('data/embeddings/dict_action_embeddings_Bert2.json') as f:
+            json_load = json.loads(f.read())
+        return json_load
+        # return create_bert_embeddings(list_all_actions)
+    elif type_action_emb == "DNT":
+        with open('steve_human_action/dict_action_emb_DNT.json') as f:
+            json_load = json.loads(f.read())
+        return json_load
+    else:
+        raise ValueError("Wrong action emb type")
+
+
+
+
+def split_data_train_val_test(dict_all_annotations, channels_val, channels_test, hold_out_test_channels):
+    dict_val_data = {}
+    for clip in list(dict_all_annotations.keys()):
+        if clip[:-4].split("_")[0] in hold_out_test_channels:
+            continue
+        if clip[:-4].split("_")[0] in channels_val:
+            dict_val_data[clip] = dict_all_annotations[clip]
+
+    dict_test_data = {}
+    for clip in list(dict_all_annotations.keys()):
+        if clip[:-4].split("_")[0] in hold_out_test_channels:
+            continue
+        if clip[:-4].split("_")[0] in channels_test:
+            dict_test_data[clip] = dict_all_annotations[clip]
+
+    dict_train_data = {}
+    for clip in list(dict_all_annotations.keys()):
+        if clip[:-4].split("_")[0] in hold_out_test_channels:
+            continue
+        if clip[:-4].split("_")[0] not in channels_val + channels_test:
+            dict_train_data[clip] = dict_all_annotations[clip]
+    return dict_train_data, dict_val_data, dict_test_data
+
+
+def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_length,
+                          list_predictions):
+
+    with open("data/dict_clip_time_per_miniclip" + clip_length + ".json") as f:
+        dict_clip_time_per_miniclip = json.loads(f.read())
+
+    [data_clips_test, data_actions_test, gt_labels_test] = test_data
+    data_clips_test_names = [i[0] for i in data_clips_test]
+    data_actions_test_names = [i[0] for i in data_actions_test]
+    dict_predicted = {}
+
+    data = zip(data_clips_test_names, data_actions_test_names, predicted_labels_test, list_predictions)
+    output = "data/results/dict_predicted_" + model_name + ".json"
+
+    for [clip, action, label, score] in data:
+        miniclip = clip[:-8] + ".mp4"
+        if label:
+            if miniclip + ", " + action not in dict_predicted.keys():
+                dict_predicted[miniclip + ", " + action] = []
+
+            [time_s, time_e] = dict_clip_time_per_miniclip[clip]
+            dict_predicted[miniclip + ", " + action].append(time_s)
+            dict_predicted[miniclip + ", " + action].append(time_e)
+            dict_predicted[miniclip + ", " + action].append(score[0])
+        else:
+            if miniclip + ", " + action not in dict_predicted.keys():
+                dict_predicted[miniclip + ", " + action] = []
+
+    for key in dict_predicted.keys():
+        if not dict_predicted[key]:
+            dict_predicted[key].append(-1)
+            dict_predicted[key].append(-1)
+            dict_predicted[key].append(-1)
+
+    for key in list(dict_predicted.keys()):
+        list_all_times = dict_predicted[key]
+        # print(key)
+        proposal = compute_final_proposal(list_all_times)
+        dict_predicted[key] = proposal
+
+    with open(output, 'w+') as fp:
+        json.dump(dict_predicted, fp)
+
 
 
 def stemm_list_actions(list_actions, path_pos_data):
@@ -965,12 +1313,13 @@ def get_features_from_data(train_data, val_data, test_data):
     data_actions_names_val = [i[0] for i in data_actions_val]
 
     data_clips_test = [i[1] for i in data_clips_test]
+    data_clips_names_test = [i[0] for i in data_clips_test]
     # data_clips_test = get_visual_features_from_data(data_clips_test)
     data_actions_emb_test = [i[1] for i in data_actions_test]
     data_actions_names_test = [i[0] for i in data_actions_test]
 
     return [data_clips_train, data_actions_emb_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_emb_val, labels_val, data_actions_names_val], [
-        data_clips_test, data_actions_emb_test, labels_test, data_actions_names_test]
+        data_clips_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test]
 
 
 def group(lst, n):
@@ -1189,7 +1538,7 @@ def main():
     # path_miniclips = "data/miniclip_actions.json"
     # path_pos_data = "data/dict_action_pos_concreteness.json"
     # path_list_actions = "data/stats/list_actions.csv"
-    path_transcripts = "/local/oignat/Action_Recog/vlog_action_recognition/data/Video/new_videos_captions/new_transcripts.json"
+    # path_transcripts = "/local/oignat/Action_Recog/vlog_action_recognition/data/Video/new_videos_captions/new_transcripts.json"
     # split_transcript_into_sentences(path_transcripts)
 
     # create_stemmed_original_actions(path_miniclips, path_pos_data)

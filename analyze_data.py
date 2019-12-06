@@ -165,6 +165,7 @@ def change_format(initial):
     return new_format_dict
 
 
+
 def main():
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")
     with open("data/dict_all_annotations_1_10channels.json") as file:

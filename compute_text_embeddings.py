@@ -390,6 +390,80 @@ def create_bert_embeddings(list_all_actions):
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 
+
+def create_data_for_finetuning_bert(data_actions_names_train, data_actions_names_val, data_actions_names_test,
+                                    data_clips_train, data_clips_val, data_clips_test, labels_train, labels_val,
+                                    labels_test):
+    max_seq_length = 256
+    # Instantiate tokenizer
+    tokenizer = create_tokenizer_from_hub_module("https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1")
+
+    data_actions_train = [" ".join(t.split()[0:max_seq_length]) for t in data_actions_names_train]
+    data_actions_train = np.array(data_actions_train, dtype=object)[:, np.newaxis]
+
+    data_actions_val = [" ".join(t.split()[0:max_seq_length]) for t in data_actions_names_val]
+    data_actions_val = np.array(data_actions_val, dtype=object)[:, np.newaxis]
+
+    data_actions_test = [" ".join(t.split()[0:max_seq_length]) for t in data_actions_names_test]
+    data_actions_test = np.array(data_actions_test, dtype=object)[:, np.newaxis]
+
+    # Convert data to InputExample format
+    train_examples = convert_text_to_examples(data_actions_train, labels_train)
+    val_examples = convert_text_to_examples(data_actions_val, labels_val)
+    test_examples = convert_text_to_examples(data_actions_test, labels_test)
+
+    # Convert to features
+    (
+        train_input_ids,
+        train_input_masks,
+        train_segment_ids,
+        train_labels,
+    ) = convert_examples_to_features(
+        tokenizer, train_examples, max_seq_length=max_seq_length
+    )
+    (
+        val_input_ids,
+        val_input_masks,
+        val_segment_ids,
+        val_labels,
+    ) = convert_examples_to_features(
+        tokenizer, val_examples, max_seq_length=max_seq_length
+    )
+    (
+        test_input_ids,
+        test_input_masks,
+        test_segment_ids,
+        test_labels,
+    ) = convert_examples_to_features(
+        tokenizer, test_examples, max_seq_length=max_seq_length
+    )
+
+    data_clips_train = np.array(data_clips_train, dtype=object)
+    data_clips_val = np.array(data_clips_val, dtype=object)
+    data_clips_test = np.array(data_clips_test, dtype=object)
+
+    return [data_actions_train, data_actions_val, data_actions_test], [data_clips_train, data_clips_val, data_clips_test], \
+           [train_input_ids, val_input_ids, test_input_ids], [train_input_masks, val_input_masks, test_input_masks], \
+           [train_segment_ids, val_segment_ids, test_segment_ids]
+
+
+def create_data_for_finetuning_elmo(data_actions_names_train, data_actions_names_val, data_actions_names_test,
+                                    data_clips_train, data_clips_val, data_clips_test):
+    print("before data_clips_train len: {0}".format(data_clips_train[0].shape[0]))
+    data_actions_train = np.array(data_actions_names_train, dtype=object)[:, np.newaxis]
+    data_actions_val = np.array(data_actions_names_val, dtype=object)[:, np.newaxis]
+    data_actions_test = np.array(data_actions_names_test, dtype=object)[:, np.newaxis]
+
+    data_clips_train = np.array(data_clips_train, dtype=object)
+    data_clips_val = np.array(data_clips_val, dtype=object)
+    data_clips_test = np.array(data_clips_test, dtype=object)
+    print("after data_clips_train.shape: {0}".format(data_clips_train.shape))
+    print("Elmo actions, data_actions_train.shape: {0}".format(data_actions_train.shape))
+
+    return data_actions_train, data_actions_val, data_actions_test, data_clips_train, data_clips_val, data_clips_test
+
+
+
 # def finetune_bert(model,tokenizer, action):
 #     action = "[CLS] " + action + " [SEP]"
 #     tokenized_texts = [tokenizer.tokenize(action)]
