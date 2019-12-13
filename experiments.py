@@ -1,25 +1,30 @@
 import os
 from _operator import add
 
+import keras
 import scipy.signal
+from keras_preprocessing.text import Tokenizer
 from sklearn.metrics import f1_score, precision_score, recall_score
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras_multi_head import MultiHeadAttention
 
 from args import parse_args, channels_val, channels_test, hold_out_test_channels
 from compute_text_embeddings import ElmoEmbeddingLayer, BertLayer, \
-     create_data_for_finetuning_bert, create_data_for_finetuning_elmo
+    create_data_for_finetuning_bert, create_data_for_finetuning_elmo
 from evaluation import evaluate
 import json
 from collections import Counter
 import time
 from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
-    compute_predicted_IOU_GT, create_data_for_model
+    compute_predicted_IOU_GT, create_data_for_model, get_seqs
 
-from keras.layers import Dense, Input, Dropout, Reshape, dot
+from keras.layers import Dense, Input, Dropout, Reshape, dot, Embedding, Bidirectional, Flatten, LSTM
 import tensorflow as tf
-from keras import backend as K, Model
+from keras import backend as K, Model, Sequential
 import numpy as np
+from keras_self_attention import SeqSelfAttention
+
 # from keras import layers
 
 # # Initialize session
@@ -52,6 +57,27 @@ def set_random_seed():
     K.set_session(sess)
     import torch
     torch.manual_seed(seed_value)
+
+
+def main_model():
+    max_num_words = 20000
+    max_length = 22
+
+    model = Sequential()
+    model.add(Embedding(max_num_words, 100, input_length=max_length))
+    model.add(Bidirectional(LSTM(units=128, return_sequences=True, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(MultiHeadAttention(head_num=4, name='Multi-Head'))
+    # model.add(SeqSelfAttention(attention_activation='sigmoid'))
+    model.add(Flatten())
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy'],
+    )
+    model.summary()
+    return model
+
 
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
@@ -154,15 +180,82 @@ def compute_majority_label_baseline_acc(labels_train, labels_test):
     return nb_correct / len(labels_test), maj_labels
 
 
-def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
+def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
     print("---------- Running " + config_name + " -------------------")
 
     [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
                                                                                      data_actions_names_val], \
-    [data_clips_test, data_actions_test, labels_test, data_actions_names_test, data_clips_names_test] = get_features_from_data(train_data,
-                                                                                                        val_data,
-                                                                                                        test_data)
+    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
+     data_clips_names_test] = get_features_from_data(train_data,
+                                                     val_data,
+                                                     test_data)
+
+    tokenizer = Tokenizer(num_words=20000)
+    tokenizer.fit_on_texts(data_actions_names_train + data_actions_names_val + data_actions_names_test)
+
+    data_actions_train = get_seqs(data_actions_names_train,tokenizer)
+    data_actions_val = get_seqs(data_actions_names_val,tokenizer)
+    data_actions_test = get_seqs(data_actions_names_test,tokenizer)
+    # input_dim_text = len(data_actions_train[0])
+    # input_dim_video = data_clips_train[0].shape[0]
+
+    # print(input_dim_text)
+    print(data_actions_train.shape)
+
+    model = main_model()
+
+    if balance == True:
+        file_path_best_model = 'model/Model_params/' + config_name + '.hdf5'
+    else:
+        file_path_best_model = 'model/model_params_unbalanced/' + config_name + '.hdf5'
+
+    checkpointer = ModelCheckpoint(monitor='val_acc',
+                                   filepath=file_path_best_model,
+                                   save_best_only=True, save_weights_only=True)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
+    tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
+                              write_graph=True)
+    callback_list = [earlystopper, checkpointer]
+
+    if not os.path.isfile(file_path_best_model):
+        model.fit(data_actions_train, labels_train,
+                  validation_data=(data_actions_val, labels_val),
+                  epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+
+    print("Load best model weights from " + file_path_best_model)
+    model.load_weights(file_path_best_model)
+
+    score, acc_train = model.evaluate(data_actions_train, labels_train)
+    score, acc_test = model.evaluate(data_actions_test, labels_test)
+    score, acc_val = model.evaluate(data_actions_val, labels_val)
+    list_predictions = model.predict(data_actions_test)
+
+    print("GT test data: " + str(Counter(labels_test)))
+    predicted = list_predictions >= 0.5
+    print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
+
+    f1_test = f1_score(labels_test, predicted)
+    prec_test = precision_score(labels_test, predicted)
+    rec_test = recall_score(labels_test, predicted)
+    print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
+    print("acc_train: {:0.2f}".format(acc_train))
+    print("acc_val: {:0.2f}".format(acc_val))
+    print("acc_test: {:0.2f}".format(acc_test))
+
+    return model_name, predicted, list_predictions
+
+
+def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
+    print("---------- Running " + config_name + " -------------------")
+
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+                                                                                     labels_val,
+                                                                                     data_actions_names_val], \
+    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
+     data_clips_names_test] = get_features_from_data(train_data,
+                                                     val_data,
+                                                     test_data)
     # input_dim_text = data_actions_val[0].shape[0]
     input_dim_text = len(data_actions_train[0])
     input_dim_video = data_clips_train[0].shape[0]
@@ -200,12 +293,11 @@ def baseline_2(train_data, val_data, test_data, model_name, nb_epochs, balance, 
 
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
-                                   verbose=1,
                                    save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=50)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
                               write_graph=True)
-    callback_list = [checkpointer]
+    callback_list = [earlystopper, checkpointer]
 
     if not os.path.isfile(file_path_best_model):
 
@@ -342,9 +434,14 @@ def main():
             '''
                     Create model
             '''
-            model_name, predicted, list_predictions = baseline_2(train_data, val_data, test_data, args.model_name,
-                                                                 args.epochs,
-                                                                 args.balance, config_name)
+            # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+            #                                                        args.epochs,
+            #                                                        args.balance, config_name)
+
+            model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+                                                                   args.epochs,
+                                                                   args.balance, config_name)
+
             '''
                 Majority (actions are visible in all clips)
             '''

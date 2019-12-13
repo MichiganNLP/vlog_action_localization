@@ -11,8 +11,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 import pandas as pd
 
-from compute_text_embeddings import create_elmo_embedding
-from steve_human_action.main import NumpyEncoder
+from compute_text_embeddings import create_elmo_embedding, NumpyEncoder
 
 plt.style.use('ggplot')
 
@@ -36,13 +35,13 @@ def cluster_co_occurrence_matrix(corpus, keywords):
     column = list(keywords)
     data_matrix = pd.DataFrame(co_occurrence_matrix, index=index,
                                columns=column)
-    # cmap = sns.cm.rocket_r
+    cmap = sns.cm.rocket_r
     data_matrix[data_matrix == 0] = np.nan
     plt.figure(figsize=(15, 15))
     cmap = "RdBu_r"
     sns.set(font_scale=1.6)
     sns.heatmap(data_matrix, annot=False, center=0, cmap=cmap, xticklabels=1, yticklabels=1, cbar=True, square=True,
-                linewidths=1)#, annot_kws={"size": 13})
+                linewidths=1)  # , annot_kws={"size": 13})
     plt.show()
 
 
@@ -66,7 +65,9 @@ def generate_co_occurrence_matrix(corpus):
     for bigram in bigram_freq:
         current = bigram[0][1]
         previous = bigram[0][0]
-        count = math.log(bigram[1] / (vocab_freq[current] * vocab_freq[previous]) * total_word)
+        # count = math.log(bigram[1] / (vocab_freq[current] * vocab_freq[previous]) * total_word)
+        # count = math.log(bigram[1])
+        count = bigram[1]
         count = round(count, 3)
         pos_current = vocab_index[current]
         pos_previous = vocab_index[previous]
@@ -173,7 +174,7 @@ def entire_action_cluster(entire_action, out_path):
     return clusters
 
 
-def cluster_name(cluster_document_name):
+def cluster_name(cluster_document_name, nb_clusters):
     cluster_action = {}
     with open(cluster_document_name) as fp:
         for line in fp.readlines():
@@ -201,7 +202,7 @@ def cluster_name(cluster_document_name):
     tf_idf_vector = tfidf_transformer.transform(count_vector)
     feature_names = cv.get_feature_names()
     keywords = []
-    for i in range(30):
+    for i in range(nb_clusters):
         first_document_vector = tf_idf_vector[i]
         df = pd.DataFrame(first_document_vector.T.todense(), index=feature_names, columns=["tfidf"])
         df = df.sort_values(by=["tfidf"], ascending=False)
@@ -209,6 +210,7 @@ def cluster_name(cluster_document_name):
         seperator = ' '
         keywords.append(seperator.join(keyword))
     return keywords
+
 
 def save_dict_action_cluster(entire_action, clusters, keywords, path_out):
     dict_actions_clusters = {}
@@ -226,24 +228,32 @@ def save_dict_action_cluster(entire_action, clusters, keywords, path_out):
     with open(path_out, 'w+') as outfile:
         json.dump(dict_actions_clusters, outfile, cls=NumpyEncoder)
 
+
 def main():
-    out_path = "data/clusters/kmeans_clusters_30_DNT.out"
-    with open("data/dict_actions_cooccurence.json") as f:
+    with open("/local/oignat/Action_Recog/action_recog_2/steve_human_action/dict_actions_cooccurence.json") as f:
         dict_actions_cooccurence = json.loads(f.read())
 
-    verb_particle = dict_actions_cooccurence["verb_particle"]
-    verb_particle_nouns = dict_actions_cooccurence["verb_particle_nouns"]
-    entire_action = dict_actions_cooccurence["entire_action"]
+    for k in [30, 50, 100, 150, 200, 250, 300]:
+        out_path = "/local/oignat/Action_Recog/action_recog_2/steve_human_action/clusters/kmeans_clusters_" + \
+                   str(k) + "_DNT.out"
 
-    clusters = entire_action_cluster(entire_action, out_path)
-    test_cooccurence_matrix(clusters)
-    keywords = cluster_name(out_path)
-    # save_dict_action_cluster(entire_action, clusters, keywords, "data/clusters/dict_actions_clusters.json")
+        # test_cooccurence_matrix(dict_actions_cooccurence["verb"])
+        # test_cooccurence_matrix(dict_actions_cooccurence["all_actions"])
 
+        # verb_particle = dict_actions_cooccurence["verb_particle"]
+        # verb_particle_nouns = dict_actions_cooccurence["verb_particle_nouns"]
+        entire_action = dict_actions_cooccurence["all_actions"]
 
+        clusters = entire_action_cluster(entire_action, out_path)
+        # test_cooccurence_matrix(clusters)
+        keywords = cluster_name(out_path, k)
+
+        save_dict_action_cluster(entire_action, clusters, keywords,
+                                 "/local/oignat/Action_Recog/action_recog_2/steve_human_action/cluster_results/dict_actions_clusters_" +
+                                 str(k) + ".json")
 
     # keywords = range(0, 30)
-    cluster_co_occurrence_matrix(clusters, keywords)
+    # cluster_co_occurrence_matrix(clusters, keywords)
 
 
 if __name__ == '__main__':

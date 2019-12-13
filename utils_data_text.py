@@ -21,7 +21,8 @@ from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
 from tabulate import tabulate
-
+from keras.preprocessing.text import one_hot, Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 from compute_text_embeddings import create_glove_embeddings
 from utils_data_video import average_i3d_features
 
@@ -1074,7 +1075,7 @@ def compute_action(action, use_nouns, use_particle):
 
     stemmed_word = stemmed_word.strip()
     if not stemmed_word:
-        stemmed_word = action
+        stemmed_word = action.split()[0] # verb usually
 
     print(action + " -> " + stemmed_word)
     return stemmed_word, ok_noun
@@ -1137,17 +1138,24 @@ def get_ordered_actions_per_miniclip(visible_miniclips, list_most_common_actions
 
     list_all_actions_ordered = []
     action_prev = ""
+    miniclip = dict.keys()[0]
+    video_prev = miniclip.split("mini")[0]
     for miniclip in dict.keys():
-        END_OK = 0
+        video = miniclip.split("mini")[0]
+        END_OK = 1
+        if video != video_prev:
+            END_OK = 0
+            video_prev = video
+
         for action in dict[miniclip]:
             if list_most_common_actions and (
                     action in list_most_common_actions or action_prev in list_most_common_actions):
                 list_all_actions_ordered.append(action)
-                END_OK = 1
+                # END_OK = 1
 
             elif not list_most_common_actions:
                 list_all_actions_ordered.append(action)
-                END_OK = 1
+                # END_OK = 1
             action_prev = action
         if END_OK:
             list_all_actions_ordered.append("END")
@@ -1428,7 +1436,7 @@ def get_dict_all_annotations_visible_not():
         json.dump(dict_all_annotations_ordered, outfile)
 
 def add_cluster_data(dict_action_embeddings):
-    with open("data/clusters/dict_actions_clusters.json") as file:
+    with open("steve_human_action/cluster_results/dict_actions_clusters_250.json") as file:
         dict_actions_clusters = json.load(file)
     for action in dict_action_embeddings.keys():
         [cluster_nb, cluster_name, cluster_name_emb] = dict_actions_clusters[action]
@@ -1437,7 +1445,7 @@ def add_cluster_data(dict_action_embeddings):
 
         # avg action emb and cluster emb
         action_emb = dict_action_embeddings[action]
-        dict_action_embeddings[action] = list(map(add, action_emb, cluster_name_emb))
+        dict_action_embeddings[action] = list(map(np.add, action_emb, cluster_name_emb))
         # dict_action_embeddings[action].append(cluster_nb_normalized)
         dict_action_embeddings[action] = [x / 2 for x in dict_action_embeddings[action]]
 
@@ -1447,6 +1455,13 @@ def add_cluster_data(dict_action_embeddings):
         # concatenate cluster & action emb
         # dict_action_embeddings[action] += cluster_name_emb
         return dict_action_embeddings
+
+def get_seqs(text, tokenizer):
+    max_num_words = 20000
+    max_length = 22 # max nb of words in an action
+    sequences = tokenizer.texts_to_sequences(text)
+    padded_sequences = pad_sequences(sequences, maxlen=max_length, padding='post')
+    return padded_sequences
 
 def get_dict_all_annotations_ordered():
     list_annotation_files = sorted(glob.glob("data/annotations/*.json"))
@@ -1472,9 +1487,29 @@ def get_dict_all_annotations_ordered():
     with open('data/dict_all_annotations_ordered.json', 'w+') as outfile:
         json.dump(dict_all_annotations_ordered, outfile)
 
+def create_matrix(list_miniclips_visibile_new, list_stemmed_visibile_actions_new, dict_actions, key):
+
+    list_all_actions_ordered = []
+    miniclip_prev = list_miniclips_visibile_new[0]
+    video_prev = miniclip_prev.split("mini")[0]
+    # put 'END' only after video is ended (not miniclip)
+    for (miniclip, action) in zip(list_miniclips_visibile_new, list_stemmed_visibile_actions_new):
+        video = miniclip.split("mini")[0]
+        # if miniclip != miniclip_prev:
+        if video != video_prev:
+            list_all_actions_ordered.append("END")
+            # miniclip_prev = miniclip
+            video_prev = video
+        list_all_actions_ordered.append(action)
+    # dict_actions["entire_action"] = list_all_actions_ordered
+    dict_actions[key] = list_all_actions_ordered
+    return dict_actions
+
 
 def create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visibile_actions_new):
-    dict_actions = {"verb": [], "verb_particle": [], "verb_particle_nouns": []}
+    dict_actions = {"verb": [], "verb_particle": [], "verb_particle_nouns": [], "all_actions":[]}
+
+    dict_actions = create_matrix(list_miniclips_visibile_new, list_stemmed_visibile_actions_new, dict_actions, "all_actions")
 
     for (use_nouns, use_particle) in [(False, False), (False, True), (True, True)]:
 
@@ -1483,57 +1518,53 @@ def create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visi
                                                                                     use_nouns,
                                                                                     use_particle)
 
-        list_all_actions_ordered = get_ordered_actions_per_miniclip(visible_miniclips,
-                                                                    most_common_visible_actions)  # list_stemmed_visibile_actions
+        # list_all_actions_ordered = get_ordered_actions_per_miniclip(visible_miniclips,
+        #                                                             most_common_visible_actions)  # list_stemmed_visibile_actions
 
         if [use_nouns, use_particle] == [False, False]:
-            dict_actions["verb"] = list_all_actions_ordered
+            #dict_actions["verb"] = list_all_actions_ordered
+            key = "verb"
         elif [use_nouns, use_particle] == [False, True]:
-            dict_actions["verb_particle"] = list_all_actions_ordered
+            #dict_actions["verb_particle"] = list_all_actions_ordered
+            key = "verb_particle"
         elif [use_nouns, use_particle] == [True, True]:
-            dict_actions["verb_particle_nouns"] = list_all_actions_ordered
+           # dict_actions["verb_particle_nouns"] = list_all_actions_ordered
+            key = "verb_particle_nouns"
+        dict_actions = create_matrix(visible_miniclips, most_common_visible_actions, dict_actions, key)
 
-    list_all_actions_ordered = []
-    miniclip_prev = list_miniclips_visibile_new[0]
-    for (miniclip, action) in zip(list_miniclips_visibile_new, list_stemmed_visibile_actions_new):
-        if miniclip != miniclip_prev:
-            list_all_actions_ordered.append("END")
-            miniclip_prev = miniclip
-        list_all_actions_ordered.append(action)
-    dict_actions["entire_action"] = list_all_actions_ordered
+    with open('steve_human_action/dict_actions_cooccurence.json', 'w+') as outfile:
+        json.dump(dict_actions, outfile)
 
-    # with open('data/dict_actions_cooccurence.json', 'w+') as outfile:
-    #     json.dump(dict_actions, outfile)
-
-    # test_cooccurence_matrix(dict_actions["verb"])
-    # test_cooccurence_matrix(dict_actions["verb_particle"])
+    test_cooccurence_matrix(dict_actions["verb"])
+    test_cooccurence_matrix(dict_actions["verb_particle"])
 
 
 # test_cooccurence_matrix(dict_actions["entire_action"])
 
 
 def main():
-    get_dict_all_annotations_visible_not()
-    # get_dict_all_annotations_ordered()
 
-    # with open("data/dict_all_annotations_ordered.json") as file:
-    #     dict_all_annotations_ordered = json.load(file)
-    #
-    # list_stemmed_visibile_actions_new = []
-    # list_miniclips_visibile_new = []
-    #
-    # for miniclip in dict_all_annotations_ordered.keys():
-    #     list_actions_labels = dict_all_annotations_ordered[miniclip]
-    #     for [action, time_s, time_e] in list_actions_labels:
-    #         list_stemmed_visibile_actions_new.append(action)
-    #         list_miniclips_visibile_new.append(miniclip)
+    # get_dict_all_annotations_visible_not()
+    #get_dict_all_annotations_ordered()
 
-    # with open("data/dict_action_embeddings_ELMo.json") as file:
-    #     dict_action_embeddings_ELMo = json.load(file)
-    #
-    # print(len(dict_action_embeddings_ELMo.keys()))
-    # print(len(list(set(list_stemmed_visibile_actions_new))))
-    # create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visibile_actions_new)
+    with open("data/dict_all_annotations_ordered.json") as file:
+        dict_all_annotations_ordered = json.load(file)
+
+    list_stemmed_visibile_actions_new = []
+    list_miniclips_visibile_new = []
+
+    for miniclip in dict_all_annotations_ordered.keys():
+        list_actions_labels = dict_all_annotations_ordered[miniclip]
+        for [action, time_s, time_e] in list_actions_labels:
+            list_stemmed_visibile_actions_new.append(action)
+            list_miniclips_visibile_new.append(miniclip)
+
+    with open("data/embeddings/dict_action_embeddings_ELMo.json") as file:
+        dict_action_embeddings_ELMo = json.load(file)
+
+    print(len(dict_action_embeddings_ELMo.keys()))
+    print(len(list(set(list_stemmed_visibile_actions_new))))
+    create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visibile_actions_new)
 
     # path_miniclips = "data/miniclip_actions.json"
     # path_pos_data = "data/dict_action_pos_concreteness.json"

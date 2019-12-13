@@ -66,7 +66,7 @@ def make_activity_list():
     #         j += 1
 
     # read action list from 'dict_action_emb_DNT.json'
-    with open('data/dict_action_embeddings_ELMo.json') as json_file:
+    with open('data/embeddings/dict_action_embeddings_ELMo.json') as json_file:
         data = json.load(json_file)
     with open("steve_human_action/activity-list.csv", "w") as files:
         j = 0
@@ -76,7 +76,7 @@ def make_activity_list():
 
 
 def main():
-    make_activity_list()
+    #make_activity_list()
     '''
     #os.system(" scp steve_human_action/activity-list.csv  oignat@lit1000.eecs.umich.edu:/local2/oignat/activity_prediction-master/clustering/DNT/human_activity_lists")
     # in lit1000:
@@ -84,19 +84,19 @@ def main():
     # python DNT.py --model infersent --dataset activities --dimension 1 --transfer NT --save no --load_model rdnt900.pretrained
     # scp output/*.vec oignat@lit09.eecs.umich.edu:/local/oignat/Action_Recog/action_recog_2/steve_human_action/output/
     '''
-    # dict_embeddings = read_ouput_DNT()
-    # dict_actions = read_activity()
-    #
-    # dict_action_emb = {}
-    #
-    # for index in dict_embeddings.keys():
-    #     action = dict_actions[index]
-    #     emb = dict_embeddings[index]
-    #     dict_action_emb[action] = emb.reshape(-1)
-    #
-    # print(len(dict_embeddings.keys()))
-    # with open('steve_human_action/dict_action_emb_DNT.json', 'w+') as outfile:
-    #     json.dump(dict_action_emb, outfile, cls=NumpyEncoder)
+    dict_embeddings = read_ouput_DNT()
+    dict_actions = read_activity()
+
+    dict_action_emb = {}
+
+    for index in dict_embeddings.keys():
+        action = dict_actions[index]
+        emb = dict_embeddings[index]
+        dict_action_emb[action] = emb.reshape(-1)
+
+    print(len(dict_embeddings.keys()))
+    with open('steve_human_action/dict_action_emb_DNT.json', 'w+') as outfile:
+        json.dump(dict_action_emb, outfile, cls=NumpyEncoder)
 
 
 # json.dump(dict_action_emb, codecs.open('dict_action_emb_DNT.json', 'w', encoding='utf-8'), separators=(',', ':'))

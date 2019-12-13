@@ -67,6 +67,7 @@ def find_overlapping_actions(new_dict):
 
 def plot_hist_length_actions(annotations, channel=None):
     list_duration = []
+    max_nb_words = 0
     for miniclip in annotations.keys():
         if channel:
             if channel not in miniclip:
@@ -83,6 +84,9 @@ def plot_hist_length_actions(annotations, channel=None):
                     rounded_duration = str(int(round(action_duration, -1)))
                 if int(rounded_duration) < 0:
                     print(miniclip, action)
+                if len(action.split()) > max_nb_words:
+                    max_nb_words = len(action.split())
+
                 list_duration.append(rounded_duration)
 
     counter = Counter(list_duration)
@@ -108,7 +112,7 @@ def plot_hist_length_actions(annotations, channel=None):
     plt.show()
     # ax = sns.countplot(x="rounded seconds",data=counter)
 
-
+    print("max # words action: " + str(max_nb_words))
 def count_how_many_times_actions_overlap():
     with open("data/dict_all_annotations_1_7channels.json") as file:
         annotations = json.load(file)
