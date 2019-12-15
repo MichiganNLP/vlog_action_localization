@@ -59,7 +59,7 @@ def set_random_seed():
     torch.manual_seed(seed_value)
 
 
-def main_model():
+def main_model(input_dim_video):
     max_num_words = 20000
     max_length = 22
 
@@ -69,6 +69,23 @@ def main_model():
     model.add(MultiHeadAttention(head_num=4, name='Multi-Head'))
     # model.add(SeqSelfAttention(attention_activation='sigmoid'))
     model.add(Flatten())
+
+    # video_input = tf.keras.layers.Input(shape=(input_dim_video,), dtype='float32', name='video_input')
+    # video_output = tf.keras.layers.Dense(64)(video_input)
+    #
+    # # MPU
+    # multiply = tf.keras.layers.Multiply()([action_output, video_output])
+    # add = tf.keras.layers.Add()([action_output, video_output])
+    # concat_multiply_add = tf.keras.layers.concatenate([multiply, add])
+    #
+    # concat = tf.keras.layers.concatenate([action_output, video_output])
+    # FC = tf.keras.layers.Dense(64)(concat)
+    #
+    # concat_all = tf.keras.layers.concatenate([concat_multiply_add, FC])
+    #
+    # output = tf.keras.layers.Dense(64)(concat_all)
+    # output = tf.keras.layers.Dropout(0.5)(output)
+
     model.add(Dense(1, activation='sigmoid'))
     model.compile(
         optimizer='adam',
@@ -211,7 +228,7 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
         file_path_best_model = 'model/model_params_unbalanced/' + config_name + '.hdf5'
 
     checkpointer = ModelCheckpoint(monitor='val_acc',
-                                   filepath=file_path_best_model,
+                                   filepath=file_path_best_model, verbose = 1,
                                    save_best_only=True, save_weights_only=True)
     earlystopper = EarlyStopping(monitor='val_acc', patience=10)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
@@ -453,12 +470,12 @@ def main():
             # print("maj_val: {:0.2f}".format(maj_val))
             # print("maj_test: {:0.2f}".format(maj_test))
 
-            '''
-                    Evaluate
-            '''
-            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            for channel_test in channels_test:
-                evaluate(config_name, channel_test)
+        #     '''
+        #             Evaluate
+        #     '''
+        #     compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+        #     for channel_test in channels_test:
+        #         evaluate(config_name, channel_test)
 
 
 if __name__ == "__main__":

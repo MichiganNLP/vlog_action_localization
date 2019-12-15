@@ -24,7 +24,7 @@ from tabulate import tabulate
 from keras.preprocessing.text import one_hot, Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from compute_text_embeddings import create_glove_embeddings
-from utils_data_video import average_i3d_features
+from utils_data_video import average_i3d_features, load_data_from_I3D
 
 WORD = re.compile(r'\w+')
 
@@ -289,7 +289,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     with open(path_all_annotations) as f:
         dict_all_annotations = json.load(f)
 
-    # dict_miniclip_clip_feature = load_data_from_I3D() #if LSTM
+    # dict_miniclip_clip_feature = load_data_from_I3D(path_I3D_features) #if LSTM
     dict_miniclip_clip_feature = average_i3d_features(path_I3D_features)
     dict_action_embeddings = load_text_embeddings(type_action_emb, dict_all_annotations, all_actions=True,
                                                   use_nouns=False, use_particle=True)

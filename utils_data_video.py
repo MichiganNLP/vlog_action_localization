@@ -203,7 +203,7 @@ def create_clips(path_input_video, path_output_video, channels):
 
 
 
-def save_data_from_I3D():
+def save_data_from_I3D(path_I3D_features):
     max_nb_frames = 100
 
     dict_miniclip_clip_feature = {}
@@ -216,6 +216,7 @@ def save_data_from_I3D():
 
         padded_video_features = np.zeros((max_nb_frames, 1024))
         for j in range(features.shape[4]):
+            print(features_per_frame.shape[0])
             if max_nb_frames < features_per_frame.shape[0]:
                 raise ValueError(features_per_frame.shape[0])
             padded_video_features[:, j] = np.array(list(features_per_frame[:, j]) + (max_nb_frames - features_per_frame.shape[0]) * [0])
@@ -229,14 +230,15 @@ def save_data_from_I3D():
     #     I3D_feature_per_clip = dict_miniclip_clip_feature[miniclip_clip]
     #     features_matrix_I3D[index] = I3D_feature_per_clip
     #     index += 1
-    with open('data/dict_I3D_padded.json', 'w+') as outfile:
+    with open('data/embeddings/dict_I3D_padded.json', 'w+') as outfile:
         json.dump(dict_miniclip_clip_feature, outfile, cls=NumpyEncoder)
     #return dict_miniclip_clip_feature
 
-def load_data_from_I3D():
-    # save_data_from_I3D()
-    with open('data/dict_I3D_padded.json') as json_file:
+def load_data_from_I3D(path_I3D_features):
+    save_data_from_I3D(path_I3D_features)
+    with open('data/embeddings/dict_I3D_padded.json') as json_file:
         dict_miniclip_clip_feature = json.load(json_file)
+    print(len(dict_miniclip_clip_feature.keys()))
     #dict_test_miniclip = {}
     # for key in dict_miniclip_clip_feature.keys():
     #     if "1p0" or "1p1" in key:
@@ -247,6 +249,8 @@ def load_data_from_I3D():
 def average_i3d_features(path_I3D_features):
     with open('data/embeddings/dict_I3D_avg.json') as json_file:
         dict_miniclip_clip_feature = json.load(json_file)
+    print(len(dict_miniclip_clip_feature.keys()))
+
 
     # dict_miniclip_clip_feature = {}
     # print("loading I3D")
