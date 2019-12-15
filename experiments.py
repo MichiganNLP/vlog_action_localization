@@ -19,9 +19,13 @@ from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
     compute_predicted_IOU_GT, create_data_for_model, get_seqs
 
-from keras.layers import Dense, Input, Dropout, Reshape, dot, Embedding, Bidirectional, Flatten, LSTM
+from keras.layers import Dense, Input, Dropout, Reshape, dot, Embedding, Bidirectional, Flatten, LSTM, Multiply, Add, \
+    concatenate
 import tensorflow as tf
-from keras import backend as K, Model, Sequential
+from keras import backend as K, Sequential
+from keras.models import Model
+
+
 import numpy as np
 from keras_self_attention import SeqSelfAttention
 
@@ -63,38 +67,48 @@ def main_model(input_dim_video):
     max_num_words = 20000
     max_length = 22
 
-    model = Sequential()
-    model.add(Embedding(max_num_words, 100, input_length=max_length))
-    model.add(Bidirectional(LSTM(units=128, return_sequences=True, dropout=0.2, recurrent_dropout=0.2)))
-    model.add(MultiHeadAttention(head_num=4, name='Multi-Head'))
+    model1 = Sequential()
+    model1.add(Embedding(max_num_words, 100, input_length=max_length))
+    model1.add(Bidirectional(LSTM(units=128, return_sequences=True, dropout=0.2, recurrent_dropout=0.2)))
+    model1.add(MultiHeadAttention(head_num=4, name='Multi-Head'))
     # model.add(SeqSelfAttention(attention_activation='sigmoid'))
-    model.add(Flatten())
+    model1.add(Flatten())
+    model1.add(Dense(64))
+    model1.summary()
 
-    # video_input = tf.keras.layers.Input(shape=(input_dim_video,), dtype='float32', name='video_input')
-    # video_output = tf.keras.layers.Dense(64)(video_input)
-    #
-    # # MPU
-    # multiply = tf.keras.layers.Multiply()([action_output, video_output])
-    # add = tf.keras.layers.Add()([action_output, video_output])
-    # concat_multiply_add = tf.keras.layers.concatenate([multiply, add])
-    #
-    # concat = tf.keras.layers.concatenate([action_output, video_output])
-    # FC = tf.keras.layers.Dense(64)(concat)
-    #
-    # concat_all = tf.keras.layers.concatenate([concat_multiply_add, FC])
-    #
-    # output = tf.keras.layers.Dense(64)(concat_all)
-    # output = tf.keras.layers.Dropout(0.5)(output)
 
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(
+    input2 = Input(shape=(input_dim_video,))
+    output2 = Dense(64, activation='relu')(input2)
+    model2 = Model(input2, output2)
+    model2.summary()
+    # model.add(SeqSelfAttention(attention_activation='sigmoid'))
+
+    # MPU
+    multiply = Multiply()([model1.output, model2.output])
+    add = Add()([model1.output, model2.output])
+    concat_multiply_add = concatenate([multiply, add])
+
+    concat = concatenate([model1.output, model2.output])
+    FC = Dense(64)(concat)
+
+    concat_all = concatenate([concat_multiply_add, FC])
+
+    output = Dense(64)(concat_all)
+    output = Dropout(0.5)(output)
+
+    # And finally we add the main logistic regression layer
+    main_output = Dense(1, activation='sigmoid', name='main_output')(output)
+
+    merged_model = Model([model1.input, model2.input], main_output)
+
+    # model1.add(Dense(1, activation='sigmoid'))
+    merged_model.compile(
         optimizer='adam',
         loss='binary_crossentropy',
         metrics=['accuracy'],
     )
-    model.summary()
-    return model
-
+    merged_model.summary()
+    return merged_model
 
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
@@ -211,24 +225,28 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
     tokenizer = Tokenizer(num_words=20000)
     tokenizer.fit_on_texts(data_actions_names_train + data_actions_names_val + data_actions_names_test)
 
-    data_actions_train = get_seqs(data_actions_names_train,tokenizer)
-    data_actions_val = get_seqs(data_actions_names_val,tokenizer)
-    data_actions_test = get_seqs(data_actions_names_test,tokenizer)
+    data_actions_train = get_seqs(data_actions_names_train, tokenizer)
+    data_actions_val = get_seqs(data_actions_names_val, tokenizer)
+    data_actions_test = get_seqs(data_actions_names_test, tokenizer)
+
     # input_dim_text = len(data_actions_train[0])
-    # input_dim_video = data_clips_train[0].shape[0]
+    input_dim_video = data_clips_train[0].shape[0]
+    print(data_clips_train.shape)
 
     # print(input_dim_text)
     print(data_actions_train.shape)
+    print(input_dim_video)
 
-    model = main_model()
+    model = main_model(input_dim_video)
 
+    config_name = config_name + " video "
     if balance == True:
         file_path_best_model = 'model/Model_params/' + config_name + '.hdf5'
     else:
         file_path_best_model = 'model/model_params_unbalanced/' + config_name + '.hdf5'
 
     checkpointer = ModelCheckpoint(monitor='val_acc',
-                                   filepath=file_path_best_model, verbose = 1,
+                                   filepath=file_path_best_model, verbose=1,
                                    save_best_only=True, save_weights_only=True)
     earlystopper = EarlyStopping(monitor='val_acc', patience=10)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
@@ -236,17 +254,26 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
     callback_list = [earlystopper, checkpointer]
 
     if not os.path.isfile(file_path_best_model):
-        model.fit(data_actions_train, labels_train,
-                  validation_data=(data_actions_val, labels_val),
+        # model.fit(data_actions_train, labels_train,
+        #           validation_data=(data_actions_val, labels_val),
+        #           epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+
+        model.fit([data_actions_train, data_clips_train], labels_train,
+                  validation_data=([data_actions_val, data_clips_val], labels_val),
                   epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)
 
-    score, acc_train = model.evaluate(data_actions_train, labels_train)
-    score, acc_test = model.evaluate(data_actions_test, labels_test)
-    score, acc_val = model.evaluate(data_actions_val, labels_val)
-    list_predictions = model.predict(data_actions_test)
+    # score, acc_train = model.evaluate(data_actions_train, labels_train)
+    # score, acc_test = model.evaluate(data_actions_test, labels_test)
+    # score, acc_val = model.evaluate(data_actions_val, labels_val)
+    # list_predictions = model.predict(data_actions_test)
+
+    score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
+    score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
+    score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
+    list_predictions = model.predict([data_actions_test, data_clips_test])
 
     print("GT test data: " + str(Counter(labels_test)))
     predicted = list_predictions >= 0.5
@@ -456,8 +483,8 @@ def main():
             #                                                        args.balance, config_name)
 
             model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-                                                                   args.epochs,
-                                                                   args.balance, config_name)
+                                                                        args.epochs,
+                                                                        args.balance, config_name)
 
             '''
                 Majority (actions are visible in all clips)

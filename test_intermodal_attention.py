@@ -81,9 +81,9 @@ def create_mask(train_data, test_data, train_length, test_length):
 
 
 (train_text, train_label, test_text, test_label, max_utt_len, train_len, test_len) = pickle.load(
-    open('./input/text.pickle', 'rb'))
-(train_audio, _, test_audio, _, _, _, _) = pickle.load(open('./input/audio.pickle', 'rb'))
-(train_video, _, test_video, _, _, _, _) = pickle.load(open('./input/video.pickle', 'rb'))
+    open('data/test_attention/input/text.pickle', 'rb'))
+(train_audio, _, test_audio, _, _, _, _) = pickle.load(open('data/test_attention/input/audio.pickle', 'rb'))
+(train_video, _, test_video, _, _, _, _) = pickle.load(open('data/test_attention/input/video.pickle', 'rb'))
 
 train_label, test_label = create_one_hot_labels(train_label.astype('int'), test_label.astype('int'))
 
