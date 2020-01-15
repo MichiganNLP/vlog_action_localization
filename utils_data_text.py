@@ -566,7 +566,8 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
             [time_s, time_e] = dict_clip_time_per_miniclip[clip]
             dict_predicted[miniclip + ", " + action].append(time_s)
             dict_predicted[miniclip + ", " + action].append(time_e)
-            dict_predicted[miniclip + ", " + action].append(score[0])
+            # dict_predicted[miniclip + ", " + action].append(score[0])
+            dict_predicted[miniclip + ", " + action].append(score)
         else:
             if miniclip + ", " + action not in dict_predicted.keys():
                 dict_predicted[miniclip + ", " + action] = []
