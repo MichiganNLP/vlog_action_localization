@@ -1158,6 +1158,7 @@ def method_compare_actions(train_data, val_data, test_data):
                                                      test_data)
 
     predicted = []
+
     data_actions_names_test = data_actions_names_test
     data_clips_names_test = data_clips_names_test
     labels_test = labels_test
@@ -1171,7 +1172,8 @@ def method_compare_actions(train_data, val_data, test_data):
     acc_test = accuracy_score(labels_test, predicted)
     print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
     print("acc_test: {:0.2f}".format(acc_test))
-    return predicted
+    list_predictions = predicted
+    return predicted, list_predictions
 
 def compute_similarity(action1, action2):
     list_word_action1 = action1.split(" ")

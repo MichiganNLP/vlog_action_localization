@@ -469,7 +469,7 @@ def main():
         else:
             '''
                     Create model
-            '''
+            # '''
             # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
             #                                                        args.epochs,
             #                                                        args.balance, config_name)
@@ -479,8 +479,8 @@ def main():
             #                                                             args.epochs,
             #                                                             args.balance, config_name)
 
-            predicted = method_compare_actions(train_data, val_data, test_data)
-
+            predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+            config_name = "compare actions 1"
             '''
                 Majority (actions are visible in all clips)
             '''
@@ -492,12 +492,12 @@ def main():
             # print("maj_val: {:0.2f}".format(maj_val))
             # print("maj_test: {:0.2f}".format(maj_test))
 
-            # '''
-            #         Evaluate
-            # '''
-            # compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            # for channel_test in channels_test:
-            #     evaluate(config_name, channel_test)
+            '''
+                    Evaluate
+            '''
+            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+            for channel_test in channels_test:
+                evaluate(config_name, channel_test)
 
 
 if __name__ == "__main__":
