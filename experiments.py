@@ -1,7 +1,9 @@
 import os
+from pprint import pprint
+
 import scipy.signal
 from keras_preprocessing.text import Tokenizer
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras_multi_head import MultiHeadAttention
 
@@ -10,18 +12,17 @@ from compute_text_embeddings import ElmoEmbeddingLayer, BertLayer, \
     create_data_for_finetuning_bert, create_data_for_finetuning_elmo
 from evaluation import evaluate
 import json
-from collections import Counter
+from collections import Counter, OrderedDict
 import time
 from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
-    compute_predicted_IOU_GT, create_data_for_model, get_seqs
+    compute_predicted_IOU_GT, create_data_for_model, get_seqs, compute_median_per_miniclip, method_compare_actions
 
 from keras.layers import Dense, Input, Dropout, Reshape, dot, Embedding, Bidirectional, Flatten, LSTM, Multiply, Add, \
     concatenate
 import tensorflow as tf
 from keras import backend as K, Sequential
 from keras.models import Model
-
 
 import numpy as np
 from keras_self_attention import SeqSelfAttention
@@ -72,7 +73,6 @@ def main_model(input_dim_video):
     model1.add(Flatten())
     model1.add(Dense(64))
     model1.summary()
-
 
     input2 = Input(shape=(input_dim_video,))
     output2 = Dense(64, activation='relu')(input2)
@@ -245,7 +245,7 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model, verbose=1,
                                    save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=20)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]
@@ -376,17 +376,12 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
     # predicted = list_predictions >= 0
     predicted = list_predictions >= 0.5
 
-    print("before median:")
+    ## not ok -- acc high, but low f1 -> worse results
+    # predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted, labels_test)
+    # print("Predicted test data: " + str(Counter(predicted)))
+
     print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
 
-    # median filter
-    predicted = predicted.flatten()
-    np.save("data/predicted1p1.npy", predicted)
-    predicted = scipy.signal.medfilt(predicted, 1)
-    predicted = predicted.reshape(len(predicted), 1)
-
-    print("after median:")
-    print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
 
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
@@ -479,9 +474,12 @@ def main():
             #                                                        args.epochs,
             #                                                        args.balance, config_name)
 
-            model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-                                                                        args.epochs,
-                                                                        args.balance, config_name)
+
+            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+            #                                                             args.epochs,
+            #                                                             args.balance, config_name)
+
+            predicted = method_compare_actions(train_data, val_data, test_data)
 
             '''
                 Majority (actions are visible in all clips)
@@ -494,12 +492,12 @@ def main():
             # print("maj_val: {:0.2f}".format(maj_val))
             # print("maj_test: {:0.2f}".format(maj_test))
 
-        #     '''
-        #             Evaluate
-        #     '''
-        #     compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-        #     for channel_test in channels_test:
-        #         evaluate(config_name, channel_test)
+            # '''
+            #         Evaluate
+            # '''
+            # compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+            # for channel_test in channels_test:
+            #     evaluate(config_name, channel_test)
 
 
 if __name__ == "__main__":
