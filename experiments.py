@@ -317,6 +317,7 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
             create_data_for_finetuning_bert(data_actions_names_train, data_actions_names_val, data_actions_names_test,
                                             data_clips_train, data_clips_val, data_clips_test, labels_train, labels_val,
                                             labels_test)
+
         finetune_bert = True
     else:
         finetune_bert = False
@@ -480,7 +481,7 @@ def main():
             #                                                             args.balance, config_name)
 
             predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            config_name = "compare actions 1"
+            config_name = "compare actions 2"
             '''
                 Majority (actions are visible in all clips)
             '''

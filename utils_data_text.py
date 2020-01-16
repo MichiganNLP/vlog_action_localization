@@ -50,6 +50,7 @@ class color:
     UNDERLINE = '\033[4m'
     END = '\033[0m'
 
+
 def get_word_embedding(embeddings_index, word):
     embedding_vector = embeddings_index.get(word)
     if embedding_vector is None:
@@ -57,6 +58,7 @@ def get_word_embedding(embeddings_index, word):
     else:
         word_embedding = np.asarray(embedding_vector)
         return word_embedding
+
 
 def load_embeddings():
     embeddings_index = dict()
@@ -69,6 +71,7 @@ def load_embeddings():
     print('Loaded %s word vectors.' % len(embeddings_index))
 
     return embeddings_index
+
 
 def get_cosine(vec1, vec2):
     intersection = set(vec1.keys()) & set(vec2.keys())
@@ -485,7 +488,8 @@ def split_data_train_val_test(dict_all_annotations, channels_val, channels_test,
     return dict_train_data, dict_val_data, dict_test_data
 
 
-def compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted, labels_test):
+def compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted, labels_test,
+                                med_filt_kernel_size):
     dict_order_by_action = OrderedDict()
     for (action, clip, p, gt) in list(zip(data_actions_names_test, data_clips_names_test, predicted, labels_test)):
         dict_order_by_action[(action, clip)] = [p[0], gt]
@@ -508,7 +512,7 @@ def compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, 
     #     sum_bef_1 = 0
     #     sum_aft_1 = 0
     #     print("med_filt_kernel_size: " + str(med_filt_kernel_size))
-    med_filt_kernel_size = 21
+
     for key in dict_pred_before_med.keys():
         predicted_by_action_miniclip = [i[0] for i in dict_pred_before_med[key]]
         # print("predicted_by_action_miniclip:")
@@ -1135,7 +1139,7 @@ def get_pos_action(action):
 
 
 def is_action_in_clip(action, clip):
-    #print(clip)
+    # print(clip)
     list_actions_clip = read_class_results(clip)
     list_sim = []
     for action_clip in list_actions_clip:
@@ -1148,6 +1152,7 @@ def is_action_in_clip(action, clip):
         # print("action " + action + " is in " + clip)
         return True
     return False
+
 
 def method_compare_actions(train_data, val_data, test_data):
     [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
@@ -1167,6 +1172,10 @@ def method_compare_actions(train_data, val_data, test_data):
         result = is_action_in_clip(action, clip[:-4])
         predicted.append(result)
 
+    med_filt_predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted,
+                                                     labels_test, med_filt_kernel_size=3)
+    predicted = med_filt_predicted
+
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
     rec_test = recall_score(labels_test, predicted)
@@ -1175,6 +1184,7 @@ def method_compare_actions(train_data, val_data, test_data):
     print("acc_test: {:0.2f}".format(acc_test))
     list_predictions = predicted
     return predicted, list_predictions
+
 
 def compute_similarity(action1, action2):
     list_word_action1 = action1.split(" ")
