@@ -492,7 +492,8 @@ def compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, 
                                 med_filt_kernel_size):
     dict_order_by_action = OrderedDict()
     for (action, clip, p, gt) in list(zip(data_actions_names_test, data_clips_names_test, predicted, labels_test)):
-        dict_order_by_action[(action, clip)] = [p[0], gt]
+        # dict_order_by_action[(action, clip)] = [p[0], gt]
+        dict_order_by_action[(action, clip)] = [p, gt]
 
     dict_pred_before_med = OrderedDict()
     for key in sorted(dict_order_by_action.keys()):
@@ -1172,9 +1173,11 @@ def method_compare_actions(train_data, val_data, test_data):
         result = is_action_in_clip(action, clip[:-4])
         predicted.append(result)
 
+    np.save("data/predicted.npy", predicted)
     med_filt_predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted,
                                                      labels_test, med_filt_kernel_size=3)
     predicted = med_filt_predicted
+    np.save("data/med_filt_predicted3.npy", predicted)
 
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
