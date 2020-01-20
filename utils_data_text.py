@@ -1185,6 +1185,7 @@ def method_compare_actions(train_data, val_data, test_data):
     acc_test = accuracy_score(labels_test, predicted)
     print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
     print("acc_test: {:0.2f}".format(acc_test))
+
     list_predictions = predicted
     return predicted, list_predictions
 

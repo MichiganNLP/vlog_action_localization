@@ -72,40 +72,42 @@ def main_model(input_dim_video):
     # model.add(SeqSelfAttention(attention_activation='sigmoid'))
     model1.add(Flatten())
     model1.add(Dense(64))
+    model1.add(Dropout(0.5))
     model1.summary()
 
-    input2 = Input(shape=(input_dim_video,))
-    output2 = Dense(64, activation='relu')(input2)
-    model2 = Model(input2, output2)
-    model2.summary()
-    # model.add(SeqSelfAttention(attention_activation='sigmoid'))
+    # input2 = Input(shape=(input_dim_video,))
+    # output2 = Dense(64, activation='relu')(input2)
+    # model2 = Model(input2, output2)
+    # model2.summary()
+    ## model.add(SeqSelfAttention(attention_activation='sigmoid'))
+    #
+    # # MPU
+    # multiply = Multiply()([model1.output, model2.output])
+    # add = Add()([model1.output, model2.output])
+    # concat_multiply_add = concatenate([multiply, add])
+    #
+    # concat = concatenate([model1.output, model2.output])
+    # FC = Dense(64)(concat)
+    #
+    # concat_all = concatenate([concat_multiply_add, FC])
+    #
+    # output = Dense(64)(concat_all)
+    # output = Dropout(0.5)(output)
+    #
+    # # And finally we add the main logistic regression layer
+    # main_output = Dense(1, activation='sigmoid', name='main_output')(output)
+    #
+    # merged_model = Model([model1.input, model2.input], main_output)
 
-    # MPU
-    multiply = Multiply()([model1.output, model2.output])
-    add = Add()([model1.output, model2.output])
-    concat_multiply_add = concatenate([multiply, add])
+    model1.add(Dense(1, activation='sigmoid'))
 
-    concat = concatenate([model1.output, model2.output])
-    FC = Dense(64)(concat)
-
-    concat_all = concatenate([concat_multiply_add, FC])
-
-    output = Dense(64)(concat_all)
-    output = Dropout(0.5)(output)
-
-    # And finally we add the main logistic regression layer
-    main_output = Dense(1, activation='sigmoid', name='main_output')(output)
-
-    merged_model = Model([model1.input, model2.input], main_output)
-
-    # model1.add(Dense(1, activation='sigmoid'))
-    merged_model.compile(
+    model1.compile(
         optimizer='adam',
         loss='binary_crossentropy',
         metrics=['accuracy'],
     )
-    merged_model.summary()
-    return merged_model
+    model1.summary()
+    return model1
 
 
 # model similar to TALL (alignment score & regression is different + pre-trained model features used)
@@ -199,8 +201,8 @@ def compute_majority_label_baseline_acc(labels_train, labels_test):
         maj_label = False
     else:
         maj_label = True
-    maj_labels = [maj_label] * len(labels_test)
-    # maj_labels = [True] * len(labels_test)
+    # maj_labels = [maj_label] * len(labels_test)
+    maj_labels = [True] * len(labels_test)
     nb_correct = 0
     for i in range(len(labels_test)):
         if maj_labels[i] == labels_test[i]:
@@ -236,7 +238,8 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
 
     model = main_model(input_dim_video)
 
-    config_name = config_name + " video "
+    # config_name = config_name + " video "
+    config_name = config_name
     if balance == True:
         file_path_best_model = 'model/Model_params/' + config_name + '.hdf5'
     else:
@@ -251,26 +254,26 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
     callback_list = [earlystopper, checkpointer]
 
     if not os.path.isfile(file_path_best_model):
-        # model.fit(data_actions_train, labels_train,
-        #           validation_data=(data_actions_val, labels_val),
-        #           epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
-
-        model.fit([data_actions_train, data_clips_train], labels_train,
-                  validation_data=([data_actions_val, data_clips_val], labels_val),
+        model.fit(data_actions_train, labels_train,
+                  validation_data=(data_actions_val, labels_val),
                   epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+
+        # model.fit([data_actions_train, data_clips_train], labels_train,
+        #           validation_data=([data_actions_val, data_clips_val], labels_val),
+        #           epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)
 
-    # score, acc_train = model.evaluate(data_actions_train, labels_train)
-    # score, acc_test = model.evaluate(data_actions_test, labels_test)
-    # score, acc_val = model.evaluate(data_actions_val, labels_val)
-    # list_predictions = model.predict(data_actions_test)
+    score, acc_train = model.evaluate(data_actions_train, labels_train)
+    score, acc_test = model.evaluate(data_actions_test, labels_test)
+    score, acc_val = model.evaluate(data_actions_val, labels_val)
+    list_predictions = model.predict(data_actions_test)
 
-    score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
-    score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
-    score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
-    list_predictions = model.predict([data_actions_test, data_clips_test])
+    # score, acc_train = model.evaluate([data_actions_train, data_clips_train], labels_train)
+    # score, acc_test = model.evaluate([data_actions_test, data_clips_test], labels_test)
+    # score, acc_val = model.evaluate([data_actions_val, data_clips_val], labels_val)
+    # list_predictions = model.predict([data_actions_test, data_clips_test])
 
     print("GT test data: " + str(Counter(labels_test)))
     predicted = list_predictions >= 0.5
@@ -383,7 +386,6 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
 
     print("Predicted test data: " + str(Counter(x for xs in predicted for x in set(xs))))
 
-
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
     rec_test = recall_score(labels_test, predicted)
@@ -475,21 +477,22 @@ def main():
             #                                                        args.epochs,
             #                                                        args.balance, config_name)
 
+            model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+                                                                        args.epochs,
+                                                                        args.balance, config_name)
 
-            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-            #                                                             args.epochs,
-            #                                                             args.balance, config_name)
-
-            predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            config_name = "compare actions 17"
+            # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+            # config_name = "compare actions 17"
             '''
                 Majority (actions are visible in all clips)
             '''
-            # [_, _, labels_train, _], [_, _, labels_val, _], [_, _, labels_test, _] = get_features_from_data(train_data,
-            #                                                                                                 val_data,
-            #                                                                                                 test_data)
+            # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
+            # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+            # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
+            # get_features_from_data(train_data, val_data, test_data)
             # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
-            # maj_test, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_test)
+            # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
+            # list_predictions = [1] * len(predicted)
             # print("maj_val: {:0.2f}".format(maj_val))
             # print("maj_test: {:0.2f}".format(maj_test))
 
@@ -499,7 +502,6 @@ def main():
             compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
             for channel_test in channels_test:
                 evaluate(config_name, channel_test)
-
 
 if __name__ == "__main__":
     main()
