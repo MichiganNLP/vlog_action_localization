@@ -1175,9 +1175,9 @@ def method_compare_actions(train_data, val_data, test_data):
 
     np.save("data/predicted.npy", predicted)
     med_filt_predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted,
-                                                     labels_test, med_filt_kernel_size=31)
+                                                     labels_test, med_filt_kernel_size=51)
     predicted = med_filt_predicted
-    np.save("data/med_filt_predicted31.npy", predicted)
+    np.save("data/med_filt_predicted51.npy", predicted)
 
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
