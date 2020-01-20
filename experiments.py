@@ -481,7 +481,7 @@ def main():
             #                                                             args.balance, config_name)
 
             predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            config_name = "compare actions 5"
+            config_name = "compare actions 11"
             '''
                 Majority (actions are visible in all clips)
             '''
