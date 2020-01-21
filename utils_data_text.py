@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import itertools
 import random
+import time
 
 import scipy
 from nltk import bigrams
@@ -16,7 +17,6 @@ import matplotlib.pyplot as plt
 import nltk
 import glob
 import os
-from datetime import datetime
 import re, math
 from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
@@ -24,10 +24,13 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from tabulate import tabulate
 from keras.preprocessing.text import one_hot, Tokenizer
+from transformers.tokenization_auto import AutoTokenizer
+from transformers.modeling_bert import BertModel
 from keras.preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
-from compute_text_embeddings import create_glove_embeddings
+from compute_text_embeddings import create_glove_embeddings, embed_elmo2, get_bert_finetuned_embeddings, \
+    avg_GLoVe_action_emb
 from utils_data_video import average_i3d_features, load_data_from_I3D
 
 from nltk.corpus import wordnet
@@ -1139,20 +1142,100 @@ def get_pos_action(action):
     return list_word_pos
 
 
-def is_action_in_clip(action, clip):
+def cosine_distance_wordembedding_method(s1, s2):
+    emb_action1 = avg_GLoVe_action_emb(s1)
+    emb_action2 = avg_GLoVe_action_emb(s2)
+    cosine = scipy.spatial.distance.cosine(emb_action1, emb_action2)
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',round((1-cosine)*100,2),'%')
+
+
+
+def verify_actionI3D_actionGT(clip):
+    # get visible actions in that clip
+    with open("data/dict_all_annotations3s.json") as f:
+        dict_all_annotations10s = json.loads(f.read())
+
+    list_visible_actions = [a for [a, label] in dict_all_annotations10s[clip + ".mp4"] if label == True]
+    print(list_visible_actions)
+    list_actions_clip = read_class_results(clip)
+    print(list_actions_clip)
+
+    # cosine_distance_wordembedding_method('clean up after dinner', 'washing dishes')
+
+    # emb_action_2 = embed_fn(['washing dishes']).reshape(-1)
+
+    tokenizer_name = 'bert-base-uncased'
+    pretrained_model_name = 'bert-base-uncased'
+
+    start = time.time()
+    # Load pre-trained model tokenizer (vocabulary)
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    # Load pre-trained model (weights)
+    # model = PreTrainedModel.from_pretrained(pretrained_model_name)
+    model = BertModel.from_pretrained(pretrained_model_name)
+    # Put the model in "evaluation" mode, meaning feed-forward operation.
+    model.eval()
+    end = time.time()
+    print("Load BERT model took " + str(end - start))
+    dict_action_embeddings = {}
+    print("Running BERT ... ")
+    # emb_action_1 = get_bert_finetuned_embeddings(model, tokenizer, 'clean up after dinner')
+    emb_action_1 = get_bert_finetuned_embeddings(model, tokenizer, 'use a little bit of mascara')
+    # emb_action_5 = get_bert_finetuned_embeddings(model, tokenizer, 'clean up right after')
+    emb_action_5 = get_bert_finetuned_embeddings(model, tokenizer, 'filling eyebrows')
+    # emb_action_2 = get_bert_finetuned_embeddings(model, tokenizer, 'washing dishes')
+    emb_action_2 = get_bert_finetuned_embeddings(model, tokenizer, 'waxing eyebrows')
+    emb_action_3 = get_bert_finetuned_embeddings(model, tokenizer, 'checking tires')
+    # emb_action_4 = get_bert_finetuned_embeddings(model, tokenizer, 'spray painting')
+    emb_action_4 = get_bert_finetuned_embeddings(model, tokenizer, 'applying cream')
+
+
+
+    cosine = scipy.spatial.distance.cosine(emb_action_5, emb_action_2)
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
+          round((1 - cosine) * 100, 2), '%')
+    cosine = scipy.spatial.distance.cosine(emb_action_5, emb_action_3)
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
+          round((1 - cosine) * 100, 2), '%')
+    cosine = scipy.spatial.distance.cosine(emb_action_5, emb_action_4)
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
+          round((1 - cosine) * 100, 2), '%')
+    cosine = scipy.spatial.distance.cosine(emb_action_1, emb_action_5)
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
+          round((1 - cosine) * 100, 2), '%')
+
+def is_action_in_clip2(action, clip, model, tokenizer):
     # print(clip)
     list_actions_clip = read_class_results(clip)
     list_sim = []
     for action_clip in list_actions_clip:
-        sim = compute_similarity(action, action_clip)
+        emb_action_1 = get_bert_finetuned_embeddings(model, tokenizer, action_clip)
+        cosine = scipy.spatial.distance.cosine(emb_action_1, action)
+        sim = round((1 - cosine) * 100, 2)
         list_sim.append(sim)
         # print(action + " + " + action_clip + ": " + str(sim))
     max_sim = max(list_sim)
-    threshold = 0.9
+    threshold = 0.65
     if max_sim >= threshold:
         # print("action " + action + " is in " + clip)
         return True
     return False
+
+#
+# def is_action_in_clip(action, clip):
+#     # print(clip)
+#     list_actions_clip = read_class_results(clip)
+#     list_sim = []
+#     for action_clip in list_actions_clip:
+#         sim = compute_similarity(action, action_clip)
+#         list_sim.append(sim)
+#         # print(action + " + " + action_clip + ": " + str(sim))
+#     max_sim = max(list_sim)
+#     threshold = 0.9
+#     if max_sim >= threshold:
+#         # print("action " + action + " is in " + clip)
+#         return True
+#     return False
 
 
 def method_compare_actions(train_data, val_data, test_data):
@@ -1169,8 +1252,25 @@ def method_compare_actions(train_data, val_data, test_data):
     data_actions_names_test = data_actions_names_test
     data_clips_names_test = data_clips_names_test
     labels_test = labels_test
+
+    tokenizer_name = 'bert-base-uncased'
+    pretrained_model_name = 'bert-base-uncased'
+
+    start = time.time()
+    # Load pre-trained model tokenizer (vocabulary)
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    # Load pre-trained model (weights)
+    # model = PreTrainedModel.from_pretrained(pretrained_model_name)
+    model = BertModel.from_pretrained(pretrained_model_name)
+    # Put the model in "evaluation" mode, meaning feed-forward operation.
+    model.eval()
+    end = time.time()
+    print("Load BERT model took " + str(end - start))
+    print("Running BERT ... ")
+
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
-        result = is_action_in_clip(action, clip[:-4])
+        # result = is_action_in_clip(action, clip[:-4])
+        result = is_action_in_clip2(action, clip[:-4], model, tokenizer)
         predicted.append(result)
 
     np.save("data/predicted.npy", predicted)
@@ -1721,9 +1821,12 @@ def create_cooccurence_dictionary(list_miniclips_visibile_new, list_stemmed_visi
 
 
 def main():
-    for i in range(55):
-        clip = "1p0_1mini_2" + "_{0:03}".format(i + 1)
-        is_action_in_clip("add their toys", clip)
+    # for i in range(55):
+    #     clip = "1p0_1mini_2" + "_{0:03}".format(i + 1)
+    #     is_action_in_clip("add their toys", clip)
+
+    clip = "1p0_1mini_1_050"
+    verify_actionI3D_actionGT(clip)
     # # get_dict_all_annotations_visible_not()
     # #get_dict_all_annotations_ordered()
     #

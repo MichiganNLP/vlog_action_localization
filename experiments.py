@@ -477,12 +477,12 @@ def main():
             #                                                        args.epochs,
             #                                                        args.balance, config_name)
 
-            model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-                                                                        args.epochs,
-                                                                        args.balance, config_name)
+            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+            #                                                             args.epochs,
+            #                                                             args.balance, config_name)
 
-            # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            # config_name = "compare actions 17"
+            predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+            config_name = "compare actions bert cosine"
             '''
                 Majority (actions are visible in all clips)
             '''
