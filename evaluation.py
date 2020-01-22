@@ -152,13 +152,10 @@ def compute_meanIOU(IOU_vals):
     return mean_tIOU
 
 
+
+
 def wrapper_IOU(proposed_1p0, groundtruth_1p0):
     if len(proposed_1p0.keys()) != len(groundtruth_1p0.keys()):
-        # print("proposed and groundtruth data size don't match!!")
-        # print("str(len(groundtruth_1p0.keys() - proposed_1p0.keys()))" + str(len(groundtruth_1p0.keys() - proposed_1p0.keys())))
-        # print("str(len(proposed_1p0.keys() - groundtruth_1p0.keys()))" + str(len(proposed_1p0.keys() - groundtruth_1p0.keys())))
-        # print("str(len(proposed_1p0.keys()))" + str(len(proposed_1p0.keys())))
-        # print("str(len(groundtruth_1p0.keys()))" + str(len(groundtruth_1p0.keys())))
         count_visible_actions_not_caught = 0
         for key in groundtruth_1p0.keys() - proposed_1p0.keys():
             if groundtruth_1p0[key] != ['not visible']:
@@ -168,6 +165,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
             print("count_visible_actions_not_caught: " + str(count_visible_actions_not_caught))
 
     IOU_vals = []
+    dict_IOU_per_length = {}
     for miniclip_action in groundtruth_1p0.keys():
         # TODO: deal with this
         if groundtruth_1p0[miniclip_action] == ['not visible']:
@@ -178,9 +176,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
             continue
 
         target_segment = np.array([float(x) for x in groundtruth_1p0[miniclip_action]])
-        # candidate_segments = np.array([proposed_1p0[miniclip_action]])
         candidate_segments = np.array(proposed_1p0[miniclip_action])
-        # candidate_segments = np.array([[float(j) for j in i] for i in candidate_segments])
 
 
         tIOU = segment_iou(target_segment, candidate_segments)
@@ -188,7 +184,13 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
         # IOU_vals = np.append(IOU_vals, tIOU, axis=0)
         IOU_vals.append(tIOU)
 
-    return IOU_vals
+        action_duration = target_segment[1] - target_segment[0]
+        rounded_duration = str(int(round(action_duration, -1)))
+        if rounded_duration not in dict_IOU_per_length.keys():
+            dict_IOU_per_length[rounded_duration] = []
+        dict_IOU_per_length[rounded_duration].append(tIOU)
+
+    return IOU_vals, dict_IOU_per_length
 
 
 # def compute_recall_IOU_threshold(threshold, IOU_vals, nb_proposals):
@@ -211,7 +213,7 @@ def evaluate(method, channel):
     with open("data/annotations/annotations" + channel + ".json") as f:
         groundtruth_1p0 = json.loads(f.read())
 
-    IOU_vals = wrapper_IOU(proposed_1p0, groundtruth_1p0)
+    IOU_vals, dict_IOU_per_length = wrapper_IOU(proposed_1p0, groundtruth_1p0)
     print("#test points: " + str(len(IOU_vals)))
 
     list_results = []
@@ -224,6 +226,21 @@ def evaluate(method, channel):
     print(color.GREEN + color.BOLD + "overleaf: " + color.END + list_results[0] + " & " + list_results[1] + " & " + list_results[2] + " & " + list_results[
         3] + " & " + list_results[4])
 
+    for action_duration in dict_IOU_per_length.keys():
+        IOU_vals = dict_IOU_per_length[action_duration]
+        print(action_duration)
+        print("#test points: " + str(len(IOU_vals)))
+
+        list_results = []
+        for threshold in np.arange(0.1, 0.9, 0.2):
+            accuracy = compute_accuracy_IOU_threshold(threshold, IOU_vals)
+            list_results.append(str(round(accuracy, 2)))
+
+        mean_tIOU = compute_meanIOU(IOU_vals)
+        list_results.append(str(round(mean_tIOU, 2)))
+        print(color.GREEN + color.BOLD + "overleaf: " + color.END + list_results[0] + " & " + list_results[1] + " & " +
+              list_results[2] + " & " + list_results[
+                  3] + " & " + list_results[4])
 
 if __name__ == "__main__":
     # with open("data/stemmed_actions_miniclip_time1p0.json") as f:

@@ -481,27 +481,27 @@ def main():
             #                                                             args.epochs,
             #                                                             args.balance, config_name)
 
-            predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            config_name = "compare actions bert cosine"
+            # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+            # config_name = "compare actions bert cosine"
             '''
                 Majority (actions are visible in all clips)
             '''
-            # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
-            # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
-            # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
-            # get_features_from_data(train_data, val_data, test_data)
-            # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
-            # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
-            # list_predictions = [1] * len(predicted)
-            # print("maj_val: {:0.2f}".format(maj_val))
-            # print("maj_test: {:0.2f}".format(maj_test))
+            [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
+            data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+            data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
+            get_features_from_data(train_data, val_data, test_data)
+            maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
+            maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
+            list_predictions = [1] * len(predicted)
+            print("maj_val: {:0.2f}".format(maj_val))
+            print("maj_test: {:0.2f}".format(maj_test))
 
             '''
                     Evaluate
             '''
             compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            for channel_test in channels_test:
-                evaluate(config_name, channel_test)
+            #for channel_test in channels_test:
+            evaluate(config_name, "1p0")
 
 if __name__ == "__main__":
     main()

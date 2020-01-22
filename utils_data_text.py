@@ -557,6 +557,9 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
     with open("data/dict_clip_time_per_miniclip" + clip_length + ".json") as f:
         dict_clip_time_per_miniclip = json.loads(f.read())
 
+    with open("data/dict_time_per_miniclip.json") as f:
+        dict_time_per_miniclip = json.loads(f.read())
+
     [data_clips_test, data_actions_test, gt_labels_test] = test_data
     data_clips_test_names = [i[0] for i in data_clips_test]
     data_actions_test_names = [i[0] for i in data_actions_test]
@@ -582,12 +585,10 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
 
     for key in dict_predicted.keys():
         if not dict_predicted[key]:
-            # dict_predicted[key].append(-1)
-            # dict_predicted[key].append(-1)
-            # dict_predicted[key].append(-1)
+            miniclip_length = dict_time_per_miniclip[key.split(", ")[0]]
             ## we don't know where, but we know the action is somewhere
             dict_predicted[key].append(1)
-            dict_predicted[key].append(50)
+            dict_predicted[key].append(miniclip_length)
             dict_predicted[key].append(1)
 
     for key in list(dict_predicted.keys()):
