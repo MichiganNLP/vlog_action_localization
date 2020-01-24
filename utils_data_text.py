@@ -30,7 +30,7 @@ from keras.preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
 from compute_text_embeddings import create_glove_embeddings, embed_elmo2, get_bert_finetuned_embeddings, \
-    avg_GLoVe_action_emb
+    avg_GLoVe_action_emb, create_bert_embeddings
 from utils_data_video import average_i3d_features, load_data_from_I3D
 
 from nltk.corpus import wordnet
@@ -325,7 +325,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     # dict_miniclip_clip_feature = load_data_from_I3D(path_I3D_features) #if LSTM
     dict_miniclip_clip_feature = average_i3d_features(path_I3D_features)
     dict_action_embeddings = load_text_embeddings(type_action_emb, dict_all_annotations, all_actions=True,
-                                                  use_nouns=False, use_particle=True)
+                                                  use_nouns=True, use_particle=True)
 
     if add_cluster:
         dict_action_embeddings = add_cluster_data(dict_action_embeddings)
@@ -344,20 +344,28 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     set_action_miniclip_test = set()
     set_action_miniclip_val = set()
 
+    set_miniclip_train = set()
+    set_miniclip_test = set()
+    set_miniclip_val = set()
+
+    set_clip_train = set()
+    set_clip_test = set()
+    set_clip_val = set()
+
     if balance:
         print("Balance data (train & val)")
 
-        with open("data/train_test_val/dict_balanced_annotations_train.json") as f:
-            dict_train_annotations = json.loads(f.read())
-        # dict_train_annotations = balance_data(dict_train_annotations)
-        # with open("data/train_test_val/dict_balanced_annotations_train.json", 'w+') as fp:
-        #     json.dump(dict_train_annotations, fp)
+        # with open("data/train_test_val/dict_balanced_annotations_train.json") as f:
+        #     dict_train_annotations = json.loads(f.read())
+        dict_train_annotations = balance_data(dict_train_annotations)
+        with open("data/train_test_val/dict_balanced_annotations_train_9_10.json", 'w+') as fp:
+            json.dump(dict_train_annotations, fp)
 
-        with open("data/train_test_val/dict_balanced_annotations_val.json") as f:
-            dict_val_annotations = json.loads(f.read())
-        # dict_val_annotations = balance_data(dict_val_annotations)
-        # with open("data/train_test_val/dict_balanced_annotations_val.json", 'w+') as fp:
-        #     json.dump(dict_val_annotations, fp)
+        # with open("data/train_test_val/dict_balanced_annotations_val.json") as f:
+        #     dict_val_annotations = json.loads(f.read())
+        dict_val_annotations = balance_data(dict_val_annotations)
+        with open("data/train_test_val/dict_balanced_annotations_val_9_10.json", 'w+') as fp:
+            json.dump(dict_val_annotations, fp)
 
         # No balancing the test!!!
         # with open("data/train_test_val/dict_balanced_annotations_test.json") as f:
@@ -381,6 +389,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
             data_actions_train.append([action, action_emb])
             labels_train.append(label)
             set_action_miniclip_train.add(clip[:-8] + ", " + action)
+            set_miniclip_train.add(clip[:-8])
+            set_clip_train.add(clip[:-4])
+
+
 
     for clip in list(dict_val_annotations.keys()):
         list_action_label = dict_val_annotations[clip]
@@ -396,6 +408,8 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
             data_actions_val.append([action, action_emb])
             labels_val.append(label)
             set_action_miniclip_val.add(clip[:-8] + ", " + action)
+            set_miniclip_val.add(clip[:-8])
+            set_clip_val.add(clip[:-4])
 
     list_test_clip_names = []
     list_test_action_names = []
@@ -415,6 +429,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
             set_action_miniclip_test.add(clip[:-8] + ", " + action)
             list_test_clip_names.append(clip)
             list_test_action_names.append(action)
+            set_miniclip_test.add(clip[:-8])
+            set_clip_test.add(clip[:-4])
+
+
 
     # np.save("data/clip_names1p1.npy", list_test_clip_names)
     # np.save("data/action_names1p1.npy", list_test_action_names)
@@ -428,6 +446,18 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     print(Counter(labels_train))
     print(Counter(labels_val))
     print(Counter(labels_test))
+
+    print("# actions train " + str(len(set_action_miniclip_train)))
+    print("# actions val " + str(len(set_action_miniclip_val)))
+    print("# actions test " + str(len(set_action_miniclip_test)))
+
+    print("# miniclips train " + str(len(set_miniclip_train)))
+    print("# miniclips val " + str(len(set_miniclip_val)))
+    print("# miniclips test " + str(len(set_miniclip_test)))
+
+    print("# clips train " + str(len(set_clip_train)))
+    print("# clips val " + str(len(set_clip_val)))
+    print("# clips test " + str(len(set_clip_test)))
 
     return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
            [data_clips_test, data_actions_test, labels_test]
@@ -567,7 +597,8 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
 
     data = zip(data_clips_test_names, data_actions_test_names, predicted_labels_test, list_predictions)
     output = "data/results/dict_predicted_" + model_name + ".json"
-
+    counter_no_detected_action = 0
+    counter_detected_action = 0
     for [clip, action, label, score] in data:
         miniclip = clip[:-8] + ".mp4"
         if label:
@@ -577,7 +608,6 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
             [time_s, time_e] = dict_clip_time_per_miniclip[clip]
             dict_predicted[miniclip + ", " + action].append(time_s)
             dict_predicted[miniclip + ", " + action].append(time_e)
-            # dict_predicted[miniclip + ", " + action].append(score[0])
             dict_predicted[miniclip + ", " + action].append(score)
         else:
             if miniclip + ", " + action not in dict_predicted.keys():
@@ -585,11 +615,24 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
 
     for key in dict_predicted.keys():
         if not dict_predicted[key]:
-            miniclip_length = dict_time_per_miniclip[key.split(", ")[0]]
-            ## we don't know where, but we know the action is somewhere
-            dict_predicted[key].append(1)
-            dict_predicted[key].append(miniclip_length)
-            dict_predicted[key].append(1)
+            # miniclip_length = dict_time_per_miniclip[key.split(", ")[0]]
+            # ## we don't know where, but we know the action is somewhere
+            # dict_predicted[key].append(1)
+            # # dict_predicted[key].append(1)
+            # dict_predicted[key].append(miniclip_length)
+            # dict_predicted[key].append(1)
+
+
+            dict_predicted[key].append(-1)
+            dict_predicted[key].append(-1)
+            dict_predicted[key].append(-1)
+
+            counter_no_detected_action += 1
+        else:
+            counter_detected_action += 1
+
+    print("# no detected action in miniclip: " + str(counter_no_detected_action))
+    print("# detected action in miniclip: " + str(counter_detected_action))
 
     for key in list(dict_predicted.keys()):
         list_all_times = dict_predicted[key]
@@ -1147,8 +1190,8 @@ def cosine_distance_wordembedding_method(s1, s2):
     emb_action1 = avg_GLoVe_action_emb(s1)
     emb_action2 = avg_GLoVe_action_emb(s2)
     cosine = scipy.spatial.distance.cosine(emb_action1, emb_action2)
-    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',round((1-cosine)*100,2),'%')
-
+    print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
+          round((1 - cosine) * 100, 2), '%')
 
 
 def verify_actionI3D_actionGT(clip):
@@ -1190,8 +1233,6 @@ def verify_actionI3D_actionGT(clip):
     # emb_action_4 = get_bert_finetuned_embeddings(model, tokenizer, 'spray painting')
     emb_action_4 = get_bert_finetuned_embeddings(model, tokenizer, 'applying cream')
 
-
-
     cosine = scipy.spatial.distance.cosine(emb_action_5, emb_action_2)
     print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
           round((1 - cosine) * 100, 2), '%')
@@ -1205,22 +1246,27 @@ def verify_actionI3D_actionGT(clip):
     print('Word Embedding method with a cosine distance asses that our two sentences are similar to',
           round((1 - cosine) * 100, 2), '%')
 
-def is_action_in_clip2(action, clip, model, tokenizer):
+
+def is_action_in_clip2(action_embedding, list_action_embeddings_per_clip):
     # print(clip)
-    list_actions_clip = read_class_results(clip)
     list_sim = []
-    for action_clip in list_actions_clip:
-        emb_action_1 = get_bert_finetuned_embeddings(model, tokenizer, action_clip)
-        cosine = scipy.spatial.distance.cosine(emb_action_1, action)
-        sim = round((1 - cosine) * 100, 2)
+    for emb_action_1 in list_action_embeddings_per_clip:
+        # print(type(action))
+        # print(type(emb_action_1))
+        # emb_action_1 = np.asarray(emb_action_1, dtype='float64')
+        # action = np.asarray(action, dtype='float64')
+        cosine = scipy.spatial.distance.cosine(emb_action_1, action_embedding)
+        # sim = round((1 - cosine) * 100, 2)
+        sim = 1 - cosine
         list_sim.append(sim)
         # print(action + " + " + action_clip + ": " + str(sim))
     max_sim = max(list_sim)
-    threshold = 0.65
+    threshold = 0.50
     if max_sim >= threshold:
         # print("action " + action + " is in " + clip)
         return True
     return False
+
 
 #
 # def is_action_in_clip(action, clip):
@@ -1240,6 +1286,12 @@ def is_action_in_clip2(action, clip, model, tokenizer):
 
 
 def method_compare_actions(train_data, val_data, test_data):
+    with open("data/embeddings/dict_action_embeddings_Bert.json") as f:
+        dict_action_embeddings_Bert = json.loads(f.read())
+
+    with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
+        dict_action_embeddings_Bert_class_I3D = json.loads(f.read())
+
     [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
                                                                                      data_actions_names_val], \
@@ -1254,32 +1306,23 @@ def method_compare_actions(train_data, val_data, test_data):
     data_clips_names_test = data_clips_names_test
     labels_test = labels_test
 
-    tokenizer_name = 'bert-base-uncased'
-    pretrained_model_name = 'bert-base-uncased'
-
-    start = time.time()
-    # Load pre-trained model tokenizer (vocabulary)
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-    # Load pre-trained model (weights)
-    # model = PreTrainedModel.from_pretrained(pretrained_model_name)
-    model = BertModel.from_pretrained(pretrained_model_name)
-    # Put the model in "evaluation" mode, meaning feed-forward operation.
-    model.eval()
-    end = time.time()
-    print("Load BERT model took " + str(end - start))
-    print("Running BERT ... ")
-
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
         # result = is_action_in_clip(action, clip[:-4])
-        result = is_action_in_clip2(action, clip[:-4], model, tokenizer)
+        list_actions_clip = read_class_results(clip[:-4])
+        list_action_emb = []
+        for action_class_I3D in list_actions_clip:
+            list_action_emb.append(dict_action_embeddings_Bert_class_I3D[action_class_I3D])
+        action_emb = dict_action_embeddings_Bert[action]
+
+        result = is_action_in_clip2(action_emb, list_action_emb)
         predicted.append(result)
-
-    np.save("data/predicted.npy", predicted)
-    med_filt_predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted,
-                                                     labels_test, med_filt_kernel_size=51)
-    predicted = med_filt_predicted
-    np.save("data/med_filt_predicted51.npy", predicted)
-
+        # print(action + str(list_actions_clip) + str(predicted))
+    # np.save("data/predicted.npy", predicted)
+    # med_filt_predicted = compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, predicted,
+    #                                                  labels_test, med_filt_kernel_size=51)
+    # predicted = med_filt_predicted
+    # np.save("data/med_filt_predicted51.npy", predicted)
+    print("Predicted " + str(Counter(predicted)))
     f1_test = f1_score(labels_test, predicted)
     prec_test = precision_score(labels_test, predicted)
     rec_test = recall_score(labels_test, predicted)

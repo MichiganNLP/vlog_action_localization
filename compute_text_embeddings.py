@@ -366,8 +366,8 @@ def create_glove_embeddings(list_all_actions):
 def create_bert_embeddings(list_all_actions):
     tokenizer_name = 'bert-base-uncased'
 
-    pretrained_model_name = 'data/epoch_29/'
-    # pretrained_model_name = tokenizer_name
+    # pretrained_model_name = 'data/epoch_29/'
+    pretrained_model_name = tokenizer_name
 
     start = time.time()
     # Load pre-trained model tokenizer (vocabulary)
@@ -386,7 +386,7 @@ def create_bert_embeddings(list_all_actions):
         # emb_action = finetune_bert(model,tokenizer, action)
         dict_action_embeddings[action] = emb_action.reshape(-1)
 
-    with open('data/embeddings/dict_action_embeddings_Bert2.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_Bert1.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 

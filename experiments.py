@@ -10,7 +10,7 @@ from keras_multi_head import MultiHeadAttention
 from args import parse_args, channels_val, channels_test, hold_out_test_channels
 from compute_text_embeddings import ElmoEmbeddingLayer, BertLayer, \
     create_data_for_finetuning_bert, create_data_for_finetuning_elmo
-from evaluation import evaluate
+from evaluation import evaluate, evaluate_combine_2
 import json
 from collections import Counter, OrderedDict
 import time
@@ -71,8 +71,8 @@ def main_model(input_dim_video):
     model1.add(MultiHeadAttention(head_num=4, name='Multi-Head'))
     # model.add(SeqSelfAttention(attention_activation='sigmoid'))
     model1.add(Flatten())
-    model1.add(Dense(64))
-    model1.add(Dropout(0.5))
+    # model1.add(Dense(64))
+    # model1.add(Dropout(0.5))
     model1.summary()
 
     # input2 = Input(shape=(input_dim_video,))
@@ -449,10 +449,13 @@ def main():
     args = parse_args()
     config_name = create_config_name(args)
 
+    #evaluate_combine_2("alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
+
     if config_name == "alignment":
-        test_alignment()
-        for channel_test in channels_test:
-            evaluate(config_name, channel_test)
+        # test_alignment()
+        # for channel_test in channels_test:
+        #     evaluate(config_name, channel_test)
+        evaluate(config_name, "1p01_5p01")
     else:
         '''
             Create data
@@ -473,9 +476,9 @@ def main():
             '''
                     Create model
             # '''
-            # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-            #                                                        args.epochs,
-            #                                                        args.balance, config_name)
+            model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+                                                                   args.epochs,
+                                                                   args.balance, config_name)
 
             # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
             #                                                             args.epochs,
@@ -486,22 +489,22 @@ def main():
             '''
                 Majority (actions are visible in all clips)
             '''
-            [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
-            data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
-            data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
-            get_features_from_data(train_data, val_data, test_data)
-            maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
-            maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
-            list_predictions = [1] * len(predicted)
-            print("maj_val: {:0.2f}".format(maj_val))
-            print("maj_test: {:0.2f}".format(maj_test))
+            # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
+            # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+            # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
+            # get_features_from_data(train_data, val_data, test_data)
+            # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
+            # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
+            # list_predictions = [1] * len(predicted)
+            # print("maj_val: {:0.2f}".format(maj_val))
+            # print("maj_test: {:0.2f}".format(maj_test))
 
             '''
                     Evaluate
             '''
             compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            #for channel_test in channels_test:
-            evaluate(config_name, "1p0")
+            # for channel_test in channels_test:
+            evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":
     main()
