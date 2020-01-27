@@ -11,14 +11,10 @@ from utils_data_text import get_features_from_data, read_class_results
 
 print(tf.__version__)
 
-sess=tf.Session()
-sess.run(tf.global_variables_initializer())
-sess.run(tf.tables_initializer())
+# sess=tf.Session()
+# sess.run(tf.global_variables_initializer())
+# sess.run(tf.tables_initializer())
 
-# with tf.Session() as sess:
-#     sess.run(tf.global_variables_initializer())
-#
-#     sess.run(tf.tables_initializer())
 
 
 # The provided .npy file thus has shape (1, num_frames, 224, 224, 3) for RGB, corresponding to a batch size of 1
@@ -95,8 +91,12 @@ def run_tf(clip_feat_rgb, list_actions_per_clip):
     # We compute all the pairwise similarity scores between video and text.
     similarity_matrix = tf.matmul(text_embedding, video_embedding, transpose_b=True)
 
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.tables_initializer())
 
-    similarity_matrix_res = (sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb}))
+        similarity_matrix_res = (sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb}))
+
     return similarity_matrix_res
 
 
