@@ -11,10 +11,14 @@ from utils_data_text import get_features_from_data, read_class_results
 
 print(tf.__version__)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+sess=tf.Session()
+sess.run(tf.global_variables_initializer())
+sess.run(tf.tables_initializer())
 
-    sess.run(tf.tables_initializer())
+# with tf.Session() as sess:
+#     sess.run(tf.global_variables_initializer())
+#
+#     sess.run(tf.tables_initializer())
 
 
 # The provided .npy file thus has shape (1, num_frames, 224, 224, 3) for RGB, corresponding to a batch size of 1
