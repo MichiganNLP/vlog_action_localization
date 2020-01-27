@@ -52,7 +52,7 @@ def method_tf_actions(train_data, val_data, test_data):
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
 
         if clip_0 == clip:
-            list_actions_per_clip.appen(action)
+            list_actions_per_clip.append(action)
         else:
 
             clip_feat_rgb = load_video_feat(clip)
