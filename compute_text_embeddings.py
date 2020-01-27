@@ -386,7 +386,7 @@ def create_bert_embeddings(list_all_actions):
         # emb_action = finetune_bert(model,tokenizer, action)
         dict_action_embeddings[action] = emb_action.reshape(-1)
 
-    with open('data/embeddings/dict_action_embeddings_Bert1.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_Bert2.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 

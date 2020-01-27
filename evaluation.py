@@ -348,6 +348,9 @@ def evaluate(method, channel):
     with open("data/annotations/annotations" + channel + ".json") as f:
         groundtruth_1p0 = json.loads(f.read())
 
+    # with open("data/annotations/annotations1p01_5p01_vb.json") as f:
+    #     groundtruth_1p0 = json.loads(f.read())
+
     IOU_vals, dict_IOU_per_length, dict_IOU_per_position = wrapper_IOU(proposed_1p0, groundtruth_1p0)
     print("#test points: " + str(len(IOU_vals)))
 

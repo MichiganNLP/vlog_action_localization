@@ -3,6 +3,8 @@ from collections import Counter
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 
 def collect_data(path_annotations):
@@ -94,6 +96,7 @@ def plot_hist_length_actions(annotations, channel=None):
     counter = sorted(counter.items())
     labels, values = zip(*counter)
     # for l in ['-1', '0', '10', '20', '30', '40', '50', '60']:
+    # for l in ['0', '10', '20', '30', '40', '50', '60']:
     for l in ['0', '10', '20', '30', '40', '50', '60']:
         if l not in labels:
             counter.append((l, 0))
@@ -104,15 +107,17 @@ def plot_hist_length_actions(annotations, channel=None):
     indexes = np.arange(len(labels))
     width = 1
 
-    # plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange", "purple"])
-    plt.bar(indexes, values, width)
-    plt.xticks(indexes + width * 0.5, labels)
-    plt.ylabel('count', fontsize=18)
-    plt.xlabel('rounded seconds', fontsize=16)
-    plt.show()
-    # ax = sns.countplot(x="rounded seconds",data=counter)
+    # # plt.bar(indexes, values, width, color=['yellow', 'red', 'green', 'blue', 'cyan', "pink", "orange", "purple"])
+    # plt.bar(indexes, values, width)
+    # plt.xticks(indexes + width * 0.5, labels)
+    # plt.ylabel('count', fontsize=18)
+    # plt.xlabel('rounded seconds', fontsize=16)
+    # plt.show()
+    # # ax = sns.countplot(x="rounded seconds",data=counter)
+    #
+    # print("max # words action: " + str(max_nb_words))
 
-    print("max # words action: " + str(max_nb_words))
+
 def count_how_many_times_actions_overlap():
     with open("data/dict_all_annotations_1_7channels.json") as file:
         annotations = json.load(file)
@@ -169,12 +174,46 @@ def change_format(initial):
     return new_format_dict
 
 
+def plot_nb_actions_per_channel():
+    sns.set(style="whitegrid")
+
+    # Load the example Titanic dataset
+    # titanic = sns.load_dataset("titanic")
+    # print(titanic[:5])
+    #
+    # # Draw a nested barplot to show survival for class and sex
+    # g = sns.catplot(x="class", y="survived", hue="sex", data=titanic,
+    #                 height=6, kind="bar", palette="muted")
+    # g.despine(left=True)
+    # g.set_ylabels("survival probability")
+    # plt.show()
+
+    # list of name, degree, score
+    # nb_actions = [1136, 1200, 475, 157, 72, 69, 30]
+    # time_span = ["0-5s", "6-15s", "16-25s", "26-35s", "36-45s", "46-55s", "56-60s"]
+    #
+    # # dictionary of lists
+    # dict = {'time span': time_span, '#actions': nb_actions}
+    #
+    # df = pd.DataFrame(dict)
+    #
+    # # saving the dataframe
+    # df.to_csv('data/data_to_plot/action_duration.csv')
+
+    #https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
+
+    tips = pd.read_csv("data/data_to_plot/action_duration.csv")
+    print(tips[:5])
+    ax = sns.barplot(x="time span", y="#actions", data=tips, color="royalblue")
+    plt.show()
+
 
 def main():
+    plot_nb_actions_per_channel()
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")
-    with open("data/dict_all_annotations_1_10channels.json") as file:
-        annotations = json.load(file)
-    plot_hist_length_actions(annotations)
+    # with open("data/dict_all_annotations_1_10channels.json") as file:
+    #     annotations = json.load(file)
+    # plot_hist_length_actions(annotations)
     # plot_hist_length_actions(annotations, "4p0")
     # count_how_many_times_actions_overlap()
     # path_annotations = Path("data/annotations/")

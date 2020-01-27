@@ -30,7 +30,7 @@ from keras.preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
 from compute_text_embeddings import create_glove_embeddings, embed_elmo2, get_bert_finetuned_embeddings, \
-    avg_GLoVe_action_emb, create_bert_embeddings
+    avg_GLoVe_action_emb, create_bert_embeddings, NumpyEncoder
 from utils_data_video import average_i3d_features, load_data_from_I3D
 
 from nltk.corpus import wordnet
@@ -402,6 +402,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
 
         for [action, label] in list_action_label:
+            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             # action_emb = np.zeros(1024)
             data_clips_val.append([clip, viz_feat])
@@ -421,6 +422,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
 
         for [action, label] in list_action_label:
+            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             # action_emb = np.zeros(1024)
             data_clips_test.append([clip, viz_feat])
@@ -476,6 +478,19 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
             set_actions.add(action)
     list_all_actions = list(set_actions)
 
+    # with open("data/annotations/annotations1p01_5p01.json") as f:
+    #     groundtruth_1p0 = json.loads(f.read())
+
+    # GT_vb_noun = {}
+    # for miniclip_action in groundtruth_1p0.keys():
+    #     action = miniclip_action.split(", ")[1]
+    #     miniclip = miniclip_action.split(", ")[0]
+    #     new_action, _ = compute_action(action, use_nouns, use_particle)
+    #     GT_vb_noun[miniclip + ", " + new_action] = groundtruth_1p0[miniclip_action]
+    # with open('data/annotations/annotations1p01_5p01_vb.json', 'w+') as outfile:
+    #     json.dump(GT_vb_noun, outfile, cls=NumpyEncoder)
+
+
     if type_action_emb == "GloVe":
         return create_glove_embeddings(list_all_actions)
     elif type_action_emb == "ELMo":
@@ -486,6 +501,7 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
         # return save_elmo_embddings(list_all_actions)  # if need to create new
     elif type_action_emb == "Bert":
         with open('data/embeddings/dict_action_embeddings_Bert2.json') as f:
+        # with open('data/embeddings/dict_action_embeddings_Bert_only_vb.json') as f:
             json_load = json.loads(f.read())
         return json_load
         # return create_bert_embeddings(list_all_actions)
@@ -1369,6 +1385,8 @@ def compute_action(action, use_nouns, use_particle):
     if not use_nouns:
         ok_noun = 1
     for [word, pos] in list_word_pos:
+        if word in ["chop", "mix"]:
+            stemmed_word += word
         if 'VB' in pos:
             stemmed_word += word
             stemmed_word += " "
@@ -1394,7 +1412,7 @@ def compute_action(action, use_nouns, use_particle):
     if not stemmed_word:
         stemmed_word = action.split()[0]  # verb usually
 
-    print(action + " -> " + stemmed_word)
+    # print(action + " -> " + stemmed_word)
     return stemmed_word, ok_noun
 
 
