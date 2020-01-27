@@ -49,6 +49,7 @@ def method_tf_actions(train_data, val_data, test_data):
     predicted = []
     clip_0 = data_clips_names_test[0]
     list_actions_per_clip = []
+    sess = open_session()
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
 
         if clip_0 == clip:
@@ -56,7 +57,7 @@ def method_tf_actions(train_data, val_data, test_data):
         else:
 
             clip_feat_rgb = load_video_feat(clip)
-            result_sim = run_tf(clip_feat_rgb, list_actions_per_clip)
+            result_sim = run_tf(clip_feat_rgb, list_actions_per_clip, sess)
             predicted.append(result_sim)
 
             list_actions_per_clip = [action]
@@ -74,7 +75,29 @@ def method_tf_actions(train_data, val_data, test_data):
     list_predictions = predicted
     return predicted, list_predictions
 
-def run_tf(clip_feat_rgb, list_actions_per_clip):
+def open_session():
+    # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
+    input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
+    # inputs_words are just a list of sentences (i.e. ['the sky is blue', 'someone cutting an apple'])
+    input_words = tf.placeholder(tf.string, shape=(None,))
+
+    module = hub.Module("https://tfhub.dev/deepmind/mil-nce/s3d/1")
+
+    vision_output = module(input_frames, signature='video', as_dict=True)
+    text_output = module(input_words, signature='text', as_dict=True)
+
+    video_embedding = vision_output['video_embedding']
+    text_embedding = text_output['text_embedding']
+    # We compute all the pairwise similarity scores between video and text.
+    similarity_matrix = tf.matmul(text_embedding, video_embedding, transpose_b=True)
+
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    sess.run(tf.tables_initializer())
+
+    return sess
+
+def run_tf(clip_feat_rgb, list_actions_per_clip, sess):
 
     # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
@@ -91,11 +114,11 @@ def run_tf(clip_feat_rgb, list_actions_per_clip):
     # We compute all the pairwise similarity scores between video and text.
     similarity_matrix = tf.matmul(text_embedding, video_embedding, transpose_b=True)
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.tables_initializer())
+    # with tf.Session() as sess:
+    #     sess.run(tf.global_variables_initializer())
+    #     sess.run(tf.tables_initializer())
 
-        similarity_matrix_res = (sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb}))
+    similarity_matrix_res = (sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb}))
 
     return similarity_matrix_res
 
