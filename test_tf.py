@@ -75,7 +75,7 @@ def method_tf_actions(train_data, val_data, test_data):
     return predicted, list_predictions
 
 
-def run_tf(clip_feat_rgb, list_actions_per_clip, sess):
+def run_tf(clip_feat_rgb, list_actions_per_clip):
 
     # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
