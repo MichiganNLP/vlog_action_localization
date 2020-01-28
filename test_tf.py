@@ -49,7 +49,7 @@ def method_tf_actions(train_data, val_data, test_data):
     predicted = []
     clip_0 = data_clips_names_test[0]
     list_actions_per_clip = []
-    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
+    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))[0:10]):
 
         if clip_0 == clip:
             list_actions_per_clip.append(action)
