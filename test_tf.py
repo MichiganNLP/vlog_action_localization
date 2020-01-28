@@ -30,12 +30,22 @@ print(tf.__version__)
 #         print(features.shape)
 #     return list_features
 
-def load_video_feat(clip):
-    filename = clip[:-4] + "_rgb.npy"
+# def load_video_feat(clip):
+#     filename = clip[:-4] + "_rgb.npy"
+#     path_I3D_features = "../i3d_keras/data/results_overlapping/"
+#     print("loading I3D")
+#     features = np.load(path_I3D_features + filename)
+#     # features = np.load("test_rgb.npy")
+#     return features
+
+def load_video_feat():
     path_I3D_features = "../i3d_keras/data/results_overlapping/"
     print("loading I3D")
-    features = np.load(path_I3D_features + filename)
-    # features = np.load("test_rgb.npy")
+    dict_clip_feat = {}
+    for filename in tqdm(os.listdir(path_I3D_features)):
+        features = np.load(path_I3D_features + filename)
+        dict_clip_feat[filename[:-8] + ".mp4"] = features
+    print(filename[:-8] + ".mp4")
     return features
 
 def method_tf_actions(train_data, val_data, test_data):
@@ -48,8 +58,8 @@ def method_tf_actions(train_data, val_data, test_data):
                                                      test_data)
 
     predicted = []
-    clip_0 = data_clips_names_test[0]
-    list_actions_per_clip = []
+
+    dict_clip_feat = load_video_feat()
 
     # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
@@ -70,14 +80,12 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
 
+    print(data_clips_names_test[0])
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
 
-        # if clip_0 == clip:
-        #     list_actions_per_clip.append(action)
-        # else:
-        #     print("sessss")
-        clip_feat_rgb = load_video_feat(clip)
-        # result_sim = run_tf(clip_feat_rgb, list_actions_per_clip)
+
+        clip_feat_rgb = dict_clip_feat[clip]
+
         result_sim = sess.run([similarity_matrix], feed_dict={input_words: [action],
                                                                          input_frames: clip_feat_rgb})
 
