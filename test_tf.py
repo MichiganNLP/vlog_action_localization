@@ -35,6 +35,7 @@ def load_video_feat(clip):
     path_I3D_features = "../i3d_keras/data/results_overlapping/"
     print("loading I3D")
     features = np.load(path_I3D_features + filename)
+    # features = np.load("test_rgb.npy")
     return features
 
 def method_tf_actions(train_data, val_data, test_data):
@@ -49,33 +50,6 @@ def method_tf_actions(train_data, val_data, test_data):
     predicted = []
     clip_0 = data_clips_names_test[0]
     list_actions_per_clip = []
-    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))[0:10]):
-
-        if clip_0 == clip:
-            list_actions_per_clip.append(action)
-        else:
-
-            clip_feat_rgb = load_video_feat(clip)
-            result_sim = run_tf(clip_feat_rgb, list_actions_per_clip)
-            predicted.append(result_sim)
-
-            list_actions_per_clip = [action]
-            clip_0 = clip
-
-    np.save("data/tf_tes_predicted.npy", predicted)
-    print("Predicted " + str(Counter(predicted)))
-    f1_test = f1_score(labels_test, predicted)
-    prec_test = precision_score(labels_test, predicted)
-    rec_test = recall_score(labels_test, predicted)
-    acc_test = accuracy_score(labels_test, predicted)
-    print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
-    print("acc_test: {:0.2f}".format(acc_test))
-
-    list_predictions = predicted
-    return predicted, list_predictions
-
-
-def run_tf(clip_feat_rgb, list_actions_per_clip):
 
     # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
@@ -92,12 +66,49 @@ def run_tf(clip_feat_rgb, list_actions_per_clip):
     # We compute all the pairwise similarity scores between video and text.
     similarity_matrix = tf.matmul(text_embedding, video_embedding, transpose_b=True)
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.tables_initializer())
-        similarity_matrix_res = (sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb}))
+    sess = tf.InteractiveSession()
+    sess.run(tf.global_variables_initializer())
+    sess.run(tf.tables_initializer())
 
-    return similarity_matrix_res
+    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
+
+        # if clip_0 == clip:
+        #     list_actions_per_clip.append(action)
+        # else:
+        #     print("sessss")
+        clip_feat_rgb = load_video_feat(clip)
+        # result_sim = run_tf(clip_feat_rgb, list_actions_per_clip)
+        result_sim = sess.run([similarity_matrix], feed_dict={input_words: [action],
+                                                                         input_frames: clip_feat_rgb})
+
+        predicted.append(result_sim)
+
+        # list_actions_per_clip = [action]
+            # clip_0 = clip
+
+    np.save("data/tf_tes_predicted.npy", predicted)
+    # print("Predicted " + str(Counter(predicted)))
+    # f1_test = f1_score(labels_test, predicted)
+    # prec_test = precision_score(labels_test, predicted)
+    # rec_test = recall_score(labels_test, predicted)
+    # acc_test = accuracy_score(labels_test, predicted)
+    # print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
+    # print("acc_test: {:0.2f}".format(acc_test))
+    #
+    # list_predictions = predicted
+    # return predicted, list_predictions
+    return [], []
+
+#
+# def run_tf(clip_feat_rgb, list_actions_per_clip):
+#
+#
+#     with tf.Session() as sess:
+#         sess.run(tf.global_variables_initializer())
+#         sess.run(tf.tables_initializer())
+#         similarity_matrix_res = sess.run([similarity_matrix], feed_dict={input_words: list_actions_per_clip, input_frames: clip_feat_rgb})
+#
+#     return similarity_matrix_res
 
 
 def main():
