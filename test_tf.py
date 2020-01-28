@@ -43,8 +43,6 @@ def load_video_feat():
     print("loading I3D")
     dict_clip_feat = {}
     for filename in tqdm(os.listdir(path_I3D_features)):
-        print(filename[:-8] + ".mp4")
-
         if filename.split("_")[0] not in ["1p0", "1p1", "5p0", "5p1"]:
             continue
         features = np.load(path_I3D_features + filename)
