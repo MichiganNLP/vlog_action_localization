@@ -11,10 +11,10 @@ from utils_data_text import get_features_from_data, read_class_results
 
 print(tf.__version__)
 
+
 # sess=tf.Session()
 # sess.run(tf.global_variables_initializer())
 # sess.run(tf.tables_initializer())
-
 
 
 # The provided .npy file thus has shape (1, num_frames, 224, 224, 3) for RGB, corresponding to a batch size of 1
@@ -43,10 +43,13 @@ def load_video_feat():
     print("loading I3D")
     dict_clip_feat = {}
     for filename in tqdm(os.listdir(path_I3D_features)):
+        if filename.split("_")[0] not in ["1p0", "1p1", "5p0", "5p1"]:
+            continue
         features = np.load(path_I3D_features + filename)
         dict_clip_feat[filename[:-8] + ".mp4"] = features
     print(filename[:-8] + ".mp4")
     return features
+
 
 def method_tf_actions(train_data, val_data, test_data):
     [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
@@ -82,17 +85,15 @@ def method_tf_actions(train_data, val_data, test_data):
 
     print(data_clips_names_test[0])
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
-
-
         clip_feat_rgb = dict_clip_feat[clip]
 
         result_sim = sess.run([similarity_matrix], feed_dict={input_words: [action],
-                                                                         input_frames: clip_feat_rgb})
+                                                              input_frames: clip_feat_rgb})
 
         predicted.append(result_sim)
 
         # list_actions_per_clip = [action]
-            # clip_0 = clip
+        # clip_0 = clip
 
     np.save("data/tf_tes_predicted.npy", predicted)
     # print("Predicted " + str(Counter(predicted)))
@@ -107,6 +108,7 @@ def method_tf_actions(train_data, val_data, test_data):
     # return predicted, list_predictions
     return [], []
 
+
 #
 # def run_tf(clip_feat_rgb, list_actions_per_clip):
 #
@@ -120,7 +122,6 @@ def method_tf_actions(train_data, val_data, test_data):
 
 
 def main():
-
     video_rgb = load_video_feat()
 
     # # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
