@@ -30,24 +30,35 @@ print(tf.__version__)
 #         print(features.shape)
 #     return list_features
 
-# def load_video_feat(clip):
-#     filename = clip[:-4] + "_rgb.npy"
-#     path_I3D_features = "../i3d_keras/data/results_overlapping/"
-#     print("loading I3D")
-#     features = np.load(path_I3D_features + filename)
-#     # features = np.load("test_rgb.npy")
-#     return features
-
-def load_video_feat():
+def load_video_feat(clip):
+    filename = clip[:-4] + "_rgb.npy"
     path_I3D_features = "../i3d_keras/data/results_overlapping/"
     print("loading I3D")
-    dict_clip_feat = {}
-    for filename in tqdm(os.listdir(path_I3D_features)):
-        if filename.split("_")[0] not in ["1p0", "1p1", "5p0", "5p1"]:
-            continue
+    try:
         features = np.load(path_I3D_features + filename)
-        dict_clip_feat[filename[:-8] + ".mp4"] = features
+    except Exception as e:
+        print(clip)
+        print(e)
+        return 0
+
+    # features = np.load("test_rgb.npy")
     return features
+
+# def load_video_feat():
+#     path_I3D_features = "../i3d_keras/data/results_overlapping/"
+#     print("loading I3D")
+#     dict_clip_feat = {}
+#     for filename in tqdm(os.listdir(path_I3D_features)):
+#         if filename.split("_")[0] not in ["1p0", "1p1", "5p0", "5p1"]:
+#             continue
+#         try:
+#             features = np.load(path_I3D_features + filename)
+#         except Exception as e:
+#             print(filename)
+#             print(e)
+#
+#         dict_clip_feat[filename[:-8] + ".mp4"] = features
+#     return features
 
 
 def method_tf_actions(train_data, val_data, test_data):
@@ -61,7 +72,7 @@ def method_tf_actions(train_data, val_data, test_data):
 
     predicted = []
 
-    dict_clip_feat = load_video_feat()
+    # dict_clip_feat = load_video_feat()
 
     # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
@@ -82,9 +93,12 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
 
-    print(data_clips_names_test[0])
-    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
-        clip_feat_rgb = dict_clip_feat[clip]
+    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))[:50]):
+        # clip_feat_rgb = dict_clip_feat[clip]
+        clip_feat_rgb = load_video_feat(clip)
+        if clip_feat_rgb == 0:
+            np.save("data/tf_tes_predicted.npy", predicted)
+            break
 
         result_sim = sess.run([similarity_matrix], feed_dict={input_words: [action],
                                                               input_frames: clip_feat_rgb})
