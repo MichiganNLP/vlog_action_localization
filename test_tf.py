@@ -39,7 +39,7 @@ def load_video_feat(clip):
     except Exception as e:
         print(clip)
         print(e)
-        return 0
+        return [0]
 
     # features = np.load("test_rgb.npy")
     return features
