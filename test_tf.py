@@ -96,7 +96,7 @@ def method_tf_actions(train_data, val_data, test_data):
     for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))[:50]):
         # clip_feat_rgb = dict_clip_feat[clip]
         clip_feat_rgb = load_video_feat(clip)
-        if clip_feat_rgb == 0:
+        if clip_feat_rgb == [0]:
             np.save("data/tf_tes_predicted.npy", predicted)
             break
 
