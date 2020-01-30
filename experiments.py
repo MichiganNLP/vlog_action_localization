@@ -15,7 +15,7 @@ import json
 from collections import Counter, OrderedDict
 import time
 
-from test_tf import method_tf_actions
+from test_tf import method_tf_actions, read_test_predicted
 from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
     compute_predicted_IOU_GT, create_data_for_model, get_seqs, compute_median_per_miniclip, method_compare_actions
@@ -215,9 +215,9 @@ def compute_majority_label_baseline_acc(labels_train, labels_test):
 def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
     print("---------- Running " + config_name + " -------------------")
 
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
-                                                                                     data_actions_names_val], \
+                                                                                     data_actions_names_val, data_clips_names_val], \
     [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
      data_clips_names_test] = get_features_from_data(train_data,
                                                      val_data,
@@ -295,9 +295,9 @@ def create_main_model(train_data, val_data, test_data, model_name, nb_epochs, ba
 def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance, config_name):
     print("---------- Running " + config_name + " -------------------")
 
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
-                                                                                     data_actions_names_val], \
+                                                                                     data_actions_names_val,data_clips_names_val], \
     [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
      data_clips_names_test] = get_features_from_data(train_data,
                                                      val_data,
@@ -326,6 +326,8 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
         finetune_bert = True
     else:
         finetune_bert = False
+
+
 
     if model_name == "MPU":
         model = create_MPU_model(input_dim_video, input_dim_text, finetune_elmo, finetune_bert)
@@ -490,7 +492,8 @@ def main():
             # config_name = "compare actions bert cosine"
 
             predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            config_name = "test tf actions"
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            # config_name = "test tf actions"
 
             '''
                 Majority (actions are visible in all clips)

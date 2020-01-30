@@ -63,9 +63,9 @@ def load_video_feat(clip):
 
 
 def method_tf_actions(train_data, val_data, test_data):
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
-                                                                                     data_actions_names_val], \
+                                                                                     data_actions_names_val, data_clips_names_val], \
     [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
      data_clips_names_test] = get_features_from_data(train_data,
                                                      val_data,
@@ -94,7 +94,7 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
 
-    for action, clip in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
+    for action, clip in tqdm(list(zip(data_actions_names_train, data_clips_names_train))):
         # clip_feat_rgb = dict_clip_feat[clip]
         clip_feat_rgb = load_video_feat(clip)
 
@@ -106,7 +106,7 @@ def method_tf_actions(train_data, val_data, test_data):
         # list_actions_per_clip = [action]
         # clip_0 = clip
 
-    np.save("data/tf_tes_predicted.npy", predicted)
+    np.save("data/tf_tes_predicted_train.npy", predicted)
     # print("Predicted " + str(Counter(predicted)))
     # f1_test = f1_score(labels_test, predicted)
     # prec_test = precision_score(labels_test, predicted)
@@ -132,8 +132,43 @@ def method_tf_actions(train_data, val_data, test_data):
 #     return similarity_matrix_res
 
 
+def read_test_predicted(train_data, val_data, test_data):
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
+                                                                                     labels_val,
+                                                                                     data_actions_names_val, data_clips_names_val], \
+    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
+     data_clips_names_test] = get_features_from_data(train_data,
+                                                     val_data,
+                                                     test_data)
+
+    content = np.load("data/tf_tes_predicted.npy")
+    predicted = np.squeeze(content)
+    normalized_predicted = []
+    for i in predicted:
+        if i >= 0:
+            normalized_predicted.append(True)
+        else:
+            normalized_predicted.append(False)
+    predicted = normalized_predicted
+    # for action, clip, label_gt, label_pred in tqdm(
+    #         list(zip(data_actions_names_test, data_clips_names_test, labels_test, predicted))[50:150]):
+    #     print(action + " ; " + clip + " ; " + str(label_gt) + " ; " + str(label_pred))
+
+    print("Predicted " + str(Counter(predicted)))
+    f1_test = f1_score(labels_test, predicted)
+    prec_test = precision_score(labels_test, predicted)
+    rec_test = recall_score(labels_test, predicted)
+    acc_test = accuracy_score(labels_test, predicted)
+    print("precision {0}, recall: {1}, f1: {2}".format(prec_test, rec_test, f1_test))
+    print("acc_test: {:0.2f}".format(acc_test))
+
+    list_predictions = predicted
+    return predicted, list_predictions
+
+
 def main():
-    video_rgb = load_video_feat()
+    read_test_predicted()
+    # video_rgb = load_video_feat()
 
     # # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     # input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
