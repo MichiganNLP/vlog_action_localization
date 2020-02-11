@@ -295,7 +295,7 @@ def load_FasterRCNN_feat():
     dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
         dict_FasterRCNN_original[miniclip] = {}
-        for frame in tqdm(os.listdir(path_feat + miniclip + "/")):
+        for frame in os.listdir(path_feat + miniclip + "/"):
             dict_FasterRCNN_original[miniclip][frame[:-7]] = {}
 
             root = Path(path_feat + miniclip + "/" + frame)
