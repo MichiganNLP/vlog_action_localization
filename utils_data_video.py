@@ -295,7 +295,7 @@ def load_FasterRCNN_feat():
     for filename in tqdm(os.listdir(path_feat)):
         root = Path(path_feat + filename)
 
-        tensor = torch.load(root / 'frame_00648.jpg.pt', map_location="cpu")  # add map_location here; otherwise, it will map to gpu
+        tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
         bbox_label = tensor[0].pred_classes
         bbox_score = tensor[0].scores
