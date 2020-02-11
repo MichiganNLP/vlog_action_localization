@@ -307,17 +307,29 @@ def load_FasterRCNN_feat():
             dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
             dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
             dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
-        break
+
 
     with open('data/embeddings/dict_FasterRCNN_original.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
+
+def read_FasterRCNN():
+    with open('data/embeddings/dict_FasterRCNN_original.json') as json_file:
+        dict_FasterRCNN_original = json.load(json_file)
+
+    for miniclip in dict_FasterRCNN_original.keys():
+        print(miniclip)
+        for frame in dict_FasterRCNN_original[miniclip].keys():
+            print(frame)
+            for key in dict_FasterRCNN_original[miniclip][frame].keys():
+                print(key + str(len(dict_FasterRCNN_original[miniclip][frame][key])))
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
     load_FasterRCNN_feat()
+    # read_FasterRCNN()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
