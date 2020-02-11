@@ -291,7 +291,7 @@ def average_i3d_features_miniclip(path_I3D_features):
 
 def load_FasterRCNN_feat():
     # path_feat = "../FasterRCNN/processed/"
-    path_feat = "/local2/jiajunb/data/processed/10p0_10mini_2"
+    path_feat = "/local2/jiajunb/data/processed/10p0_10mini_2/"
     for filename in tqdm(os.listdir(path_feat)):
         root = Path(path_feat + filename)
 
