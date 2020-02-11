@@ -349,7 +349,7 @@ def save_elmo_embddings(list_all_actions):
         dict_action_embeddings[action] = emb_action
 
     # with open('data/dict_action_embeddings_ELMo_vb_particle.json', 'w+') as outfile:
-    with open('data/embeddings/dict_action_embeddings_ELMo.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_COIN.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
 
     return dict_action_embeddings
@@ -386,7 +386,7 @@ def create_bert_embeddings(list_all_actions):
         # emb_action = finetune_bert(model,tokenizer, action)
         dict_action_embeddings[action] = emb_action.reshape(-1)
 
-    with open('data/embeddings/dict_action_embeddings_Bert2.json', 'w+') as outfile:
+    with open('data/embeddings/dict_action_embeddings_Bert_Charades.json', 'w+') as outfile:
         json.dump(dict_action_embeddings, outfile, cls=NumpyEncoder)
     return dict_action_embeddings
 

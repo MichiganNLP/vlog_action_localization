@@ -18,7 +18,8 @@ import time
 from test_tf import method_tf_actions, read_test_predicted
 from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
-    compute_predicted_IOU_GT, create_data_for_model, get_seqs, compute_median_per_miniclip, method_compare_actions
+    compute_predicted_IOU_GT, create_data_for_model, get_seqs, compute_median_per_miniclip, method_compare_actions, \
+    predict_action_duration, svm_predict_actions
 
 from keras.layers import Dense, Input, Dropout, Reshape, dot, Embedding, Bidirectional, Flatten, LSTM, Multiply, Add, \
     concatenate
@@ -343,7 +344,7 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
                                    save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=20)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]
@@ -453,7 +454,14 @@ def main():
     args = parse_args()
     config_name = create_config_name(args)
 
-    #evaluate_combine_2("alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
+    # get_extra_data()
+    # predicted_time = svm_predict_actions(channels_test)
+    # predicted_time = predict_action_duration(channels_test)
+    #predicted_time = {}
+   # evaluate_combine_2(predicted_time, "alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
+    #
+    # predict_action_duration(channels_test)
+
 
     if config_name == "alignment":
         # test_alignment()
@@ -462,8 +470,8 @@ def main():
         evaluate(config_name, "1p01_5p01")
     else:
         '''
-            Create data
-        '''
+        #     Create data
+        # '''
         train_data, val_data, test_data = \
             create_data_for_model(args.type_action_emb, args.balance, args.add_cluster,
                                   path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
@@ -479,7 +487,7 @@ def main():
         else:
             '''
                     Create model
-            # '''
+            '''
             # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
             #                                                        args.epochs,
             #                                                        args.balance, config_name)
@@ -491,9 +499,9 @@ def main():
             # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
             # config_name = "compare actions bert cosine"
 
-            predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-            # config_name = "test tf actions"
+            # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
+            predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            config_name = "test tf actions"
 
             '''
                 Majority (actions are visible in all clips)
@@ -508,12 +516,12 @@ def main():
             # print("maj_val: {:0.2f}".format(maj_val))
             # print("maj_test: {:0.2f}".format(maj_test))
 
-            # '''
-            #         Evaluate
-            # '''
-            # compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            # # for channel_test in channels_test:
-            # evaluate(config_name, "1p01_5p01")
+            '''
+                    Evaluate
+            '''
+            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+          #  for channel_test in channels_test:
+            evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":
     main()

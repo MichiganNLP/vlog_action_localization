@@ -1,7 +1,10 @@
 import glob
 import json
 import os
+from pathlib import Path
+
 import numpy as np
+import torch
 from sklearn import preprocessing
 from tqdm import tqdm
 
@@ -248,28 +251,68 @@ def load_data_from_I3D(path_I3D_features):
 
 def average_i3d_features(path_I3D_features):
     with open('data/embeddings/dict_I3D_avg.json') as json_file:
-        dict_miniclip_clip_feature = json.load(json_file)
-    print(len(dict_miniclip_clip_feature.keys()))
+        dict_clip_feature = json.load(json_file)
+    print(len(dict_clip_feature.keys()))
 
 
-    # dict_miniclip_clip_feature = {}
+    # dict_clip_feature = {}
     # print("loading I3D")
     # for filename in tqdm(os.listdir(path_I3D_features)):
     #     # features = np.load(path_I3D_features + filename)
     #     # features_mean = features.mean(axis=tuple(range(1, 4)))[0]
     #     # features_mean = preprocessing.normalize(np.asarray(features_mean).reshape(1,-1), norm='l2')
     #     features_mean = np.zeros(1024)
-    #     dict_miniclip_clip_feature[filename[:-4]] = features_mean.reshape(1024)
+    #     dict_clip_feature[filename[:-4]] = features_mean.reshape(1024)
 
     # with open('data/embeddings/dict_I3D_avg.json', 'w+') as outfile:
-    #     json.dump(dict_miniclip_clip_feature, outfile, cls=NumpyEncoder)
+    #     json.dump(dict_clip_feature, outfile, cls=NumpyEncoder)
 
-    return dict_miniclip_clip_feature
+    return dict_clip_feature
+
+
+def average_i3d_features_miniclip(path_I3D_features):
+    # with open('data/embeddings/dict_I3D_avg_miniclip.json') as json_file:
+    #     dict_miniclip_feature = json.load(json_file)
+    # print(len(dict_miniclip_feature.keys()))
+
+    dict_miniclip_feature = {}
+    print("loading I3D")
+    for filename in tqdm(os.listdir(path_I3D_features)):
+        features = np.load(path_I3D_features + filename)
+        features_mean = features.mean(axis=tuple(range(1, 4)))[0]
+        # features_mean = preprocessing.normalize(np.asarray(features_mean).reshape(1,-1), norm='l2')
+        # features_mean = np.zeros(1024)
+        dict_miniclip_feature[filename[:-4]] = features_mean.reshape(1024)
+
+    with open('data/embeddings/dict_I3D_avg_miniclip.json', 'w+') as outfile:
+        json.dump(dict_miniclip_feature, outfile, cls=NumpyEncoder)
+
+    return dict_miniclip_feature
+
+def load_FasterRCNN_feat():
+    # path_feat = "../FasterRCNN/processed/"
+    path_feat = "/local2/jiajunb/data/processed/10p0_10mini_2"
+    for filename in tqdm(os.listdir(path_feat)):
+        root = Path(path_feat + filename)
+
+        tensor = torch.load(root / 'frame_00648.jpg.pt', map_location="cpu")  # add map_location here; otherwise, it will map to gpu
+
+        bbox_label = tensor[0].pred_classes
+        bbox_score = tensor[0].scores
+        bbox_features = tensor[1]
+        print(bbox_features.shape)
+        print(bbox_score.shape)
+        print(bbox_label.shape)
+        break
+
+
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
+    load_FasterRCNN_feat()
+
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
     # get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip.json")

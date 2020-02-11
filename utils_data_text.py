@@ -22,6 +22,7 @@ from collections import Counter
 from nltk.stem.snowball import SnowballStemmer
 import seaborn as sns
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.preprocessing import StandardScaler
 from tabulate import tabulate
 from keras.preprocessing.text import one_hot, Tokenizer
 from transformers.tokenization_auto import AutoTokenizer
@@ -31,7 +32,8 @@ from tqdm import tqdm
 
 from compute_text_embeddings import create_glove_embeddings, embed_elmo2, get_bert_finetuned_embeddings, \
     avg_GLoVe_action_emb, create_bert_embeddings, NumpyEncoder
-from utils_data_video import average_i3d_features, load_data_from_I3D
+from steve_human_action.main import read_activity, read_ouput_DNT
+from utils_data_video import average_i3d_features, load_data_from_I3D, average_i3d_features_miniclip
 
 from nltk.corpus import wordnet
 from itertools import product
@@ -323,8 +325,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     with open(path_all_annotations) as f:
         dict_all_annotations = json.load(f)
 
-    # dict_miniclip_clip_feature = load_data_from_I3D(path_I3D_features) #if LSTM
+    # # dict_miniclip_clip_feature = load_data_from_I3D(path_I3D_features) #if LSTM
     dict_miniclip_clip_feature = average_i3d_features(path_I3D_features)
+    dict_miniclip_feature = average_i3d_features_miniclip("../i3d_keras/data/results_miniclip/")
     dict_action_embeddings = load_text_embeddings(type_action_emb, dict_all_annotations, all_actions=True,
                                                   use_nouns=True, use_particle=True)
 
@@ -356,17 +359,17 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
     if balance:
         print("Balance data (train & val)")
 
-        # with open("data/train_test_val/dict_balanced_annotations_train.json") as f:
-        #     dict_train_annotations = json.loads(f.read())
-        dict_train_annotations = balance_data(dict_train_annotations)
-        with open("data/train_test_val/dict_balanced_annotations_train_9_10.json", 'w+') as fp:
-            json.dump(dict_train_annotations, fp)
+        with open("data/train_test_val/dict_balanced_annotations_train_9_10.json") as f:
+            dict_train_annotations = json.loads(f.read())
+        # dict_train_annotations = balance_data(dict_train_annotations)
+        # with open("data/train_test_val/dict_balanced_annotations_train_9_10.json", 'w+') as fp:
+        #     json.dump(dict_train_annotations, fp)
 
-        # with open("data/train_test_val/dict_balanced_annotations_val.json") as f:
-        #     dict_val_annotations = json.loads(f.read())
-        dict_val_annotations = balance_data(dict_val_annotations)
-        with open("data/train_test_val/dict_balanced_annotations_val_9_10.json", 'w+') as fp:
-            json.dump(dict_val_annotations, fp)
+        with open("data/train_test_val/dict_balanced_annotations_val_9_10.json") as f:
+            dict_val_annotations = json.loads(f.read())
+        # dict_val_annotations = balance_data(dict_val_annotations)
+        # with open("data/train_test_val/dict_balanced_annotations_val_9_10.json", 'w+') as fp:
+        #     json.dump(dict_val_annotations, fp)
 
         # No balancing the test!!!
         # with open("data/train_test_val/dict_balanced_annotations_test.json") as f:
@@ -381,12 +384,17 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
+        pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
+        viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
+        viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
+
 
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             # action_emb = np.zeros(1024)
-            data_clips_train.append([clip, viz_feat])
+            data_clips_train.append([clip, viz_feat3])
             data_actions_train.append([action, action_emb])
             labels_train.append(label)
             set_action_miniclip_train.add(clip[:-8] + ", " + action)
@@ -400,18 +408,24 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
+
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
+        pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
+        viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
+        viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
+
 
         for [action, label] in list_action_label:
-            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
-            action_emb = dict_action_embeddings[action]
-            # action_emb = np.zeros(1024)
-            data_clips_val.append([clip, viz_feat])
-            data_actions_val.append([action, action_emb])
-            labels_val.append(label)
-            set_action_miniclip_val.add(clip[:-8] + ", " + action)
-            set_miniclip_val.add(clip[:-8])
-            set_clip_val.add(clip[:-4])
+                # action, _ = compute_action(action, use_nouns=False, use_particle=True)
+                action_emb = dict_action_embeddings[action]
+                # action_emb = np.zeros(1024)
+                data_clips_val.append([clip, viz_feat3])
+                data_actions_val.append([action, action_emb])
+                labels_val.append(label)
+                set_action_miniclip_val.add(clip[:-8] + ", " + action)
+                set_miniclip_val.add(clip[:-8])
+                set_clip_val.add(clip[:-4])
 
     list_test_clip_names = []
     list_test_action_names = []
@@ -421,19 +435,24 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
+        pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
+        viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
+        viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
+
 
         for [action, label] in list_action_label:
-            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
-            action_emb = dict_action_embeddings[action]
-            # action_emb = np.zeros(1024)
-            data_clips_test.append([clip, viz_feat])
-            data_actions_test.append([action, action_emb])
-            labels_test.append(label)
-            set_action_miniclip_test.add(clip[:-8] + ", " + action)
-            list_test_clip_names.append(clip)
-            list_test_action_names.append(action)
-            set_miniclip_test.add(clip[:-8])
-            set_clip_test.add(clip[:-4])
+                # action, _ = compute_action(action, use_nouns=False, use_particle=True)
+                action_emb = dict_action_embeddings[action]
+                # action_emb = np.zeros(1024)
+                data_clips_test.append([clip, viz_feat3])
+                data_actions_test.append([action, action_emb])
+                labels_test.append(label)
+                set_action_miniclip_test.add(clip[:-8] + ", " + action)
+                list_test_clip_names.append(clip)
+                list_test_action_names.append(action)
+                set_miniclip_test.add(clip[:-8])
+                set_clip_test.add(clip[:-4])
 
 
 
@@ -507,9 +526,20 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
         return json_load
         # return create_bert_embeddings(list_all_actions)
     elif type_action_emb == "DNT":
-        with open('steve_human_action/dict_action_emb_DNT.json') as f:
-            json_load = json.loads(f.read())
-        return json_load
+        dict_embeddings = read_ouput_DNT()
+        dict_actions = read_activity()
+
+        dict_action_emb = {}
+
+        for index in dict_embeddings.keys():
+            action = dict_actions[index]
+            emb = dict_embeddings[index]
+            dict_action_emb[action] = emb.reshape(-1)
+        return dict_action_emb
+
+        # with open('steve_human_action/dict_action_emb_DNT.json') as f:
+        #     json_load = json.loads(f.read())
+        # return json_load
     else:
         raise ValueError("Wrong action emb type")
 
@@ -599,6 +629,284 @@ def compute_median_per_miniclip(data_actions_names_test, data_clips_names_test, 
     return med_filt_predicted
 
 
+def predict_action_duration(channels_test):
+    with open("data/dict_all_annotations_1_10channels.json") as file:
+        annotations = json.load(file)
+
+    with open("data/embeddings/dict_action_embeddings_Bert.json") as f:
+        dict_action_embeddings_Bert = json.loads(f.read())
+
+    # with open("data/embeddings/dict_action_embeddings_Bert_vb_particle_noun.json") as f:
+    #     dict_action_embeddings_Bert = json.loads(f.read())
+
+    # dict_embeddings = read_ouput_DNT()
+    # dict_actions = read_activity()
+    #
+    # dict_action_embeddings_Bert = {}
+    #
+    # for index in dict_embeddings.keys():
+    #     action = dict_actions[index]
+    #     emb = dict_embeddings[index]
+    #     dict_action_embeddings_Bert[action] = emb.reshape(-1)
+
+    # show actions grouped by GT duration - only vb
+    list_test = []
+    list_train = []
+    for miniclip in annotations.keys():
+        for [action, label] in annotations[miniclip]:
+            if label != ['not visible']:
+                [t_s_gt, t_e_gt] = label
+                duration = int(round(t_e_gt - t_s_gt, -1))
+                if duration in [0, 10]:
+                    duration = 0 # short
+                else:
+                    duration = 1 # long
+                if miniclip.split("_")[0] in channels_test:
+                    list_test.append((action, duration))
+                else:
+                    list_train.append((action, duration))
+
+
+    predicted_time = []
+    GT_time = []
+    for (action_test, time_gt) in tqdm(list_test):
+        # action_test = action_test.split()[0]
+        # action_test, _ = compute_action(action_test, use_nouns=True, use_particle=True)
+        emb_action_test = dict_action_embeddings_Bert[action_test]
+        max_score = 0
+        max_time = 0
+        max_action = ""
+
+        for (action_train, time) in list_train:
+            # action_train = action_train.split()[0]
+            # action_train, _ = compute_action(action_train, use_nouns=True, use_particle=True)
+            emb_action_train = dict_action_embeddings_Bert[action_train]
+            cosine = scipy.spatial.distance.cosine(emb_action_test, emb_action_train)
+            score = (1 - cosine) * 100
+            if score > max_score:
+                max_score = score
+                max_time = time
+                max_action = action_train
+            if score >= 99:
+                break
+
+        predicted_time.append(max_time)
+        GT_time.append(time_gt)
+        # print(action_test + " = " + max_action)
+    acc_score = accuracy_score(GT_time, predicted_time)
+    f1 = f1_score(GT_time, predicted_time)
+    recall = recall_score(GT_time, predicted_time)
+    precision = precision_score(GT_time, predicted_time)
+    print("acc_score: {:0.2f}".format(acc_score)) # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print("f1_score: {:0.2f}".format(f1)) # 0.34 - only verb 0.38 - Bert whole action
+    print("recall: {:0.2f}".format(recall))
+    print("precision: {:0.2f}".format(precision))
+
+    predicted_dict = {}
+    for action, duration in zip(GT_time, predicted_time):
+        predicted_dict[action] = duration
+
+
+def get_extra_data_charades():
+    list_all_actions = set()
+    X_train = []
+    Y_train = []
+
+    with open("data/embeddings/dict_action_embeddings_Bert_Charades.json") as f:
+        dict_action_embeddings_Bert = json.loads(f.read())
+
+    with open("data/RelatedWorkDatasets/charadesSTA_test") as file_in:
+        # actions_length = []
+        for line in file_in:
+            s = float(line.split(" ")[1])
+            e = float(line.split(" ")[2])
+            action = " ".join(line.split(" ")[4:])[:-2]
+            list_all_actions.add(action)
+            action_duration = e - s
+            action_emb = dict_action_embeddings_Bert[action]
+            # rounded_duration = int(round(action_duration, -1))
+            if action_duration in [0, 10]:
+                action_duration = 0
+            else:
+                action_duration = 1
+            X_train.append(action_emb)
+            Y_train.append(action_duration)
+
+    with open("data/RelatedWorkDatasets/charadesSTA_train.txt") as file_in:
+        # actions_length = []
+        for line in file_in:
+            s = float(line.split(" ")[1])
+            e = float(line.split(" ")[2])
+            action_duration = e - s
+            action = " ".join(line.split(" ")[4:])[:-2]
+            list_all_actions.add(action)
+            action_emb = dict_action_embeddings_Bert[action]
+            # rounded_duration = int(round(action_duration, -1))
+            if action_duration in [0, 10]:
+                action_duration = 0
+            else:
+                action_duration = 1
+            X_train.append(action_emb)
+            Y_train.append(action_duration)
+            # print(action , str(action_duration))
+
+    # create_bert_embeddings(list_all_actions)
+    return X_train, Y_train
+
+def get_extra_data_coin():
+    list_all_actions = set()
+    X_train = []
+    Y_train = []
+
+    with open("data/embeddings/dict_action_embeddings_Bert_COIN.json") as f:
+        dict_action_embeddings_Bert = json.loads(f.read())
+
+    with open("data/RelatedWorkDatasets/COIN.json") as file:
+        coin_data = json.load(file)
+
+    data = coin_data["database"]
+    list_duration = []
+    for key in data.keys():
+        content = data[key]
+        for i in range(len(content["annotation"])):
+            action = content["annotation"][i]["label"]
+            segment_time = content["annotation"][i]["segment"]
+            action_duration = int(segment_time[1] - segment_time[0])
+            action_emb = dict_action_embeddings_Bert[action]
+            if action_duration in [0, 10]:
+                action_duration = 0
+            else:
+                action_duration = 1
+            X_train.append(action_emb)
+            Y_train.append(action_duration)
+    return X_train, Y_train
+
+def svm_predict_actions(channels_test):
+
+
+    from sklearn.svm import SVC
+    model = SVC(kernel='rbf', class_weight='balanced', C=1.0, random_state=0)
+
+    with open("data/dict_all_annotations_1_10channels.json") as file:
+        annotations = json.load(file)
+
+    with open("data/embeddings/dict_action_embeddings_Bert.json") as f:
+        dict_action_embeddings_Bert = json.loads(f.read())
+
+    # with open("data/embeddings/dict_action_embeddings_Bert_vb_particle_noun.json") as f:
+    #     dict_action_embeddings_Bert = json.loads(f.read())
+
+    # dict_embeddings = read_ouput_DNT()
+    # dict_actions = read_activity()
+    #
+    # dict_action_embeddings_Bert = {}
+    #
+    # for index in dict_embeddings.keys():
+    #     action = dict_actions[index]
+    #     emb = dict_embeddings[index]
+    #     dict_action_embeddings_Bert[action] = emb.reshape(-1)
+    #
+
+    # X_train, Y_train = get_extra_data_charades()
+    X_train, Y_train = get_extra_data_coin()
+    X_test = []
+    # X_train = []
+    Y_test = []
+    # Y_train = []
+    X_test_action = []
+    X_train_action = []
+    X_train_channel = []
+    X_test_channel = []
+
+    for miniclip in annotations.keys():
+        # channel = miniclip.split("_")[0].split("p")[0]
+        # channel_emb = np.ones(3) * int(channel)
+
+        for [action, label] in annotations[miniclip]:
+            if label != ['not visible']:
+                [t_s_gt, t_e_gt] = label
+                duration = int(round(t_e_gt - t_s_gt, -1))
+                if duration in [0, 10]:
+                    duration = 0  # short
+                else:
+                    duration = 1  # long
+                # action_2, _ = compute_action(action, use_nouns=True, use_particle=True)
+                # emb_action_train = dict_action_embeddings_Bert[action_2]
+                emb_action_train = dict_action_embeddings_Bert[action]
+                # emb_action_train = np.concatenate((emb_action_train, channel_emb), axis=0)
+                # print(emb_action_train)
+                if miniclip.split("_")[0] in channels_test:
+                    X_test.append(emb_action_train)
+                    X_test_action.append(action)
+                    # X_test_channel.append(channel)
+                    Y_test.append(duration)
+                else:
+                    X_train.append(emb_action_train)
+                    Y_train.append(duration)
+                    # X_train_channel.append(channel)
+                    # X_train_action.append(action)
+
+    # Standarize features
+    scaler = StandardScaler()
+    X_std = scaler.fit_transform(X_train)
+
+    print(Counter(Y_train))
+    print(Counter(Y_test))
+
+    print("Fitting model")
+    model.fit(X_std, Y_train)
+    print("Evaluating model")
+    predicted = model.predict(X_test)
+
+
+    acc_score = accuracy_score(Y_test, predicted)
+    f1 = f1_score(Y_test, predicted)
+    recall = recall_score(Y_test, predicted)
+    precision = precision_score(Y_test, predicted)
+    print("acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
+    print("recall: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
+    print("precision: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
+
+    predicted_dict = {}
+    for action, duration in zip(X_test_action, predicted):
+        predicted_dict[action] = duration
+
+    # index = 0
+    # for action, duration, gt in list(zip(X_test_action, predicted, Y_test)):
+    #     if "make" in action and gt == 0:
+    #         print("short: " + action)
+    #     if "make" in action and gt == 1:
+    #         print("long: " + action)
+
+        # for verb in ['take','put','use','add','get','sprinkle','go','mix','cut','do']:
+        #     if verb in action.split()[0]:
+        #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
+        #         predicted[index] = 0
+        #         break
+        # for verb in ['wipe','clean','make','prep','eat','write','vacuum','tidy','mop','cook','watch']:
+        #     if verb in action.split()[0]:
+        #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
+        #         predicted[index] = 1
+        #         break
+
+    #     index += 1
+    #
+    # f1 = f1_score(Y_test, predicted)
+    # recall = recall_score(Y_test, predicted)
+    # precision = precision_score(Y_test, predicted)
+    # print("acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    # print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
+    # print("recall: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
+    # print("precision: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
+    #
+    # predicted_dict = {}
+    # for action, duration in zip(X_test_action, predicted):
+    #     predicted_dict[action] = duration
+
+    return predicted_dict
+
+
 def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_length,
                           list_predictions):
     with open("data/dict_clip_time_per_miniclip" + clip_length + ".json") as f:
@@ -638,7 +946,6 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
             # # dict_predicted[key].append(1)
             # dict_predicted[key].append(miniclip_length)
             # dict_predicted[key].append(1)
-
 
             dict_predicted[key].append(-1)
             dict_predicted[key].append(-1)

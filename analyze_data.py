@@ -1,3 +1,5 @@
+import csv
+import glob
 import json
 from collections import Counter
 from pathlib import Path
@@ -5,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+
+from compute_text_embeddings import create_bert_embeddings
 
 
 def collect_data(path_annotations):
@@ -119,7 +123,7 @@ def plot_hist_length_actions(annotations, channel=None):
 
 
 def count_how_many_times_actions_overlap():
-    with open("data/dict_all_annotations_1_7channels.json") as file:
+    with open("data/dict_all_annotations_1_10channels.json") as file:
         annotations = json.load(file)
 
     count_overlap = 0
@@ -137,8 +141,6 @@ def count_how_many_times_actions_overlap():
                 list_actions.append(action)
         for x in range(0, len(list_intervals) - 1):
             for y in range(x + 1, len(list_intervals)):
-                if set(list_intervals[x]).intersection(list_intervals[y]):
-                    count_overlap += 1
                 if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]) or set(
                         list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
                     count_inclusion += 1
@@ -150,9 +152,12 @@ def count_how_many_times_actions_overlap():
                     # print(list_intervals[y], list_intervals[x])
                     if set(list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[x]) and set(
                             list_intervals[x]).intersection(list_intervals[y]) == set(list_intervals[y]):
-                        print(miniclip, list_actions[y] + " = " + list_actions[x])
-                        print(list_intervals[y], list_intervals[x])
+                        # print(miniclip, list_actions[y] + " = " + list_actions[x])
+                        # print(list_intervals[y], list_intervals[x])
                         count_exact_time += 1
+                elif set(list_intervals[x]).intersection(list_intervals[y]):
+                    count_overlap += 1
+                    print(miniclip, list_actions[y] + " & " + list_actions[x])
 
     print(count_overlap)
     print(count_inclusion)
@@ -174,6 +179,78 @@ def change_format(initial):
     return new_format_dict
 
 
+def read_COIN():
+    with open("data/RelatedWorkDatasets/COIN.json") as file:
+        coin_data = json.load(file)
+
+    data = coin_data["database"]
+    list_duration = []
+    list_all_actions = set()
+    for key in data.keys():
+        content = data[key]
+        for i in range(len(content["annotation"])):
+            segment_time = content["annotation"][i]["segment"]
+            action = content["annotation"][i]["label"]
+            action_duration = int(segment_time[1] - segment_time[0])
+
+            # 5 -> 0; 6 -> 10
+            rounded_duration = str(int(round(action_duration, -1)))
+            list_duration.append(rounded_duration)
+            list_all_actions.add(action)
+
+    # create_bert_embeddings(list_all_actions)
+    counter = Counter(list_duration)
+    # counter = counter.most_common()
+    counter = sorted(counter.items())
+    # print(counter)
+    sum1 = 0
+    for c, v in counter[:2]:
+        sum1 += v
+    # print("1-15: " + str(sum1))
+
+    sum2 = 0
+    for c, v in counter[2:]:
+        sum2 += v
+    # print("16-175: " + str(sum2))
+
+    nb_total_actions = sum1 + sum2
+    print("COIN:")
+    print("nb_total_actions: " + str(nb_total_actions))
+    print("nb_0-15s_actions relative to total: " + str(sum1 / nb_total_actions * 100))
+    print("nb_16-60s_actions relative to total: " + str(sum2 / nb_total_actions * 100))
+
+
+def read_CrossTask():
+    list_csv_files = sorted(glob.glob("data/RelatedWorkDatasets/crosstask/annotations/*.csv"))
+    list_duration = []
+    for file_path in list_csv_files:
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for data in csv_reader:
+                action_duration = int(float(data[2]) - float(data[1]))
+                rounded_duration = str(int(round(action_duration, -1)))
+                list_duration.append(rounded_duration)
+
+    counter = Counter(list_duration)
+    # counter = counter.most_common()
+    counter = sorted(counter.items())
+    print(counter)
+    sum1 = 0
+    for c, v in counter[:2]:
+        sum1 += v
+    print("1-15: " + str(sum1))
+
+    sum2 = 0
+    for c, v in counter[2:]:
+        sum2 += v
+    print("16-175: " + str(sum2))
+    nb_total_actions = sum1 + sum2
+    print("CrossTask:")
+    print("nb_total_actions: " + str(nb_total_actions))
+    print("nb_0-15s_actions relative to total: " + str(sum1 / nb_total_actions * 100))
+    print("nb_16-60s_actions relative to total: " + str(sum2 / nb_total_actions * 100))
+
+
 def plot_nb_actions_per_channel():
     sns.set(style="whitegrid")
 
@@ -189,9 +266,23 @@ def plot_nb_actions_per_channel():
     # plt.show()
 
     # list of name, degree, score
-    # nb_actions = [1136, 1200, 475, 157, 72, 69, 30]
-    # time_span = ["0-5s", "6-15s", "16-25s", "26-35s", "36-45s", "46-55s", "56-60s"]
-    #
+    nb_actions = [1136, 1200, 475, 157, 72, 69, 30]
+    time_span = ["0-5s", "6-15s", "16-25s", "26-35s", "36-45s", "46-55s", "56-60s"]
+    nb_total_actions = sum(nb_actions)
+    print("Mine:")
+    print("nb_total_actions: " + str(nb_total_actions))
+    print("nb_0-15s_actions relative to total: " + str(sum(nb_actions[0:2]) / nb_total_actions * 100))
+    print("nb_16-60s_actions relative to total: " + str(sum(nb_actions[2:]) / nb_total_actions * 100))
+
+    # list of name, degree, score
+    nb_actions = [1548, 10328, 500, 21, 3, 0, 2, 0, 3]
+    time_span = ["0-5s", "6-15s", "16-25s", "26-35s", "36-45s", "46-55s", "56-60s"]
+    nb_total_actions = sum(nb_actions)
+    print("Charades:")
+    print("nb_total_actions: " + str(nb_total_actions))
+    print("nb_0-15s_actions relative to total: " + str(sum(nb_actions[0:2]) / nb_total_actions * 100))
+    print("nb_16-60s_actions relative to total: " + str(sum(nb_actions[2:]) / nb_total_actions * 100))
+
     # # dictionary of lists
     # dict = {'time span': time_span, '#actions': nb_actions}
     #
@@ -200,16 +291,19 @@ def plot_nb_actions_per_channel():
     # # saving the dataframe
     # df.to_csv('data/data_to_plot/action_duration.csv')
 
-    #https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
+    # https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
 
-    tips = pd.read_csv("data/data_to_plot/action_duration.csv")
-    print(tips[:5])
-    ax = sns.barplot(x="time span", y="#actions", data=tips, color="royalblue")
-    plt.show()
+    # tips = pd.read_csv("data/data_to_plot/action_duration.csv")
+    #
+    # ax = sns.barplot(x="time span", y="#actions", data=tips, color="royalblue")
+    # plt.show()
 
 
 def main():
     plot_nb_actions_per_channel()
+    read_COIN()
+    read_CrossTask()
+    # count_how_many_times_actions_overlap()
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")
     # with open("data/dict_all_annotations_1_10channels.json") as file:
     #     annotations = json.load(file)

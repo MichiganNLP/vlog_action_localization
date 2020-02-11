@@ -153,7 +153,7 @@ def compute_meanIOU(IOU_vals):
     return mean_tIOU
 
 
-def wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, proposed_1p0_3, groundtruth_1p0):
+def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, proposed_1p0_3, groundtruth_1p0):
     if len(proposed_1p0_1.keys()) != len(groundtruth_1p0.keys()):
         count_visible_actions_not_caught = 0
         for key in groundtruth_1p0.keys() - proposed_1p0_1.keys():
@@ -204,10 +204,18 @@ def wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, proposed_1p0_3, ground
 
         action_duration = target_segment[1] - target_segment[0]
         rounded_duration = str(int(round(action_duration, -1)))
-        if rounded_duration in ['0', '10']:
+        # if rounded_duration in ['0', '10']:
+        #     candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignemnt is good for short actions
+        # else:
+        #     candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions
+
+        # TODO: uncomment
+        predicted_duration = predicted_time[miniclip_action.split(", ")[1]]
+        if predicted_duration == 0:
             candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignemnt is good for short actions
         else:
             candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions
+
         # elif rounded_duration in ['40', '50', '60']:
         #     candidate_segments = np.array(
         #         proposed_1p0_3[miniclip_action])  # cosine action I3D + BERT is good for long actions
@@ -291,9 +299,9 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
 #     return tIOU_threshold
 
 
-def evaluate_combine_2(method1, method2, method3, channel):
+def evaluate_combine_2(predicted_time, method1, method2, method3, channel):
     print("-----------------------------------------------------------")
-    print("Results for method {0} on channel {1}:".format(method1, channel))
+    print("Results for method {0}, {1}, {2} on channel {3}:".format(method1, method2, method3, channel))
     with open("data/results/dict_predicted_" + method1 + ".json") as f:
         proposed_1p0_1 = json.loads(f.read())
 
@@ -307,7 +315,7 @@ def evaluate_combine_2(method1, method2, method3, channel):
         groundtruth_1p0 = json.loads(f.read())
 
     # IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, groundtruth_1p0)
-    IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, proposed_1p0_3,
+    IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, proposed_1p0_3,
                                                           groundtruth_1p0)
     print("#test points: " + str(len(IOU_vals)))
 
