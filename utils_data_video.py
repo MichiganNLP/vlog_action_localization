@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from compute_text_embeddings import NumpyEncoder
 
+
 # global path_I3D_features
 # on lit1000:  scp results_features/7p* oignat@lit09.eecs.umich.edu:/local/oignat/Action_Recog/i3d_keras/data/results_features/
 
@@ -22,6 +23,7 @@ def create_10s_clips(path_input_video, path_output_video):
     command = "ffmpeg -i " + path_input_video + " -acodec copy -f segment -segment_time 10 -vcodec copy -reset_timestamps 1 -map 0 " \
               + path_output_video + miniclip + "_%03d.mp4"
     os.system(command)
+
 
 # TODO: more exact split ?
 def get_clip_time_per_miniclip(path_input, path_output, path_I3D_features, clip_length):
@@ -82,11 +84,14 @@ def intervals_overlap(i1, i2):
     [y1, y2] = i2
     return x1 <= y2 and y1 <= x2
 
+
 '''
 return -1, if time_1 < time_2
         1, if time_1 > time_2
         0, if equal
 '''
+
+
 def compare_time(time_1, time_2):
     minute_1_s, sec_1_s = time_1.split(":")
     minute_2_s, sec_2_s = time_2.split(":")
@@ -123,7 +128,6 @@ def write_clip_annotations():
         end_clip_time = time_clip[1]
         list_actions = []
 
-
         for key in actions_sent_time.keys():
             for value in actions_sent_time[key]:
                 [time_action, action, transcript] = value
@@ -132,7 +136,7 @@ def write_clip_annotations():
 
                 # action time equal clip time
                 if compare_time(start_clip_time, start_action_time) == 0 and compare_time(end_clip_time,
-                                                                                         end_action_time) == 0:
+                                                                                          end_action_time) == 0:
                     list_actions.append(action)
 
                 # action time included in clip time
@@ -146,7 +150,8 @@ def write_clip_annotations():
                     list_actions.append(action)
 
                 # action time intersects clip time
-                elif compare_time(start_action_time, end_clip_time) == -1 and compare_time(end_action_time, start_clip_time) == 1:
+                elif compare_time(start_action_time, end_clip_time) == -1 and compare_time(end_action_time,
+                                                                                           start_clip_time) == 1:
                     list_actions.append(action)
 
         clip_time_actions[clip] = [time_clip, list_actions]
@@ -178,7 +183,8 @@ def create_action_clip_labels(path_input, path_output, channels):
                 for clip in list_clips:
                     [time_s_clip, time_e_clip] = dict_clip_time_per_miniclip[clip]
                     if intervals_overlap([time_s_clip, time_e_clip], [time_s_action, time_e_action]) \
-                        and len(range(max(int(time_s_clip), int(time_s_action)), min(int(time_e_clip), int(time_e_action))+1)) > 1: # intersection is > 1s
+                            and len(range(max(int(time_s_clip), int(time_s_action)),
+                                          min(int(time_e_clip), int(time_e_action)) + 1)) > 1:  # intersection is > 1s
                         label = True
                     else:
                         label = False
@@ -203,9 +209,6 @@ def create_clips(path_input_video, path_output_video, channels):
         create_10s_clips(video_file, path_output_video)
 
 
-
-
-
 def save_data_from_I3D(path_I3D_features):
     max_nb_frames = 100
 
@@ -222,7 +225,8 @@ def save_data_from_I3D(path_I3D_features):
             print(features_per_frame.shape[0])
             if max_nb_frames < features_per_frame.shape[0]:
                 raise ValueError(features_per_frame.shape[0])
-            padded_video_features[:, j] = np.array(list(features_per_frame[:, j]) + (max_nb_frames - features_per_frame.shape[0]) * [0])
+            padded_video_features[:, j] = np.array(
+                list(features_per_frame[:, j]) + (max_nb_frames - features_per_frame.shape[0]) * [0])
 
         # dict_miniclip_clip_feature[filename[:-4]] = features_per_frame
         dict_miniclip_clip_feature[filename[:-4]] = padded_video_features
@@ -235,25 +239,26 @@ def save_data_from_I3D(path_I3D_features):
     #     index += 1
     with open('data/embeddings/dict_I3D_padded.json', 'w+') as outfile:
         json.dump(dict_miniclip_clip_feature, outfile, cls=NumpyEncoder)
-    #return dict_miniclip_clip_feature
+    # return dict_miniclip_clip_feature
+
 
 def load_data_from_I3D(path_I3D_features):
     save_data_from_I3D(path_I3D_features)
     with open('data/embeddings/dict_I3D_padded.json') as json_file:
         dict_miniclip_clip_feature = json.load(json_file)
     print(len(dict_miniclip_clip_feature.keys()))
-    #dict_test_miniclip = {}
+    # dict_test_miniclip = {}
     # for key in dict_miniclip_clip_feature.keys():
     #     if "1p0" or "1p1" in key:
     #         dict_test_miniclip[key] = dict_miniclip_clip_feature[key]
     # return dict_test_miniclip
     return dict_miniclip_clip_feature
 
+
 def average_i3d_features(path_I3D_features):
     with open('data/embeddings/dict_I3D_avg.json') as json_file:
         dict_clip_feature = json.load(json_file)
     print(len(dict_clip_feature.keys()))
-
 
     # dict_clip_feature = {}
     # print("loading I3D")
@@ -289,6 +294,7 @@ def average_i3d_features_miniclip(path_I3D_features):
 
     return dict_miniclip_feature
 
+
 def load_FasterRCNN_feat():
     # path_feat = "../FasterRCNN/processed/"
     path_feat = "/local2/jiajunb/data/processed/"
@@ -312,33 +318,39 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
 
-
     with open('data/embeddings/dict_FasterRCNN_original_first_label.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
+    # import metadata catalog class
+    from detectron2.data import MetadataCatalog
+    # get meta data
+    MetadataCatalog.get('coco_2017_train')
+    # get the list of thing
+    list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
+
     with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
     for miniclip in dict_FasterRCNN_original.keys():
-        print(miniclip)
         for frame in dict_FasterRCNN_original[miniclip].keys():
-            print(frame)
-            label = dict_FasterRCNN_original[miniclip][frame]
-            print(label)
+            index_bbox_label_first = dict_FasterRCNN_original[miniclip][frame][0]  # from np.array([x]) to x
+            label_text = list_classes[index_bbox_label_first]
+            print(miniclip, frame, label_text)
+
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
-    load_FasterRCNN_feat()
-    #read_FasterRCNN()
+    # load_FasterRCNN_feat()
+    read_FasterRCNN()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
     # get_clip_time_per_miniclip("../temporal_annotation/miniclips/", "data/dict_clip_time_per_miniclip.json")
-    #create_action_clip_labels("data/dict_clip_time_per_miniclip.json", 'data/dict_all_annotations.json', ["1p0"])
+    # create_action_clip_labels("data/dict_clip_time_per_miniclip.json", 'data/dict_all_annotations.json', ["1p0"])
 
 
 if __name__ == '__main__':
