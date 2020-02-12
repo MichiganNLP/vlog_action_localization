@@ -330,7 +330,7 @@ def read_FasterRCNN():
     # get the list of thing
     list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
     dict_FasterRCNN_first_label = {}
-    with open('data/embeddings/dict_FasterRCNN_first_label_str.json') as json_file:
+    with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
     for miniclip in dict_FasterRCNN_original.keys():
