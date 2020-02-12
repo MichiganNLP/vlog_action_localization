@@ -314,6 +314,7 @@ def load_FasterRCNN_feat():
                 bbox_label_first = list(tensor[0].pred_classes.numpy())[0:3]
             else:
                 bbox_label_first = list(tensor[0].pred_classes.numpy())
+            print(np.array([bbox_label_first]))
             dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array([bbox_label_first])
             # bbox_score = tensor[0].scores.numpy()
             # bbox_features = tensor[1].numpy()
