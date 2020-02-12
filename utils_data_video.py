@@ -334,21 +334,45 @@ def read_FasterRCNN():
         dict_FasterRCNN_original = json.load(json_file)
 
     for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
-        dict_FasterRCNN_original[miniclip] = {}
+        dict_FasterRCNN_first_label[miniclip] = {}
         for frame in dict_FasterRCNN_original[miniclip].keys():
             index_bbox_label_first = dict_FasterRCNN_original[miniclip][frame][0]  # from np.array([x]) to x
             label_text = list_classes[index_bbox_label_first]
-            dict_FasterRCNN_first_label[miniclip][frame[:-7]] = label_text
+            dict_FasterRCNN_first_label[miniclip][frame] = label_text
 
     with open('data/embeddings/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile)
+
+def transform_into_embeddings():
+    with open('data/embeddings/dict_FasterRCNN_first_label_str.json') as json_file:
+        dict_FasterRCNN_first_label_str = json.load(json_file)
+
+    # set_classes = set()
+    for miniclip in tqdm(list(dict_FasterRCNN_first_label_str.keys())):
+        i = 0
+        nb_frames = len(dict_FasterRCNN_first_label_str[miniclip].keys())
+        print(nb_frames)
+        # for i in range(0, int((nb_frames - 72) / 24)):
+        #     clip_i = nb_frames[i * 24: (i + 3) * 24]
+
+        for frame in dict_FasterRCNN_first_label_str[miniclip].keys():
+            class_name = dict_FasterRCNN_first_label_str[miniclip][frame]
+            print(frame, class_name)
+        break
+
+
+
+
+    # create_bert_embeddings(list_all_actions)
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
+
     # load_FasterRCNN_feat()
     read_FasterRCNN()
+    # transform_into_embeddings()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
