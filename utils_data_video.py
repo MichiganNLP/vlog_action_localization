@@ -301,10 +301,10 @@ def load_FasterRCNN_feat():
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
             bbox_label = tensor[0].pred_classes.numpy()
-            if not bbox_label:
+            if bbox_label.size == 0:
                 continue
-            bbox_label_list = list(tensor[0].pred_classes.numpy())[0]
-            dict_FasterRCNN_original[miniclip][frame[:-7]] = bbox_label_list
+            bbox_label_first = list(tensor[0].pred_classes.numpy())[0]
+            dict_FasterRCNN_original[miniclip][frame[:-7]] = bbox_label_first
             # bbox_score = tensor[0].scores.numpy()
             # bbox_features = tensor[1].numpy()
             #
