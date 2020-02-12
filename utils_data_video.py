@@ -292,25 +292,28 @@ def average_i3d_features_miniclip(path_I3D_features):
 def load_FasterRCNN_feat():
     # path_feat = "../FasterRCNN/processed/"
     path_feat = "/local2/jiajunb/data/processed/"
-    dict_FasterRCNN_original = {}
+    # dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
-        dict_FasterRCNN_original[miniclip] = {}
         for frame in os.listdir(path_feat + miniclip + "/"):
-            dict_FasterRCNN_original[miniclip][frame[:-7]] = {}
+            # dict_FasterRCNN_original[miniclip][frame[:-7]] = {}
 
             root = Path(path_feat + miniclip + "/" + frame)
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
             bbox_label = tensor[0].pred_classes.numpy()
             bbox_score = tensor[0].scores.numpy()
-            bbox_features = tensor[1].numpy()
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
+            print(bbox_label)
+            print(bbox_score)
+            break
+            # bbox_features = tensor[1].numpy()[0]
+            #
+            # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
+            # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
+            # dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
 
-
-    with open('data/embeddings/dict_FasterRCNN_original.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
+    #
+    # with open('data/embeddings/dict_FasterRCNN_original.json', 'w+') as outfile:
+    #     json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
@@ -328,8 +331,8 @@ def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
-    # load_FasterRCNN_feat()
-    read_FasterRCNN()
+    load_FasterRCNN_feat()
+    #read_FasterRCNN()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
