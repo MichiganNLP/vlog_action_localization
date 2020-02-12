@@ -310,7 +310,10 @@ def load_FasterRCNN_feat():
             if bbox_label.size == 0:
                 dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array([-1])
                 continue
-            bbox_label_first = list(tensor[0].pred_classes.numpy())[0]
+            elif bbox_label.size >= 3:
+                bbox_label_first = list(tensor[0].pred_classes.numpy())[0:3]
+            else:
+                bbox_label_first = list(tensor[0].pred_classes.numpy())
             dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array([bbox_label_first])
             # bbox_score = tensor[0].scores.numpy()
             # bbox_features = tensor[1].numpy()
@@ -319,7 +322,7 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
 
-    with open('data/embeddings/dict_FasterRCNN_original_first_label.json', 'w+') as outfile:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_label.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
@@ -331,7 +334,7 @@ def read_FasterRCNN():
     # get the list of thing
     list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
     dict_FasterRCNN_first_label = {}
-    with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
     for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
@@ -345,12 +348,12 @@ def read_FasterRCNN():
 
             dict_FasterRCNN_first_label[miniclip][frame] = label_text
 
-    with open('data/embeddings/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_first_label, outfile)
 
 
-def transform_into_embeddings():
-    with open('data/embeddings/dict_FasterRCNN_first_label_str.json') as json_file:
+def transform_miniclip_data_into_clips():
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json') as json_file:
         dict_FasterRCNN_first_label_str = json.load(json_file)
 
     dict_clips_data = {}
@@ -358,26 +361,22 @@ def transform_into_embeddings():
     for miniclip in tqdm(list(dict_FasterRCNN_first_label_str.keys())):
         nb_frames = len(dict_FasterRCNN_first_label_str[miniclip].keys())
         print(nb_frames)
-        # for i in range(0, int((nb_frames - 72) / 24)):
-        #     clip_i = nb_frames[i * 24: (i + 3) * 24]
 
-
-        index_clip = 0
-        index_frame = 0
+        list_classes_miniclip = []
         for frame in sorted(dict_FasterRCNN_first_label_str[miniclip].keys()):
-            frame_nb = int(frame.split("_")[1])
             class_name = dict_FasterRCNN_first_label_str[miniclip][frame]
-            print(frame, str(frame_nb), class_name)
-            clip_name = miniclip + "_" + str(index_clip).zfill(3)
+            list_classes_miniclip.append(class_name)
+            # print(frame, str(frame_nb), class_name)
 
+        for index_clip in range(0, int((nb_frames - 72) / 24)):
+            clip_name = miniclip + "_" + str(index_clip).zfill(3)
             if clip_name not in dict_clips_data.keys():
                 dict_clips_data[clip_name] = []
-            dict_clips_data[clip_name].append(class_name)
+            dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
 
-            index_frame += 1
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str_clips.json', 'w+') as outfile:
+        json.dump(dict_clips_data, outfile)
 
-
-        break
 
     # create_bert_embeddings(list_all_actions)
 
@@ -388,8 +387,8 @@ def main():
     path_list_actions = "data/stats/list_actions.csv"
 
     load_FasterRCNN_feat()
-    read_FasterRCNN()
-    # transform_into_embeddings()
+    # read_FasterRCNN()
+    # transform_miniclip_data_into_clips()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
