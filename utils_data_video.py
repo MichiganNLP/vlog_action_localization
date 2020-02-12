@@ -292,7 +292,7 @@ def average_i3d_features_miniclip(path_I3D_features):
 def load_FasterRCNN_feat():
     # path_feat = "../FasterRCNN/processed/"
     path_feat = "/local2/jiajunb/data/processed/"
-    # dict_FasterRCNN_original = {}
+    dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
         for frame in os.listdir(path_feat + miniclip + "/"):
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = {}
@@ -300,32 +300,30 @@ def load_FasterRCNN_feat():
             root = Path(path_feat + miniclip + "/" + frame)
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
-            bbox_label = tensor[0].pred_classes.numpy()
-            bbox_score = tensor[0].scores.numpy()
-            print(bbox_label)
-            print(bbox_score)
-            break
-            # bbox_features = tensor[1].numpy()[0]
+            bbox_label = tensor[0].pred_classes.numpy()[0]
+            dict_FasterRCNN_original[miniclip][frame[:-7]] = bbox_label
+            # bbox_score = tensor[0].scores.numpy()
+            # bbox_features = tensor[1].numpy()
             #
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
 
-    #
-    # with open('data/embeddings/dict_FasterRCNN_original.json', 'w+') as outfile:
-    #     json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
+
+    with open('data/embeddings/dict_FasterRCNN_original_first_label.json', 'w+') as outfile:
+        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
-    with open('data/embeddings/dict_FasterRCNN_original.json') as json_file:
+    with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
     for miniclip in dict_FasterRCNN_original.keys():
         print(miniclip)
         for frame in dict_FasterRCNN_original[miniclip].keys():
             print(frame)
-            for key in dict_FasterRCNN_original[miniclip][frame].keys():
-                print(key + str(len(dict_FasterRCNN_original[miniclip][frame][key])))
+            label = dict_FasterRCNN_original[miniclip][frame]
+            print(label)
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
