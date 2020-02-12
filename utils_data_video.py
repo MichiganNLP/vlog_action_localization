@@ -294,9 +294,9 @@ def load_FasterRCNN_feat():
     path_feat = "/local2/jiajunb/data/processed/"
     dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
+        dict_FasterRCNN_original[miniclip] = {}
         for frame in os.listdir(path_feat + miniclip + "/"):
-            dict_FasterRCNN_original[miniclip][frame[:-7]] = []
-
+            # dict_FasterRCNN_original[miniclip][frame[:-7]] = []
             root = Path(path_feat + miniclip + "/" + frame)
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
