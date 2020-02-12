@@ -328,8 +328,8 @@ def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
-    load_FasterRCNN_feat()
-    # read_FasterRCNN()
+    # load_FasterRCNN_feat()
+    read_FasterRCNN()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
