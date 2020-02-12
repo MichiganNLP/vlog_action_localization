@@ -333,7 +333,7 @@ def read_FasterRCNN():
     with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
-    for miniclip in dict_FasterRCNN_original.keys():
+    for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
         dict_FasterRCNN_original[miniclip] = {}
         for frame in dict_FasterRCNN_original[miniclip].keys():
             index_bbox_label_first = dict_FasterRCNN_original[miniclip][frame][0]  # from np.array([x]) to x
