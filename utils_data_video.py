@@ -329,7 +329,6 @@ def read_FasterRCNN():
     MetadataCatalog.get('coco_2017_train')
     # get the list of thing
     list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
-    print(list_classes)
     dict_FasterRCNN_first_label = {}
     with open('data/embeddings/dict_FasterRCNN_original_first_label.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
@@ -339,13 +338,11 @@ def read_FasterRCNN():
         for frame in dict_FasterRCNN_original[miniclip].keys():
             index_bbox_label_first = dict_FasterRCNN_original[miniclip][frame][0]  # from np.array([x]) to x
             label_text = list_classes[index_bbox_label_first]
-            print(index_bbox_label_first)
-            print(label_text)
-            print("-----")
+
             dict_FasterRCNN_first_label[miniclip][frame] = label_text
 
     with open('data/embeddings/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_original, outfile)
+        json.dump(dict_FasterRCNN_first_label, outfile)
 
 def transform_into_embeddings():
     with open('data/embeddings/dict_FasterRCNN_first_label_str.json') as json_file:
