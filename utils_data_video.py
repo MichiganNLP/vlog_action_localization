@@ -476,7 +476,7 @@ def read_data_DanDan():
                         # print(image_folder, image_name)
                         # print(predicted_name)
                         dict_FasterRCNN_dandan[miniclip][frame]['bbox_names_score'].append([predicted_name, score])
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.numpy())
+                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
                 break
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
