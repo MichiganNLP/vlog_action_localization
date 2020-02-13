@@ -442,7 +442,8 @@ def read_data_DanDan():
     # read pkl
     result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/*.pkl')
     dict_FasterRCNN_dandan = {}
-    for i in tqdm(range(len(result_list))):
+    # for i in tqdm(range(len(result_list))):
+    for i in tqdm(range(len([1,2]))):
         with open(result_list[i], 'rb') as f:
             prediction = pickle.load(f)
 
@@ -476,7 +477,7 @@ def read_data_DanDan():
                         # print(predicted_name)
                         dict_FasterRCNN_dandan[miniclip][frame]['bbox_names_score'].append([predicted_name, score])
                         dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.numpy())
-                # break
+                break
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
 
