@@ -341,13 +341,16 @@ def read_FasterRCNN():
     for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
         dict_FasterRCNN_first_label[miniclip] = {}
         for frame in dict_FasterRCNN_original[miniclip].keys():
-            index_bbox_label_first = dict_FasterRCNN_original[miniclip][frame][0]  # from np.array([x]) to x
-            if index_bbox_label_first == -1:
-                label_text = "none"
-            else:
-                label_text = list_classes[index_bbox_label_first]
+            index_bbox_label_first = list(dict_FasterRCNN_original[miniclip][frame])  # from np.array([x]) to [x]
 
-            dict_FasterRCNN_first_label[miniclip][frame] = label_text
+            dict_FasterRCNN_first_label[miniclip][frame] = []
+            for i in range(len(index_bbox_label_first)):
+                if index_bbox_label_first[i] == -1:
+                    label_text = "none"
+                else:
+                    label_text = list_classes[index_bbox_label_first[i]]
+
+                dict_FasterRCNN_first_label[miniclip][frame].append(label_text)
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_first_label, outfile)
@@ -366,7 +369,7 @@ def transform_miniclip_data_into_clips():
         list_classes_miniclip = []
         for frame in sorted(dict_FasterRCNN_first_label_str[miniclip].keys()):
             class_name = dict_FasterRCNN_first_label_str[miniclip][frame]
-            list_classes_miniclip.append(class_name)
+            list_classes_miniclip.append(c for c in class_name)
             # print(frame, str(frame_nb), class_name)
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
@@ -388,8 +391,8 @@ def main():
     path_list_actions = "data/stats/list_actions.csv"
 
     load_FasterRCNN_feat()
-    # read_FasterRCNN()
-    # transform_miniclip_data_into_clips()
+    read_FasterRCNN()
+    transform_miniclip_data_into_clips()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
