@@ -442,7 +442,7 @@ def read_data_DanDan():
     # read pkl
     result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/*.pkl')
     dict_FasterRCNN_dandan = {}
-    for i in range(len(result_list)):
+    for i in tqdm(range(len(result_list))):
         with open(result_list[i], 'rb') as f:
             prediction = pickle.load(f)
 
