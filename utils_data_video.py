@@ -447,12 +447,11 @@ def read_data_DanDan():
 
         for i, (image_path, val) in enumerate(prediction.items()):
             if i % 100 != 0: continue
+
             image_folder, image_name = os.path.split(image_path)
             if 'object_info' in val.keys():
                 object_info = val['object_info']
 
-                image = Image.open(image_path)
-                draw = ImageDraw.Draw(image)
                 for bbox_index, bbox_info in object_info.items():
                     bbox = (
                     bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'], bbox_info['bbox']['y2'])
