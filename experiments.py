@@ -344,7 +344,7 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
                                    save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=20)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]
@@ -473,7 +473,7 @@ def main():
         #     Create data
         # '''
         train_data, val_data, test_data = \
-            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster,
+            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label,
                                   path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
                                   path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
                                   channels_val=channels_val,
@@ -488,9 +488,10 @@ def main():
             '''
                     Create model
             '''
-            # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-            #                                                        args.epochs,
-            #                                                        args.balance, config_name)
+            # config_name += "_ObjectLabelsOrig"
+            model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+                                                                   args.epochs,
+                                                                   args.balance, config_name)
 
             # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
             #                                                             args.epochs,
@@ -500,8 +501,8 @@ def main():
             # config_name = "compare actions bert cosine"
 
             # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-            config_name = "test tf actions"
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            # config_name = "test tf actions"
 
             '''
                 Majority (actions are visible in all clips)

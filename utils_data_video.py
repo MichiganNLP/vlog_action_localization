@@ -364,21 +364,22 @@ def transform_miniclip_data_into_clips():
     # set_classes = set()
     for miniclip in tqdm(list(dict_FasterRCNN_first_label_str.keys())):
         nb_frames = len(dict_FasterRCNN_first_label_str[miniclip].keys())
-        print(nb_frames)
 
         list_classes_miniclip = []
         for frame in sorted(dict_FasterRCNN_first_label_str[miniclip].keys()):
             class_name = dict_FasterRCNN_first_label_str[miniclip][frame]
-            list_classes_miniclip.append(c for c in class_name)
+            for c in class_name:
+                list_classes_miniclip.append(c)
             # print(frame, str(frame_nb), class_name)
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
             clip_name = miniclip + "_" + str(index_clip).zfill(3)
             if clip_name not in dict_clips_data.keys():
                 dict_clips_data[clip_name] = []
+
             dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str_clips.json', 'w+') as outfile:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json', 'w+') as outfile:
         json.dump(dict_clips_data, outfile)
 
 
@@ -390,8 +391,8 @@ def main():
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
 
-    load_FasterRCNN_feat()
-    read_FasterRCNN()
+    # load_FasterRCNN_feat()
+    # read_FasterRCNN()
     transform_miniclip_data_into_clips()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"

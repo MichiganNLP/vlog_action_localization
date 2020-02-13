@@ -320,7 +320,7 @@ def get_list_actions_for_label(dict_video_actions, miniclip, label_type):
     return list_type_actions
 
 
-def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annotations, path_I3D_features, channels_val,
+def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labels, path_all_annotations, path_I3D_features, channels_val,
                           channels_test, hold_out_test_channels):
     with open(path_all_annotations) as f:
         dict_all_annotations = json.load(f)
@@ -333,6 +333,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
 
     if add_cluster:
         dict_action_embeddings = add_cluster_data(dict_action_embeddings)
+
+    if add_object_labels:
+        dict_clip_object_labels = add_object_label()
+    else:
+        dict_clip_object_labels = {}
 
     dict_train_annotations, dict_val_annotations, dict_test_annotations = split_data_train_val_test(
         dict_all_annotations,
@@ -393,6 +398,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
+            #TODO: concat
+            if clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]]
             # action_emb = np.zeros(1024)
             data_clips_train.append([clip, viz_feat3])
             data_actions_train.append([action, action_emb])
@@ -419,6 +427,8 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         for [action, label] in list_action_label:
                 # action, _ = compute_action(action, use_nouns=False, use_particle=True)
                 action_emb = dict_action_embeddings[action]
+                if clip[:-4] in dict_clip_object_labels.keys():
+                    action_emb += dict_clip_object_labels[clip[:-4]]
                 # action_emb = np.zeros(1024)
                 data_clips_val.append([clip, viz_feat3])
                 data_actions_val.append([action, action_emb])
@@ -444,6 +454,8 @@ def create_data_for_model(type_action_emb, balance, add_cluster, path_all_annota
         for [action, label] in list_action_label:
                 # action, _ = compute_action(action, use_nouns=False, use_particle=True)
                 action_emb = dict_action_embeddings[action]
+                if clip[:-4] in dict_clip_object_labels.keys():
+                    action_emb += dict_clip_object_labels[clip[:-4]]
                 # action_emb = np.zeros(1024)
                 data_clips_test.append([clip, viz_feat3])
                 data_actions_test.append([action, action_emb])
@@ -2080,6 +2092,31 @@ def get_dict_all_annotations_visible_not():
     print("# not visible actions: {0}".format(count_n))
     with open('data/dict_all_annotations_1_10channels.json', 'w+') as outfile:
         json.dump(dict_all_annotations_ordered, outfile)
+
+
+def add_object_label():
+    with open("data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json") as file:
+        dict_FasterRCNN_first3_label_str_clips = json.load(file)
+
+    # set_labels = set()
+    # for clip in dict_FasterRCNN_first3_label_str_clips.keys():
+    #     for c in dict_FasterRCNN_first3_label_str_clips[clip]:
+    #         set_labels.add(c)
+
+    with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
+
+    dict_clip_labels = {}
+
+    for clip in dict_FasterRCNN_first3_label_str_clips.keys():
+        list_labels = dict_FasterRCNN_first3_label_str_clips[clip]
+        sum_label_embeddings = 0
+        for label in list_labels:
+            label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels_orig[label])
+            sum_label_embeddings += label_emb
+
+        dict_clip_labels[clip] = sum_label_embeddings
+    return dict_clip_labels
 
 
 def add_cluster_data(dict_action_embeddings):
