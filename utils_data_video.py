@@ -457,7 +457,8 @@ def read_data_DanDan():
                 if miniclip not in dict_FasterRCNN_dandan.keys():
                     dict_FasterRCNN_dandan[miniclip] = {}
                 if frame not in dict_FasterRCNN_dandan[miniclip].keys():
-                    dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_names_score':[], 'bbox_features':[]}
+                    # dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_names_score':[], 'bbox_features':[]}
+                    dict_FasterRCNN_dandan[miniclip][frame] = []
 
                 if 'object_info' in val.keys():
                     object_info = val['object_info']
@@ -475,8 +476,9 @@ def read_data_DanDan():
                         # print(feature.shape)
                         # print(image_folder, image_name)
                         # print(predicted_name)
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_names_score'].append([predicted_name, score])
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
+                        # dict_FasterRCNN_dandan[miniclip][frame]['bbox_names_score'].append([predicted_name, score])
+                        # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
+                        dict_FasterRCNN_dandan[miniclip][frame].append((predicted_name, score))
                 break
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
