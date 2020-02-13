@@ -442,40 +442,40 @@ def read_data_DanDan():
     # read pkl
     result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/*.pkl')
     dict_FasterRCNN_dandan = {}
+    for i in range(len(result_list)):
+        with open(result_list[i], 'rb') as f:
+            prediction = pickle.load(f)
 
-    with open(result_list[1], 'rb') as f:
-        prediction = pickle.load(f)
+            for i, (image_path, val) in enumerate(prediction.items()):
+                # if i % 100 != 0: continue
+                image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
 
-        for i, (image_path, val) in enumerate(prediction.items()):
-            if i % 100 != 0: continue
-            image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
+                image_folder, image_name = os.path.split(image_path)
+                miniclip = image_folder.split("/")[-1]
+                frame = image_name[:-4]
+                if miniclip not in dict_FasterRCNN_dandan.keys():
+                    dict_FasterRCNN_dandan[miniclip] = {}
+                if frame not in dict_FasterRCNN_dandan[miniclip].keys():
+                    dict_FasterRCNN_dandan[miniclip][frame] = []
 
-            image_folder, image_name = os.path.split(image_path)
-            miniclip = image_folder.split("/")[-1]
-            frame = image_name[:-4]
-            if miniclip not in dict_FasterRCNN_dandan.keys():
-                dict_FasterRCNN_dandan[miniclip] = {}
-            if frame not in dict_FasterRCNN_dandan[miniclip].keys():
-                dict_FasterRCNN_dandan[miniclip][frame] = []
+                if 'object_info' in val.keys():
+                    object_info = val['object_info']
 
-            if 'object_info' in val.keys():
-                object_info = val['object_info']
+                    image = Image.open(image_path)
+                    draw = ImageDraw.Draw(image)
+                    for bbox_index, bbox_info in object_info.items():
+                        bbox = (
+                        bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'], bbox_info['bbox']['y2'])
+                        score = bbox_info['score']
 
-                image = Image.open(image_path)
-                draw = ImageDraw.Draw(image)
-                for bbox_index, bbox_info in object_info.items():
-                    bbox = (
-                    bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'], bbox_info['bbox']['y2'])
-                    score = bbox_info['score']
-
-                    feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature, resnet50_label,
-                                                                                     preprocess, class2name_mapping,
-                                                                                     image, bbox)
-                    # print(feature.shape)
-                    # print(image_folder, image_name)
-                    # print(predicted_name)
-                    dict_FasterRCNN_dandan[miniclip][frame].append(predicted_name)
-            # break
+                        feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature, resnet50_label,
+                                                                                         preprocess, class2name_mapping,
+                                                                                         image, bbox)
+                        # print(feature.shape)
+                        # print(image_folder, image_name)
+                        # print(predicted_name)
+                        dict_FasterRCNN_dandan[miniclip][frame].append(predicted_name)
+                # break
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
 
