@@ -441,7 +441,6 @@ def read_data_DanDan():
 
     # read pkl
     result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/*.pkl')
-    fnt = ImageFont.truetype('times_b.ttf', 35)
 
     with open(result_list[1], 'rb') as f:
         prediction = pickle.load(f)
