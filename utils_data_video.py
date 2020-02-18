@@ -8,7 +8,7 @@ import torch
 from sklearn import preprocessing
 from tqdm import tqdm
 
-from compute_text_embeddings import NumpyEncoder
+from compute_text_embeddings import NumpyEncoder, create_bert_embeddings, save_elmo_embddings
 
 
 # global path_I3D_features
@@ -258,17 +258,17 @@ def load_data_from_I3D(path_I3D_features):
 def average_i3d_features(path_I3D_features):
     with open('data/embeddings/dict_I3D_avg.json') as json_file:
         dict_clip_feature = json.load(json_file)
-    print(len(dict_clip_feature.keys()))
+    # print(len(dict_clip_feature.keys()))
 
     # dict_clip_feature = {}
     # print("loading I3D")
     # for filename in tqdm(os.listdir(path_I3D_features)):
-    #     # features = np.load(path_I3D_features + filename)
-    #     # features_mean = features.mean(axis=tuple(range(1, 4)))[0]
+    #     features = np.load(path_I3D_features + filename)
+    #     features_mean = features.mean(axis=tuple(range(1, 4)))[0]
     #     # features_mean = preprocessing.normalize(np.asarray(features_mean).reshape(1,-1), norm='l2')
-    #     features_mean = np.zeros(1024)
+    #     # features_mean = np.zeros(1024)
     #     dict_clip_feature[filename[:-4]] = features_mean.reshape(1024)
-
+    #
     # with open('data/embeddings/dict_I3D_avg.json', 'w+') as outfile:
     #     json.dump(dict_clip_feature, outfile, cls=NumpyEncoder)
 
@@ -383,7 +383,41 @@ def transform_miniclip_data_into_clips():
         json.dump(dict_clips_data, outfile)
 
 
-    # create_bert_embeddings(list_all_actions)
+
+def transform_miniclip_data_into_clips_dandan():
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json') as json_file:
+        dict_FasterRCNN_dadan_str = json.load(json_file)
+
+    dict_clips_data = {}
+    set_classes = set()
+    for miniclip in tqdm(list(dict_FasterRCNN_dadan_str.keys())):
+        nb_frames = len(dict_FasterRCNN_dadan_str[miniclip].keys())
+
+        list_classes_miniclip = []
+        for frame in sorted(dict_FasterRCNN_dadan_str[miniclip].keys()):
+            class_name = [c for [c, score] in dict_FasterRCNN_dadan_str[miniclip][frame] if score > 0.5]
+            for c in class_name:
+                if "_" in c:
+                    action = " ".join(c.split("_")).lower()
+                else:
+                    action = c.lower()
+                list_classes_miniclip.append(action)
+
+                set_classes.add(action)
+            # print(frame, str(frame_nb), class_name)
+
+        for index_clip in range(0, int((nb_frames - 72) / 24)):
+            clip_name = miniclip + "_" + str(index_clip).zfill(3)
+            if clip_name not in dict_clips_data.keys():
+                dict_clips_data[clip_name] = []
+
+            dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24:10]))
+
+    # create_bert_embeddings(list(set_classes))
+    # save_elmo_embddings(list(set_classes))
+
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json', 'w+') as outfile:
+        json.dump(dict_clips_data, outfile)
 
 
 def get_feature_and_label(resnet50_feature, resnet50_label, preprocess, class2name_mapping, image, bbox):
@@ -492,7 +526,8 @@ def main():
     # load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    read_data_DanDan()
+    # read_data_DanDan()
+    transform_miniclip_data_into_clips_dandan()
 
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()

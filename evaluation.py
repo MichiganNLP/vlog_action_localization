@@ -211,7 +211,7 @@ def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, propos
 
         # TODO: uncomment
         predicted_duration = predicted_time[miniclip_action.split(", ")[1]]
-        if predicted_duration == 0:
+        if predicted_duration == 1:
             candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignemnt is good for short actions
         else:
             candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions

@@ -320,7 +320,8 @@ def get_list_actions_for_label(dict_video_actions, miniclip, label_type):
     return list_type_actions
 
 
-def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labels, path_all_annotations, path_I3D_features, channels_val,
+def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labels, path_all_annotations,
+                          path_I3D_features, channels_val,
                           channels_test, hold_out_test_channels):
     with open(path_all_annotations) as f:
         dict_all_annotations = json.load(f)
@@ -335,6 +336,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         dict_action_embeddings = add_cluster_data(dict_action_embeddings)
 
     if add_object_labels:
+        print("Adding object data")
         dict_clip_object_labels = add_object_label()
     else:
         dict_clip_object_labels = {}
@@ -394,22 +396,21 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
         viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
 
-
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
-            #TODO: concat
+            # TODO: concat
             if clip[:-4] in dict_clip_object_labels.keys():
                 action_emb += dict_clip_object_labels[clip[:-4]]
+                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
             # action_emb = np.zeros(1024)
-            data_clips_train.append([clip, viz_feat3])
+            # data_clips_train.append([clip, viz_feat3])
+            data_clips_train.append([clip, viz_feat])
             data_actions_train.append([action, action_emb])
             labels_train.append(label)
             set_action_miniclip_train.add(clip[:-8] + ", " + action)
             set_miniclip_train.add(clip[:-8])
             set_clip_train.add(clip[:-4])
-
-
 
     for clip in list(dict_val_annotations.keys()):
         list_action_label = dict_val_annotations[clip]
@@ -423,19 +424,20 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
         viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
 
-
         for [action, label] in list_action_label:
-                # action, _ = compute_action(action, use_nouns=False, use_particle=True)
-                action_emb = dict_action_embeddings[action]
-                if clip[:-4] in dict_clip_object_labels.keys():
-                    action_emb += dict_clip_object_labels[clip[:-4]]
-                # action_emb = np.zeros(1024)
-                data_clips_val.append([clip, viz_feat3])
-                data_actions_val.append([action, action_emb])
-                labels_val.append(label)
-                set_action_miniclip_val.add(clip[:-8] + ", " + action)
-                set_miniclip_val.add(clip[:-8])
-                set_clip_val.add(clip[:-4])
+            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
+            action_emb = dict_action_embeddings[action]
+            if clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]]
+                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
+            # action_emb = np.zeros(1024)
+            # data_clips_val.append([clip, viz_feat3])
+            data_clips_val.append([clip, viz_feat])
+            data_actions_val.append([action, action_emb])
+            labels_val.append(label)
+            set_action_miniclip_val.add(clip[:-8] + ", " + action)
+            set_miniclip_val.add(clip[:-8])
+            set_clip_val.add(clip[:-4])
 
     list_test_clip_names = []
     list_test_action_names = []
@@ -450,23 +452,22 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
         viz_feat3 = [y for x in [viz_feat2, pos_viz_feat] for y in x]
 
-
         for [action, label] in list_action_label:
-                # action, _ = compute_action(action, use_nouns=False, use_particle=True)
-                action_emb = dict_action_embeddings[action]
-                if clip[:-4] in dict_clip_object_labels.keys():
-                    action_emb += dict_clip_object_labels[clip[:-4]]
-                # action_emb = np.zeros(1024)
-                data_clips_test.append([clip, viz_feat3])
-                data_actions_test.append([action, action_emb])
-                labels_test.append(label)
-                set_action_miniclip_test.add(clip[:-8] + ", " + action)
-                list_test_clip_names.append(clip)
-                list_test_action_names.append(action)
-                set_miniclip_test.add(clip[:-8])
-                set_clip_test.add(clip[:-4])
-
-
+            # action, _ = compute_action(action, use_nouns=False, use_particle=True)
+            action_emb = dict_action_embeddings[action]
+            if clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]]
+                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
+            # action_emb = np.zeros(1024)
+            # data_clips_test.append([clip, viz_feat3])
+            data_clips_test.append([clip, viz_feat])
+            data_actions_test.append([action, action_emb])
+            labels_test.append(label)
+            set_action_miniclip_test.add(clip[:-8] + ", " + action)
+            list_test_clip_names.append(clip)
+            list_test_action_names.append(action)
+            set_miniclip_test.add(clip[:-8])
+            set_clip_test.add(clip[:-4])
 
     # np.save("data/clip_names1p1.npy", list_test_clip_names)
     # np.save("data/action_names1p1.npy", list_test_action_names)
@@ -522,7 +523,6 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
     # with open('data/annotations/annotations1p01_5p01_vb.json', 'w+') as outfile:
     #     json.dump(GT_vb_noun, outfile, cls=NumpyEncoder)
 
-
     if type_action_emb == "GloVe":
         return create_glove_embeddings(list_all_actions)
     elif type_action_emb == "ELMo":
@@ -533,7 +533,7 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
         # return save_elmo_embddings(list_all_actions)  # if need to create new
     elif type_action_emb == "Bert":
         with open('data/embeddings/dict_action_embeddings_Bert2.json') as f:
-        # with open('data/embeddings/dict_action_embeddings_Bert_only_vb.json') as f:
+            # with open('data/embeddings/dict_action_embeddings_Bert_only_vb.json') as f:
             json_load = json.loads(f.read())
         return json_load
         # return create_bert_embeddings(list_all_actions)
@@ -670,14 +670,13 @@ def predict_action_duration(channels_test):
                 [t_s_gt, t_e_gt] = label
                 duration = int(round(t_e_gt - t_s_gt, -1))
                 if duration in [0, 10]:
-                    duration = 0 # short
+                    duration = 0  # short
                 else:
-                    duration = 1 # long
+                    duration = 1  # long
                 if miniclip.split("_")[0] in channels_test:
                     list_test.append((action, duration))
                 else:
                     list_train.append((action, duration))
-
 
     predicted_time = []
     GT_time = []
@@ -709,8 +708,9 @@ def predict_action_duration(channels_test):
     f1 = f1_score(GT_time, predicted_time)
     recall = recall_score(GT_time, predicted_time)
     precision = precision_score(GT_time, predicted_time)
-    print("acc_score: {:0.2f}".format(acc_score)) # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
-    print("f1_score: {:0.2f}".format(f1)) # 0.34 - only verb 0.38 - Bert whole action
+    print(
+        "acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb 0.38 - Bert whole action
     print("recall: {:0.2f}".format(recall))
     print("precision: {:0.2f}".format(precision))
 
@@ -765,44 +765,59 @@ def get_extra_data_charades():
     # create_bert_embeddings(list_all_actions)
     return X_train, Y_train
 
+
 def get_extra_data_coin():
     list_all_actions = set()
     X_train = []
     Y_train = []
 
-    with open("data/embeddings/dict_action_embeddings_Bert_COIN.json") as f:
+    with open("data/embeddings/dict_action_embeddings_Bert_COIN2.json") as f:
         dict_action_embeddings_Bert = json.loads(f.read())
 
     with open("data/RelatedWorkDatasets/COIN.json") as file:
         coin_data = json.load(file)
 
     data = coin_data["database"]
-    list_duration = []
+    # set_actions = set()
     for key in data.keys():
         content = data[key]
         for i in range(len(content["annotation"])):
             action = content["annotation"][i]["label"]
+            # set_actions.add(action)
             segment_time = content["annotation"][i]["segment"]
             action_duration = int(segment_time[1] - segment_time[0])
             action_emb = dict_action_embeddings_Bert[action]
             if action_duration in [0, 10]:
-                action_duration = 0
-            else:
                 action_duration = 1
+            else:
+                action_duration = 0
             X_train.append(action_emb)
             Y_train.append(action_duration)
+
+    # downsample
+    stop = 1
+    while stop:
+        for i, el in enumerate(Y_train):
+            c = Counter(Y_train)
+            if el == 0:
+                del X_train[i]
+                del Y_train[i]
+            if c[1] >= c[0] * 3:
+                stop = 0
+                break
+
     return X_train, Y_train
+    # create_bert_embeddings(list(set_actions))
+
 
 def svm_predict_actions(channels_test):
-
-
     from sklearn.svm import SVC
     model = SVC(kernel='rbf', class_weight='balanced', C=1.0, random_state=0)
 
     with open("data/dict_all_annotations_1_10channels.json") as file:
         annotations = json.load(file)
 
-    with open("data/embeddings/dict_action_embeddings_Bert.json") as f:
+    with open("data/embeddings/dict_action_embeddings_Bert2.json") as f:
         dict_action_embeddings_Bert = json.loads(f.read())
 
     # with open("data/embeddings/dict_action_embeddings_Bert_vb_particle_noun.json") as f:
@@ -821,10 +836,12 @@ def svm_predict_actions(channels_test):
 
     # X_train, Y_train = get_extra_data_charades()
     X_train, Y_train = get_extra_data_coin()
+    #
+    # print(Counter(Y_train))
+
+   # X_train, Y_train = [], []
     X_test = []
-    # X_train = []
     Y_test = []
-    # Y_train = []
     X_test_action = []
     X_train_action = []
     X_train_channel = []
@@ -839,9 +856,9 @@ def svm_predict_actions(channels_test):
                 [t_s_gt, t_e_gt] = label
                 duration = int(round(t_e_gt - t_s_gt, -1))
                 if duration in [0, 10]:
-                    duration = 0  # short
+                    duration = 1  # short
                 else:
-                    duration = 1  # long
+                    duration = 0  # long
                 # action_2, _ = compute_action(action, use_nouns=True, use_particle=True)
                 # emb_action_train = dict_action_embeddings_Bert[action_2]
                 emb_action_train = dict_action_embeddings_Bert[action]
@@ -870,7 +887,6 @@ def svm_predict_actions(channels_test):
     print("Evaluating model")
     predicted = model.predict(X_test)
 
-
     acc_score = accuracy_score(Y_test, predicted)
     f1 = f1_score(Y_test, predicted)
     recall = recall_score(Y_test, predicted)
@@ -891,16 +907,16 @@ def svm_predict_actions(channels_test):
     #     if "make" in action and gt == 1:
     #         print("long: " + action)
 
-        # for verb in ['take','put','use','add','get','sprinkle','go','mix','cut','do']:
-        #     if verb in action.split()[0]:
-        #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
-        #         predicted[index] = 0
-        #         break
-        # for verb in ['wipe','clean','make','prep','eat','write','vacuum','tidy','mop','cook','watch']:
-        #     if verb in action.split()[0]:
-        #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
-        #         predicted[index] = 1
-        #         break
+    # for verb in ['take','put','use','add','get','sprinkle','go','mix','cut','do']:
+    #     if verb in action.split()[0]:
+    #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
+    #         predicted[index] = 0
+    #         break
+    # for verb in ['wipe','clean','make','prep','eat','write','vacuum','tidy','mop','cook','watch']:
+    #     if verb in action.split()[0]:
+    #         print(verb, action.split()[0], action, str(gt), str(predicted[index]))
+    #         predicted[index] = 1
+    #         break
 
     #     index += 1
     #
@@ -1983,8 +1999,9 @@ def get_features_from_data(train_data, val_data, test_data):
     data_actions_emb_test = [i[1] for i in data_actions_test]
     data_actions_names_test = [i[0] for i in data_actions_test]
 
-    return [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train, data_clips_names_train], [
-        data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val, data_clips_names_val], [
+    return [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train,
+            data_clips_names_train], [
+               data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val, data_clips_names_val], [
                data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test]
 
 
@@ -2095,22 +2112,34 @@ def get_dict_all_annotations_visible_not():
 
 
 def add_object_label():
+    # original
     with open("data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json") as file:
         dict_FasterRCNN_first3_label_str_clips = json.load(file)
+
+    # ##dandan
+    # with open("data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json") as file:
+    #     dict_FasterRCNN_first3_label_str_clips = json.load(file)
 
     # set_labels = set()
     # for clip in dict_FasterRCNN_first3_label_str_clips.keys():
     #     for c in dict_FasterRCNN_first3_label_str_clips[clip]:
     #         set_labels.add(c)
 
+    # original
     with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
+
+    ##dandan
+    with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_dandan.json") as file:
+    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_ELMo_FasteRCNNlabels_dandan.json") as file:
         dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
 
     dict_clip_labels = {}
 
     for clip in dict_FasterRCNN_first3_label_str_clips.keys():
         list_labels = dict_FasterRCNN_first3_label_str_clips[clip]
-        sum_label_embeddings = 0
+        sum_label_embeddings = np.zeros(768)
         for label in list_labels:
             label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels_orig[label])
             sum_label_embeddings += label_emb
@@ -2131,7 +2160,7 @@ def add_cluster_data(dict_action_embeddings):
         action_emb = dict_action_embeddings[action]
         dict_action_embeddings[action] = list(map(np.add, action_emb, cluster_name_emb))
         # dict_action_embeddings[action].append(cluster_nb_normalized)
-        dict_action_embeddings[action] = [x / 2 for x in dict_action_embeddings[action]]
+        # dict_action_embeddings[action] = [x / 2 for x in dict_action_embeddings[action]]
 
         # only cluster emb
         # dict_action_embeddings[action] == cluster_name_emb
@@ -2346,7 +2375,7 @@ def main():
 
 if __name__ == '__main__':
     # map_actions()
-
+    # get_extra_data_coin()
     main()
 
     # path_root = "/local/oignat/Action_Recog/large_data/"
