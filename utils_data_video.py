@@ -319,6 +319,9 @@ def load_FasterRCNN_feat():
             bbox_score = tensor[0].scores.numpy()
             bbox_features = tensor[1].numpy()
             print(bbox_score)
+            print(bbox_features)
+            break
+        break
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
 
             #
@@ -326,8 +329,8 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = bbox_features
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_bbox_features.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_bbox_features.json', 'w+') as outfile:
+    #     json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
