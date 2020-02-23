@@ -525,7 +525,7 @@ def read_data_DanDan():
                         # print(predicted_name)
                         dict_FasterRCNN_dandan[miniclip][frame]['bbox_score'].append(score)
                         # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.numpy())
+                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().detach().numpy())
                         dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_name)
                         # dict_FasterRCNN_dandan[miniclip][frame].append(score, predicted_name, feature)
                         # dict_FasterRCNN_dandan[miniclip][frame].append((score, predicted_name))
