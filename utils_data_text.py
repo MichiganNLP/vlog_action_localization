@@ -355,6 +355,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
     set_action_miniclip_test = set()
     set_action_miniclip_val = set()
 
+    set_videos_train = set()
+    set_videos_test = set()
+    set_videos_val = set()
+
     set_miniclip_train = set()
     set_miniclip_test = set()
     set_miniclip_val = set()
@@ -411,6 +415,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             set_action_miniclip_train.add(clip[:-8] + ", " + action)
             set_miniclip_train.add(clip[:-8])
             set_clip_train.add(clip[:-4])
+            set_videos_train.add(clip.split("mini")[0])
 
     for clip in list(dict_val_annotations.keys()):
         list_action_label = dict_val_annotations[clip]
@@ -438,6 +443,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             set_action_miniclip_val.add(clip[:-8] + ", " + action)
             set_miniclip_val.add(clip[:-8])
             set_clip_val.add(clip[:-4])
+            set_videos_val.add(clip.split("mini")[0])
 
     list_test_clip_names = []
     list_test_action_names = []
@@ -468,6 +474,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             list_test_action_names.append(action)
             set_miniclip_test.add(clip[:-8])
             set_clip_test.add(clip[:-4])
+            set_videos_test.add(clip.split("mini")[0])
 
     # np.save("data/clip_names1p1.npy", list_test_clip_names)
     # np.save("data/action_names1p1.npy", list_test_action_names)
@@ -485,6 +492,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
     print("# actions train " + str(len(set_action_miniclip_train)))
     print("# actions val " + str(len(set_action_miniclip_val)))
     print("# actions test " + str(len(set_action_miniclip_test)))
+
+    print("# videos train " + str(len(set_videos_train)))
+    print("# videos val " + str(len(set_videos_val)))
+    print("# videos test " + str(len(set_videos_test)))
 
     print("# miniclips train " + str(len(set_miniclip_train)))
     print("# miniclips val " + str(len(set_miniclip_val)))
@@ -898,7 +909,7 @@ def svm_predict_actions(channels_test):
 
     predicted_dict = {}
     for action, duration in zip(X_test_action, predicted):
-        predicted_dict[action] = duration
+        predicted_dict[action] = str(duration)
 
     # index = 0
     # for action, duration, gt in list(zip(X_test_action, predicted, Y_test)):
@@ -1638,7 +1649,7 @@ def is_action_in_clip2(action_embedding, list_action_embeddings_per_clip):
 
 
 def method_compare_actions(train_data, val_data, test_data):
-    with open("data/embeddings/dict_action_embeddings_Bert.json") as f:
+    with open("data/embeddings/dict_action_embeddings_Bert2.json") as f:
         dict_action_embeddings_Bert = json.loads(f.read())
 
     with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
@@ -2113,34 +2124,39 @@ def get_dict_all_annotations_visible_not():
 
 def add_object_label():
     # original
-    with open("data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json") as file:
-        dict_FasterRCNN_first3_label_str_clips = json.load(file)
-
-    # ##dandan
-    # with open("data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json") as file:
+    # with open("data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json") as file:
     #     dict_FasterRCNN_first3_label_str_clips = json.load(file)
+
+    ##dandan
+    with open("data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json") as file:
+        dict_FasterRCNN_first3_label_str_clips = json.load(file)
 
     # set_labels = set()
     # for clip in dict_FasterRCNN_first3_label_str_clips.keys():
     #     for c in dict_FasterRCNN_first3_label_str_clips[clip]:
     #         set_labels.add(c)
 
-    # original
-    with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
-        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
+    ## original
+    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+    #     dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
 
     ##dandan
-    with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
     # with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_dandan.json") as file:
-    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_ELMo_FasteRCNNlabels_dandan.json") as file:
-        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
+    #     dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
 
     dict_clip_labels = {}
 
+    with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
+        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.loads(f.read())
+
+
+
     for clip in dict_FasterRCNN_first3_label_str_clips.keys():
-        list_labels = dict_FasterRCNN_first3_label_str_clips[clip]
+        list_labels = read_class_results(clip)
+        # list_labels = dict_FasterRCNN_first3_label_str_clips[clip]
         sum_label_embeddings = np.zeros(768)
         for label in list_labels:
+            print(label)
             label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels_orig[label])
             sum_label_embeddings += label_emb
 

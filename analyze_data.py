@@ -253,6 +253,16 @@ def read_CrossTask():
 
 def plot_nb_actions_per_channel():
     sns.set(style="whitegrid")
+    sns.set(rc={"font.style": "normal",
+                "text.color": "black",
+                "xtick.color": "black",
+                "ytick.color": "black",
+                "axes.labelcolor": "black",
+                'axes.labelsize': 30,
+                'figure.figsize': (20.0, 10.0),
+                'xtick.labelsize': 35,
+                'font.size': 35,
+                'ytick.labelsize': 35})
 
     # Load the example Titanic dataset
     # titanic = sns.load_dataset("titanic")
@@ -293,16 +303,17 @@ def plot_nb_actions_per_channel():
 
     # https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
 
-    # tips = pd.read_csv("data/data_to_plot/action_duration.csv")
-    #
-    # ax = sns.barplot(x="time span", y="#actions", data=tips, color="royalblue")
-    # plt.show()
+    tips = pd.read_csv("data/data_to_plot/action_duration.csv")
+
+    ax = sns.barplot(x="time span", y="#actions", data=tips, color="royalblue")
+    ax.set_title('Action length distribution', fontsize=45)
+    plt.show()
 
 
 def main():
     plot_nb_actions_per_channel()
-    read_COIN()
-    read_CrossTask()
+    # read_COIN()
+    # read_CrossTask()
     # count_how_many_times_actions_overlap()
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")
     # with open("data/dict_all_annotations_1_10channels.json") as file:

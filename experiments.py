@@ -10,7 +10,7 @@ from tensorflow.python.keras.layers import LayerNormalization
 
 from args import parse_args, channels_val, channels_test, hold_out_test_channels
 from compute_text_embeddings import ElmoEmbeddingLayer, BertLayer, \
-    create_data_for_finetuning_bert, create_data_for_finetuning_elmo
+    create_data_for_finetuning_bert, create_data_for_finetuning_elmo, NumpyEncoder
 from evaluation import evaluate, evaluate_combine_2
 import json
 from collections import Counter, OrderedDict
@@ -461,30 +461,36 @@ def main():
     config_name = create_config_name(args)
 
     # get_extra_data()
-    predicted_time = svm_predict_actions(channels_test)
-    # predicted_time = predict_action_duration(channels_test)
-    #predicted_time = {}
-    evaluate_combine_2(predicted_time, "alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
+    #predicted_time = svm_predict_actions(channels_test)
+    # with open("data/dict_predicted_time.json", 'w+') as fp:
+    #     json.dump(predicted_time, fp)
+
+    with open("data/dict_predicted_time.json") as f:
+        predicted_time = json.loads(f.read())
+
+    # # predicted_time = predict_action_duration(channels_test)
+    # #predicted_time = {}
+   # evaluate_combine_2(predicted_time, "alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
     #
     # predict_action_duration(channels_test)
 
 
-    # if config_name == "alignment":
-    #     # test_alignment()
-    #     # for channel_test in channels_test:
-    #     #     evaluate(config_name, channel_test)
-    #     evaluate(config_name, "1p01_5p01")
-    # else:
-    #     '''
-    #     #     Create data
-    #     # '''
-    #     train_data, val_data, test_data = \
-    #         create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label,
-    #                               path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
-    #                               path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
-    #                               channels_val=channels_val,
-    #                               channels_test=channels_test,
-    #                               hold_out_test_channels=hold_out_test_channels)
+    if config_name == "alignment":
+        test_alignment()
+        # for channel_test in channels_test:
+        #     evaluate(config_name, channel_test)
+        evaluate(config_name, "1p01_5p01")
+    else:
+        '''
+        #     Create data
+        # '''
+        train_data, val_data, test_data = \
+            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label,
+                                  path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
+                                  path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
+                                  channels_val=channels_val,
+                                  channels_test=channels_test,
+                                  hold_out_test_channels=hold_out_test_channels)
     #
     #     if config_name == "system max":
     #         compute_predicted_IOU_GT(test_data, args.clip_length)
@@ -496,7 +502,8 @@ def main():
     #         '''
     #         if args.add_obj_label:
     #             # config_name += "_ObjectLabelsDANDAN"
-    #             config_name += "_ObjectLabelsOrig"
+    #             config_name += "_ActionI3D"
+    #             # config_name += "_ObjectLabelsOrig"
     #         model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
     #                                                                args.epochs,
     #                                                                args.balance, config_name)

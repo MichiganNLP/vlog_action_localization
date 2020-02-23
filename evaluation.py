@@ -210,11 +210,20 @@ def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, propos
         #     candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions
 
         # TODO: uncomment
-        predicted_duration = predicted_time[miniclip_action.split(", ")[1]]
+        predicted_duration = int(predicted_time[miniclip_action.split(", ")[1]])
+        if miniclip_action in ["1p0_10mini_1.mp4, do the dishes", "1p0_10mini_1.mp4, get my son ready for bed",
+                               "1p0_10mini_5.mp4, eat my snack", "1p0_10mini_5.mp4, drink my tea",
+                               "1p0_10mini_4.mp4, cut up an apple", "1p0_10mini_4.mp4, make a snack for myself",
+                               "1p0_4mini_6.mp4, use my flat iron", "1p0_4mini_6.mp4, iron my hair"]:
+            print(miniclip_action)
+            if predicted_duration == 1:
+                print(proposed_1p0_1[miniclip_action])
+            else:
+                print(proposed_1p0_2[miniclip_action])
         if predicted_duration == 1:
             candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignemnt is good for short actions
         else:
-            candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions
+            candidate_segments = np.array(proposed_1p0_2[miniclip_action])  # MPU is good for long actions
 
         # elif rounded_duration in ['40', '50', '60']:
         #     candidate_segments = np.array(
@@ -315,7 +324,8 @@ def evaluate_combine_2(predicted_time, method1, method2, method3, channel):
         groundtruth_1p0 = json.loads(f.read())
 
     # IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, groundtruth_1p0)
-    IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, proposed_1p0_3,
+    IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2,
+                                                          proposed_1p0_3,
                                                           groundtruth_1p0)
     print("#test points: " + str(len(IOU_vals)))
 
