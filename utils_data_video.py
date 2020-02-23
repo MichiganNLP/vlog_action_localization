@@ -310,17 +310,17 @@ def load_FasterRCNN_feat():
             if bbox_label.size == 0:
                 dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array([-1])
                 continue
-            elif bbox_label.size >= 3:
-                bbox_label_first = list(tensor[0].pred_classes.numpy())[0:3]
-            else:
-                bbox_label_first = list(tensor[0].pred_classes.numpy())
+            # elif bbox_label.size >= 3:
+            #     bbox_label_first = list(tensor[0].pred_classes.numpy())[0:3]
+            # else:
+            #     bbox_label_first = list(tensor[0].pred_classes.numpy())
             # print(np.array(bbox_label_first))
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_label_first)
             bbox_score = tensor[0].scores.numpy()
             bbox_features = tensor[1].numpy()
             bbox_features_list = []
             for i, score in enumerate(list(bbox_score)):
-                if score > 0.7:
+                if score > 0.5:
                     bbox_features_list.append(bbox_features)
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
