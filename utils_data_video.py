@@ -327,10 +327,10 @@ def load_FasterRCNN_feat():
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['features'] = np.array(bbox_features_list)
+            dict_FasterRCNN_original[miniclip][frame[:-7]]= np.array(bbox_features_list)
 
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_bbox_features.json', 'w+') as outfile:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
@@ -421,7 +421,7 @@ def transform_miniclip_data_into_clips_dandan():
                 dict_clips_data[clip_name] = []
 
             # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24:10]))
-            dict_clips_data[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24:10]
+            dict_clips_data[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]
 
     # create_bert_embeddings(list(set_classes))
     # save_elmo_embddings(list(set_classes))
