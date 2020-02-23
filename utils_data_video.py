@@ -493,7 +493,7 @@ def read_data_DanDan():
             prediction = pickle.load(f)
 
             for i, (image_path, val) in enumerate(prediction.items()):
-                if i % 10 != 0: continue
+                # if i % 10 != 0: continue
                 image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
 
                 image_folder, image_name = os.path.split(image_path)
@@ -525,9 +525,12 @@ def read_data_DanDan():
                         # print(predicted_name)
                         # dict_FasterRCNN_dandan[miniclip][frame]['bbox_names_score'].append([predicted_name, score])
                         # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
-                        dict_FasterRCNN_dandan[miniclip][frame].append((predicted_name, score))
+                        dict_FasterRCNN_dandan[miniclip][frame].append((score, predicted_name, feature))
+                        # dict_FasterRCNN_dandan[miniclip][frame].append((score, predicted_name))
+                        # print(dict_FasterRCNN_dandan)
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json', 'w+') as outfile:
+
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
 
 
@@ -563,10 +566,10 @@ def main():
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
 
-    load_FasterRCNN_feat()
+    # load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    # read_data_DanDan()
+    read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
