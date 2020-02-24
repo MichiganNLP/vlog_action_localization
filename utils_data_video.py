@@ -302,7 +302,7 @@ def load_FasterRCNN_feat():
     for miniclip in tqdm(os.listdir(path_feat)):
         dict_FasterRCNN_original[miniclip] = {}
         for frame in os.listdir(path_feat + miniclip + "/"):
-            dict_FasterRCNN_original[miniclip][frame[:-7]] = []
+            dict_FasterRCNN_original[miniclip][frame[:-7]] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
             root = Path(path_feat + miniclip + "/" + frame)
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
@@ -326,11 +326,13 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['features']= np.array(bbox_features)
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_score'] = bbox_score
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_features'] = bbox_features
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_names'] = bbox_label
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
+        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
+            json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
+        break
 
 
 def read_FasterRCNN():
@@ -501,7 +503,7 @@ def read_data_DanDan():
                 if miniclip not in dict_FasterRCNN_dandan.keys():
                     dict_FasterRCNN_dandan[miniclip] = {}
                 if frame not in dict_FasterRCNN_dandan[miniclip].keys():
-                    dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score':[],'bbox_names':[], 'bbox_features':[]}
+                    dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
                     # dict_FasterRCNN_dandan[miniclip][frame] = []
 
                 if 'object_info' in val.keys():
@@ -530,7 +532,6 @@ def read_data_DanDan():
                         # dict_FasterRCNN_dandan[miniclip][frame].append((score, predicted_name))
                         # print(dict_FasterRCNN_dandan)
 
-
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile)
 
@@ -545,7 +546,7 @@ def transform_clip_to_frames():
         nb_frames = len(dict_FasterRCNN_first_label_str[miniclip].keys())
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
-            clip_name = miniclip + "_" + str(index_clip+1).zfill(3)
+            clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
             if clip_name not in dict_clips_data.keys():
                 dict_clips_data[clip_name] = []
@@ -555,8 +556,6 @@ def transform_clip_to_frames():
                     continue
                 frame_name = "frame_" + str(index_frame).zfill(5)
                 dict_clips_data[clip_name].append(frame_name)
-
-
 
     with open('data/embeddings/clip_to_frames.json', 'w+') as outfile:
         json.dump(dict_clips_data, outfile)
