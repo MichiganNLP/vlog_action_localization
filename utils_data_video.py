@@ -307,7 +307,7 @@ def load_FasterRCNN_feat():
             # tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
             tensor = torch.load(root)  # add map_location here; otherwise, it will map to gpu
 
-            bbox_label = tensor[0].pred_classes.numpy()
+            bbox_label = tensor[0].pred_classes.cpu().detach().numpy()
             if bbox_label.size == 0:
                 dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array([-1])
                 continue
@@ -317,8 +317,8 @@ def load_FasterRCNN_feat():
             #     bbox_label_first = list(tensor[0].pred_classes.numpy())
             # print(np.array(bbox_label_first))
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_label_first)
-            bbox_score = tensor[0].scores.numpy()
-            bbox_features = tensor[1].numpy()
+            bbox_score = tensor[0].scores.cpu().detach().numpy()
+            bbox_features = tensor[1].cpu().detach().numpy()
             # bbox_features_list = []
             # for i, score in enumerate(list(bbox_score)):
             #     if score > 0.5:
