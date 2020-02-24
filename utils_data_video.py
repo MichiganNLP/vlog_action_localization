@@ -302,7 +302,7 @@ def load_FasterRCNN_feat():
     for miniclip in tqdm(os.listdir(path_feat)):
         dict_FasterRCNN_original[miniclip] = {}
         for frame in os.listdir(path_feat + miniclip + "/"):
-            # dict_FasterRCNN_original[miniclip][frame[:-7]] = []
+            dict_FasterRCNN_original[miniclip][frame[:-7]] = []
             root = Path(path_feat + miniclip + "/" + frame)
             tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
 
@@ -318,21 +318,19 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_label_first)
             bbox_score = tensor[0].scores.numpy()
             bbox_features = tensor[1].numpy()
-            bbox_features_list = []
-            for i, score in enumerate(list(bbox_score)):
-                if score > 0.5:
-                    bbox_features_list.append(bbox_features)
+            # bbox_features_list = []
+            # for i, score in enumerate(list(bbox_score)):
+            #     if score > 0.5:
+            #         bbox_features_list.append(bbox_features)
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
-            # dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
-            dict_FasterRCNN_original[miniclip][frame[:-7]]= np.array(bbox_features_list)
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['score'] = bbox_score
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['features']= np.array(bbox_features)
 
-
-        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
-            json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
-        print(miniclip)
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
+        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
