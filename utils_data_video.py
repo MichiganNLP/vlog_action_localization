@@ -331,9 +331,8 @@ def load_FasterRCNN_feat():
             dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_features'] = bbox_features
             dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_names'] = bbox_label
 
-        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
-            json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
-        break
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
+        json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
 
 
 def read_FasterRCNN():
