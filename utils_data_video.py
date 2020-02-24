@@ -304,7 +304,8 @@ def load_FasterRCNN_feat():
         for frame in os.listdir(path_feat + miniclip + "/"):
             dict_FasterRCNN_original[miniclip][frame[:-7]] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
             root = Path(path_feat + miniclip + "/" + frame)
-            tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
+            # tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
+            tensor = torch.load(root)  # add map_location here; otherwise, it will map to gpu
 
             bbox_label = tensor[0].pred_classes.numpy()
             if bbox_label.size == 0:
