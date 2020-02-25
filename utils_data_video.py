@@ -512,34 +512,35 @@ def read_data_DanDan():
                     dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
 
 
-                elif len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3: continue
-                else:
-                    print(val.keys())
-                    if 'object_info' in val.keys():
-                        object_info = val['object_info']
+                if len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3:
+                    continue
 
-                        image = Image.open(image_path)
-                        draw = ImageDraw.Draw(image)
-                        for bbox_index, bbox_info in object_info.items():
-                            bbox = (
-                                bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
-                                bbox_info['bbox']['y2'])
-                            bbox_score = bbox_info['score']
 
-                            if bbox_score <= 0.5:
-                                continue
+                if 'object_info' in val.keys():
+                    object_info = val['object_info']
 
-                            feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
-                                                                                             resnet50_label,
-                                                                                             preprocess, class2name_mapping,
-                                                                                             image, bbox)
-                            # print(feature.shape)
-                            # print(image_folder, image_name)
-                            # print(predicted_name)
+                    image = Image.open(image_path)
+                    draw = ImageDraw.Draw(image)
+                    for bbox_index, bbox_info in object_info.items():
+                        bbox = (
+                            bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
+                            bbox_info['bbox']['y2'])
+                        bbox_score = bbox_info['score']
 
-                            bbox_features = feature.cpu().detach().numpy()
-                            dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(bbox_features)
-                            dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_label)
+                        if bbox_score <= 0.5:
+                            continue
+
+                        feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
+                                                                                         resnet50_label,
+                                                                                         preprocess, class2name_mapping,
+                                                                                         image, bbox)
+                        # print(feature.shape)
+                        # print(image_folder, image_name)
+                        # print(predicted_name)
+
+                        bbox_features = feature.cpu().detach().numpy()
+                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(bbox_features)
+                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_label)
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile, cls=NumpyEncoder)
