@@ -400,7 +400,7 @@ def transform_miniclip_data_into_clips():
 
 
 def transform_miniclip_data_into_clips_dandan():
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str.json') as json_file:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json') as json_file:
         dict_FasterRCNN_dadan_str = json.load(json_file)
 
     dict_clips_data = {}
@@ -526,8 +526,8 @@ def read_data_DanDan():
                                 bbox_info['bbox']['y2'])
                             bbox_score = bbox_info['score']
 
-                            if bbox_score <= 0.5:
-                                continue
+                            # if bbox_score <= 0.5:
+                            #     continue
 
                             feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
                                                                                              resnet50_label,
@@ -544,11 +544,6 @@ def read_data_DanDan():
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile, cls=NumpyEncoder)
 
-                       # dict_FasterRCNN_dandan[miniclip][frame]['bbox_score'].append(score)
-                       # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().detach().numpy())
-                      #  dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_name)
-
-                        # print(dict_FasterRCNN_dandan)
 
 
 
@@ -583,10 +578,10 @@ def main():
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
 
-    load_FasterRCNN_feat()
+    # load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    # read_data_DanDan()
+    read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
