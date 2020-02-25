@@ -301,7 +301,8 @@ def load_FasterRCNN_feat():
     dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
         dict_FasterRCNN_original[miniclip] = {}
-        for frame in os.listdir(path_feat + miniclip + "/"):
+        for frame, i in enumerate(os.listdir(path_feat + miniclip + "/")):
+            if i % 10 != 0: continue
             dict_FasterRCNN_original[miniclip][frame[:-7]] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
             root = Path(path_feat + miniclip + "/" + frame)
             # tensor = torch.load(root, map_location="cpu")  # add map_location here; otherwise, it will map to gpu
@@ -582,10 +583,10 @@ def main():
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
 
-    # load_FasterRCNN_feat()
+    load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    read_data_DanDan()
+    # read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
