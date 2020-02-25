@@ -526,8 +526,8 @@ def read_data_DanDan():
                                 bbox_info['bbox']['y2'])
                             bbox_score = bbox_info['score']
 
-                            # if bbox_score <= 0.5:
-                            #     continue
+                            if bbox_score <= 0.5:
+                                continue
 
                             feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
                                                                                              resnet50_label,
