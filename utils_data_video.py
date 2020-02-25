@@ -301,7 +301,7 @@ def load_FasterRCNN_feat():
     dict_FasterRCNN_original = {}
     for miniclip in tqdm(os.listdir(path_feat)):
         dict_FasterRCNN_original[miniclip] = {}
-        for frame, i in enumerate(os.listdir(path_feat + miniclip + "/")):
+        for i, frame in enumerate(os.listdir(path_feat + miniclip + "/")):
             if i % 10 != 0: continue
             dict_FasterRCNN_original[miniclip][frame[:-7]] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
             root = Path(path_feat + miniclip + "/" + frame)
