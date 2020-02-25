@@ -514,7 +514,7 @@ def read_data_DanDan():
 
                 elif len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3: continue
                 else:
-
+                    print(val.keys())
                     if 'object_info' in val.keys():
                         object_info = val['object_info']
 
