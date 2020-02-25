@@ -499,7 +499,7 @@ def read_data_DanDan():
             prediction = pickle.load(f)
 
             for i, (image_path, val) in enumerate(prediction.items()):
-                # if i % 10 != 0: continue
+                if i % 10 != 0: continue
                 image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
 
                 image_folder, image_name = os.path.split(image_path)
@@ -511,38 +511,34 @@ def read_data_DanDan():
                     dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
 
 
-                    # dict_FasterRCNN_dandan[miniclip][frame] = []
+                elif len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3: continue
+                else:
 
-                if len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3:
-                    continue
+                    if 'object_info' in val.keys():
+                        object_info = val['object_info']
 
-                if 'object_info' in val.keys():
-                    object_info = val['object_info']
+                        image = Image.open(image_path)
+                        draw = ImageDraw.Draw(image)
+                        for bbox_index, bbox_info in object_info.items():
+                            bbox = (
+                                bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
+                                bbox_info['bbox']['y2'])
+                            bbox_score = bbox_info['score']
 
-                    image = Image.open(image_path)
-                    draw = ImageDraw.Draw(image)
-                    for bbox_index, bbox_info in object_info.items():
-                        bbox = (
-                            bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
-                            bbox_info['bbox']['y2'])
-                        bbox_score = bbox_info['score']
+                            if bbox_score <= 0.5:
+                                continue
 
-                        if bbox_score <= 0.5:
-                            continue
+                            feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
+                                                                                             resnet50_label,
+                                                                                             preprocess, class2name_mapping,
+                                                                                             image, bbox)
+                            # print(feature.shape)
+                            # print(image_folder, image_name)
+                            # print(predicted_name)
 
-                        feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
-                                                                                         resnet50_label,
-                                                                                         preprocess, class2name_mapping,
-                                                                                         image, bbox)
-                        # print(feature.shape)
-                        # print(image_folder, image_name)
-                        # print(predicted_name)
-
-                        bbox_features = feature.cpu().detach().numpy()
-
-
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(bbox_features)
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_label)
+                            bbox_features = feature.cpu().detach().numpy()
+                            dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(bbox_features)
+                            dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_label)
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_dandan, outfile, cls=NumpyEncoder)
