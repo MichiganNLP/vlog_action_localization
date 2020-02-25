@@ -535,20 +535,16 @@ def read_data_DanDan():
 
                         bbox_features = feature.cpu().detach().numpy()
 
-                        for i, score in enumerate(list(bbox_score)):
-                            if i > 2:
-                                break
-                            if score > 0.5:
-                                bbox_features_list.append(bbox_features[i])
-                                bbox_label_list.append(predicted_name[i])
 
                         # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
 
                         # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
                         # dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_score'] = bbox_score
-                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_features'] = np.array(bbox_features_list)
-                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_names'] = np.array(bbox_label_list)
-
+                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_features'].append(bbox_features)
+                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_names'].append(predicted_label)
+                        break
+                        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
+                            json.dump(dict_FasterRCNN_dandan, outfile, cls=NumpyEncoder)
 
                        # dict_FasterRCNN_dandan[miniclip][frame]['bbox_score'].append(score)
                        # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().detach().numpy())
@@ -556,8 +552,7 @@ def read_data_DanDan():
 
                         # print(dict_FasterRCNN_dandan)
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_dandan, outfile)
+
 
 
 def transform_clip_to_frames():
