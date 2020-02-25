@@ -499,7 +499,7 @@ def read_data_DanDan():
             prediction = pickle.load(f)
 
             for i, (image_path, val) in enumerate(prediction.items()):
-                # if i % 10 != 0: continue
+                if i % 10 != 0: continue
                 image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
 
                 image_folder, image_name = os.path.split(image_path)
