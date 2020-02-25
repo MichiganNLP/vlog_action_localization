@@ -319,17 +319,22 @@ def load_FasterRCNN_feat():
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_label_first)
             bbox_score = tensor[0].scores.cpu().detach().numpy()
             bbox_features = tensor[1].cpu().detach().numpy()
-            # bbox_features_list = []
-            # for i, score in enumerate(list(bbox_score)):
-            #     if score > 0.5:
-            #         bbox_features_list.append(bbox_features)
+            bbox_features_list = []
+            bbox_label_list = []
+            for i, score in enumerate(list(bbox_score)):
+                if i > 2:
+                    break
+                if score > 0.5:
+                    bbox_features_list.append(bbox_features[i])
+                    bbox_label_list.append(bbox_label[i])
+
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
 
             # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_score'] = bbox_score
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_features'] = bbox_features
-            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_names'] = bbox_label
+            # dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_score'] = bbox_score
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_features'] = np.array(bbox_features_list)
+            dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_names'] = np.array(bbox_label_list)
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json', 'w+') as outfile:
         json.dump(dict_FasterRCNN_original, outfile, cls=NumpyEncoder)
