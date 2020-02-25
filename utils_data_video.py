@@ -509,6 +509,9 @@ def read_data_DanDan():
                     dict_FasterRCNN_dandan[miniclip] = {}
                 if frame not in dict_FasterRCNN_dandan[miniclip].keys():
                     dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
+                    bbox_features_list = []
+                    bbox_label_list = []
+
                     # dict_FasterRCNN_dandan[miniclip][frame] = []
 
                 if 'object_info' in val.keys():
@@ -520,7 +523,7 @@ def read_data_DanDan():
                         bbox = (
                             bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
                             bbox_info['bbox']['y2'])
-                        score = bbox_info['score']
+                        bbox_score = bbox_info['score']
 
                         feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
                                                                                          resnet50_label,
@@ -529,12 +532,28 @@ def read_data_DanDan():
                         # print(feature.shape)
                         # print(image_folder, image_name)
                         # print(predicted_name)
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_score'].append(score)
-                        # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().numpy())
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().detach().numpy())
-                        dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_name)
-                        # dict_FasterRCNN_dandan[miniclip][frame].append(score, predicted_name, feature)
-                        # dict_FasterRCNN_dandan[miniclip][frame].append((score, predicted_name))
+
+                        bbox_features = feature.cpu().detach().numpy()
+
+                        for i, score in enumerate(list(bbox_score)):
+                            if i > 2:
+                                break
+                            if score > 0.5:
+                                bbox_features_list.append(bbox_features[i])
+                                bbox_label_list.append(predicted_name[i])
+
+                        # dict_FasterRCNN_original[miniclip][frame[:-7]] = np.array(bbox_features)
+
+                        # dict_FasterRCNN_original[miniclip][frame[:-7]]['label'] = bbox_label
+                        # dict_FasterRCNN_original[miniclip][frame[:-7]]['bbox_score'] = bbox_score
+                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_features'] = np.array(bbox_features_list)
+                        dict_FasterRCNN_dandan[miniclip][frame[:-7]]['bbox_names'] = np.array(bbox_label_list)
+
+
+                       # dict_FasterRCNN_dandan[miniclip][frame]['bbox_score'].append(score)
+                       # dict_FasterRCNN_dandan[miniclip][frame]['bbox_features'].append(feature.cpu().detach().numpy())
+                      #  dict_FasterRCNN_dandan[miniclip][frame]['bbox_names'].append(predicted_name)
+
                         # print(dict_FasterRCNN_dandan)
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json', 'w+') as outfile:
@@ -571,10 +590,10 @@ def main():
     path_pos_data = "data/dict_action_pos_concreteness.json"
     path_list_actions = "data/stats/list_actions.csv"
 
-    load_FasterRCNN_feat()
+    # load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    # read_data_DanDan()
+    read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
