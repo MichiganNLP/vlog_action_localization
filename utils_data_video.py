@@ -499,7 +499,7 @@ def read_data_DanDan():
             prediction = pickle.load(f)
 
             for i, (image_path, val) in enumerate(prediction.items()):
-                if i % 10 != 0: continue
+                # if i % 10 != 0: continue
                 image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
 
                 image_folder, image_name = os.path.split(image_path)
@@ -509,10 +509,12 @@ def read_data_DanDan():
                     dict_FasterRCNN_dandan[miniclip] = {}
                 if frame not in dict_FasterRCNN_dandan[miniclip].keys():
                     dict_FasterRCNN_dandan[miniclip][frame] = {'bbox_score': [], 'bbox_names': [], 'bbox_features': []}
-                    bbox_features_list = []
-                    bbox_label_list = []
+
 
                     # dict_FasterRCNN_dandan[miniclip][frame] = []
+
+                if len(dict_FasterRCNN_dandan[miniclip][frame]['bbox_names']) > 3:
+                    continue
 
                 if 'object_info' in val.keys():
                     object_info = val['object_info']
