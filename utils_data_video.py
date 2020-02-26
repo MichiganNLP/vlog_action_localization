@@ -357,7 +357,7 @@ def read_FasterRCNN():
     for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
         dict_FasterRCNN_all[miniclip] = {}
         for frame in dict_FasterRCNN_original[miniclip].keys():
-            print(dict_FasterRCNN_original[miniclip][frame])
+            print(miniclip, frame)
             print(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])
             index_bbox_labels = list(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])  # from np.array([x]) to [x]
             bbox_features = dict_FasterRCNN_original[miniclip][frame]["bbox_features"]
