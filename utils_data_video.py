@@ -348,42 +348,45 @@ def read_FasterRCNN():
     MetadataCatalog.get('coco_2017_train')
     # get the list of thing
     list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
-    dict_FasterRCNN_first_label = {}
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_label.json') as json_file:
+    dict_FasterRCNN_all = {}
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_first3_label.json') as json_file:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_original_bbox_features.json') as json_file:
         dict_FasterRCNN_original = json.load(json_file)
 
-    for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
-        dict_FasterRCNN_first_label[miniclip] = {}
-        for frame in dict_FasterRCNN_original[miniclip].keys():
-            index_bbox_label_first = list(dict_FasterRCNN_original[miniclip][frame])  # from np.array([x]) to [x]
 
-            dict_FasterRCNN_first_label[miniclip][frame] = []
+    for miniclip in tqdm(list(dict_FasterRCNN_original.keys())):
+        dict_FasterRCNN_all[miniclip] = {}
+        for frame in dict_FasterRCNN_original[miniclip].keys():
+            index_bbox_labels = list(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])  # from np.array([x]) to [x]
+            bbox_features = dict_FasterRCNN_original[miniclip][frame]["bbox_features"]
+            dict_FasterRCNN_all[miniclip][frame] = {"bbox_names":[], "bbox_features":[]}
             for i in range(len(index_bbox_label_first)):
-                if index_bbox_label_first[i] == -1:
+                if index_bbox_labels[i] == -1:
                     label_text = "none"
                 else:
-                    label_text = list_classes[index_bbox_label_first[i]]
+                    label_text = list_classes[index_bbox_labels[i]]
+                dict_FasterRCNN_all[miniclip][frame]["bbox_names"].append(label_text)
+            dict_FasterRCNN_all[miniclip][frame]["bbox_features"] = bbox_features
 
-                dict_FasterRCNN_first_label[miniclip][frame].append(label_text)
-
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json', 'w+') as outfile:
-        json.dump(dict_FasterRCNN_first_label, outfile)
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_all.json', 'w+') as outfile:
+        json.dump(dict_FasterRCNN_all, outfile)
 
 
 def transform_miniclip_data_into_clips():
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json') as json_file:
-        dict_FasterRCNN_first_label_str = json.load(json_file)
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first_label_str.json') as json_file:
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_all.json') as json_file:
+        dict_FasterRCNN_all = json.load(json_file)
 
     dict_clips_data = {}
     # set_classes = set()
-    for miniclip in tqdm(list(dict_FasterRCNN_first_label_str.keys())):
-        nb_frames = len(dict_FasterRCNN_first_label_str[miniclip].keys())
+    for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
+        nb_frames = len(dict_FasterRCNN_all[miniclip].keys())
 
         list_classes_miniclip = []
-        for frame in sorted(dict_FasterRCNN_first_label_str[miniclip].keys()):
-            class_name = dict_FasterRCNN_first_label_str[miniclip][frame]
+        for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
+            class_name = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
             for c in class_name:
-                if "person" not in c:
+                # if "person" not in c:
                     list_classes_miniclip.append(c)
             # print(frame, str(frame_nb), class_name)
 
@@ -580,9 +583,9 @@ def main():
     path_list_actions = "data/stats/list_actions.csv"
 
     # load_FasterRCNN_feat()
-    # read_FasterRCNN()
+    read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    read_data_DanDan()
+    # read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
