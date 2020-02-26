@@ -358,7 +358,9 @@ def read_FasterRCNN():
         dict_FasterRCNN_all[miniclip] = {}
         for frame in dict_FasterRCNN_original[miniclip].keys():
             print(miniclip, frame)
-            print(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])
+            if dict_FasterRCNN_original[miniclip][frame] == [-1]:
+                continue
+
             index_bbox_labels = list(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])  # from np.array([x]) to [x]
             bbox_features = dict_FasterRCNN_original[miniclip][frame]["bbox_features"]
             dict_FasterRCNN_all[miniclip][frame] = {"bbox_names":[], "bbox_features":[]}
