@@ -360,7 +360,7 @@ def read_FasterRCNN():
             index_bbox_labels = list(dict_FasterRCNN_original[miniclip][frame]["bbox_names"])  # from np.array([x]) to [x]
             bbox_features = dict_FasterRCNN_original[miniclip][frame]["bbox_features"]
             dict_FasterRCNN_all[miniclip][frame] = {"bbox_names":[], "bbox_features":[]}
-            for i in range(len(index_bbox_label_first)):
+            for i in range(len(index_bbox_labels)):
                 if index_bbox_labels[i] == -1:
                     label_text = "none"
                 else:
