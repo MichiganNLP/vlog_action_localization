@@ -417,7 +417,6 @@ def transform_miniclip_data_into_clips():
                 list_features_miniclip.append(features[i])
             # print(frame, str(frame_nb), class_name)
 
-    print(list_classes_miniclip)
     for index_clip in range(0, int((nb_frames - 72) / 24)):
         clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
@@ -434,10 +433,12 @@ def transform_miniclip_data_into_clips():
         list_classes_miniclip_index = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
         list_features_miniclip_index = list_features_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
         print(list_classes_miniclip)
+        print(list_classes_miniclip_index)
 
         # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
         dict_clips_labels[clip_name] = list_classes_miniclip_index
         dict_clips_features[clip_name] = list_features_miniclip_index
+        break
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json', 'w+') as outfile:
         json.dump(dict_clips_labels, outfile)
