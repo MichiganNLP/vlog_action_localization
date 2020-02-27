@@ -385,27 +385,30 @@ def transform_miniclip_data_into_clips():
         dict_clip_to_frames = json.load(json_file)
 
     set_frames = set()
+    dict_nb_frames = {}
     for k in dict_clip_to_frames.keys():
+        if k[:-4] not in dict_nb_frames.keys():
+            dict_nb_frames[k[:-4]] = set()
         for v in dict_clip_to_frames[k]:
             set_frames.add(v)
+            dict_nb_frames[k[:-4]].add(v)
+
 
     dict_clips_labels = {}
     dict_clips_features = {}
     # set_classes = set()
     # for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
     miniclip = "10p1_6mini_1"
-    nb_frames = len(dict_FasterRCNN_all[miniclip].keys())
+    nb_frames = len(dict_nb_frames[miniclip].keys())
 
     list_classes_miniclip = []
     list_features_miniclip = []
     # for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
     for frame in sorted(set_frames):
-        print(frame)
         if frame not in dict_FasterRCNN_all[miniclip].keys():
             list_classes_miniclip.append('nan')
             list_features_miniclip.append('nan')
         else:
-            print(frame)
             class_names = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
             features = dict_FasterRCNN_all[miniclip][frame]["bbox_features"]
             for i, _ in enumerate(class_names):
@@ -413,7 +416,8 @@ def transform_miniclip_data_into_clips():
                 list_classes_miniclip.append(class_names[i])
                 list_features_miniclip.append(features[i])
             # print(frame, str(frame_nb), class_name)
-
+        if frame == "frame_01270":
+            print(list_classes_miniclip)
     for index_clip in range(0, int((nb_frames - 72) / 24)):
         clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
