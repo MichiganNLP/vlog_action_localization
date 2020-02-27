@@ -381,67 +381,96 @@ def transform_miniclip_data_into_clips():
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_all.json') as json_file:
         dict_FasterRCNN_all = json.load(json_file)
 
-    dict_clips_data = {}
+    with open('data/embeddings/clip_to_frames.json') as json_file:
+        dict_clip_to_frames = json.load(json_file)
+
+    set_frames = set()
+    for k in dict_clip_to_frames.keys():
+        for v in dict_clip_to_frames[k]:
+            set_frames.add(v)
+
+    dict_clips_labels = {}
+    dict_clips_features = {}
     # set_classes = set()
     for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
         nb_frames = len(dict_FasterRCNN_all[miniclip].keys())
 
         list_classes_miniclip = []
-        for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
-            class_name = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
-            for c in class_name:
+        list_features_miniclip = []
+        # for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
+        for frame in sorted(set_frames):
+            print(frame)
+            if frame not in dict_FasterRCNN_all[miniclip].keys():
+                list_classes_miniclip.append('nan')
+                list_features_miniclip.append('nan')
+                continue
+            class_names = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
+            features = dict_FasterRCNN_all[miniclip][frame]["bbox_features"]
+            for i, _ in enumerate(class_names):
                 # if "person" not in c:
-                    list_classes_miniclip.append(c)
+                list_classes_miniclip.append(class_names[i])
+                list_features_miniclip.append(features[i])
             # print(frame, str(frame_nb), class_name)
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
-            clip_name = miniclip + "_" + str(index_clip).zfill(3)
-            if clip_name not in dict_clips_data.keys():
-                dict_clips_data[clip_name] = []
+            clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
+
+            if clip_name not in dict_clips_labels.keys():
+                dict_clips_labels[clip_name] = []
+
+            if clip_name not in dict_clips_features.keys():
+                dict_clips_features[clip_name] = []
+
+            # for index_frame in range(index_clip * 24, (index_clip + 3) * 24 + 1):
+            #     if index_frame == 0:
+            #         continue
+
 
             # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
-            dict_clips_data[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]
+            dict_clips_labels[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
+            dict_clips_features[clip_name] = list_features_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_data, outfile)
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json', 'w+') as outfile:
+        json.dump(dict_clips_labels, outfile)
 
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.json', 'w+') as outfile:
+        json.dump(dict_clips_features, outfile)
 
 def transform_miniclip_data_into_clips_dandan():
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json') as json_file:
         dict_FasterRCNN_dadan_str = json.load(json_file)
 
-    dict_clips_data = {}
-    set_classes = set()
+    dict_clips_labels = {}
+    dict_clips_features = {}
     for miniclip in tqdm(list(dict_FasterRCNN_dadan_str.keys())):
         nb_frames = len(dict_FasterRCNN_dadan_str[miniclip].keys())
 
         list_classes_miniclip = []
+        list_features_miniclip = []
         for frame in sorted(dict_FasterRCNN_dadan_str[miniclip].keys()):
-            class_name = [c for [c, score] in dict_FasterRCNN_dadan_str[miniclip][frame] if score > 0.5]
-            for c in class_name:
-                if "_" in c:
-                    action = " ".join(c.split("_")).lower()
-                else:
-                    action = c.lower()
-                if "wheel" not in action:
-                    list_classes_miniclip.append(action)
-
-                set_classes.add(action)
-            # print(frame, str(frame_nb), class_name)
+            class_names = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_names"]
+            features = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_features"]
+            for i, _ in enumerate(class_names):
+                list_classes_miniclip.append(class_names[i])
+                list_features_miniclip.append(features[i])
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
-            clip_name = miniclip + "_" + str(index_clip).zfill(3)
-            if clip_name not in dict_clips_data.keys():
-                dict_clips_data[clip_name] = []
+            clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
-            # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24:10]))
-            dict_clips_data[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]
+            if clip_name not in dict_clips_labels.keys():
+                dict_clips_labels[clip_name] = []
 
-    # create_bert_embeddings(list(set_classes))
-    # save_elmo_embddings(list(set_classes))
+            if clip_name not in dict_clips_features.keys():
+                dict_clips_features[clip_name] = []
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_data, outfile)
+            dict_clips_labels[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]
+            dict_clips_features[clip_name] = list_features_miniclip[index_clip * 24:(index_clip + 3) * 24]
+
+        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_labels_clips.json', 'w+') as outfile:
+            json.dump(dict_clips_labels, outfile)
+
+        with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_features_clips.json', 'w+') as outfile:
+            json.dump(dict_clips_features, outfile)
 
 
 def get_feature_and_label(resnet50_feature, resnet50_label, preprocess, class2name_mapping, image, bbox):
@@ -587,8 +616,8 @@ def main():
     path_list_actions = "data/stats/list_actions.csv"
 
     # load_FasterRCNN_feat()
-    read_FasterRCNN()
-    # transform_miniclip_data_into_clips()
+    # read_FasterRCNN()
+    transform_miniclip_data_into_clips()
     # read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
 
