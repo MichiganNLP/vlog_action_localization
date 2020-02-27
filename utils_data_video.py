@@ -405,6 +405,7 @@ def transform_miniclip_data_into_clips():
             list_classes_miniclip.append('nan')
             list_features_miniclip.append('nan')
         else:
+            print(frame)
             class_names = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
             features = dict_FasterRCNN_all[miniclip][frame]["bbox_features"]
             for i, _ in enumerate(class_names):
