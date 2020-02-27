@@ -448,6 +448,10 @@ def transform_miniclip_data_into_clips_dandan():
         list_classes_miniclip = []
         list_features_miniclip = []
         for frame in sorted(dict_FasterRCNN_dadan_str[miniclip].keys()):
+            if frame not in dict_FasterRCNN_dadan_str[miniclip].keys():
+                list_classes_miniclip.append('nan')
+                list_features_miniclip.append('nan')
+                continue
             class_names = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_names"]
             features = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_features"]
             for i, _ in enumerate(class_names):
@@ -617,9 +621,9 @@ def main():
 
     # load_FasterRCNN_feat()
     # read_FasterRCNN()
-    transform_miniclip_data_into_clips()
+    # transform_miniclip_data_into_clips()
     # read_data_DanDan()
-    # transform_miniclip_data_into_clips_dandan()
+    transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
     # path_I3D_features = "../i3d_keras/data/results_features/"
