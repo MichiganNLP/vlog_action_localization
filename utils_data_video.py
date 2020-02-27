@@ -392,18 +392,19 @@ def transform_miniclip_data_into_clips():
     dict_clips_labels = {}
     dict_clips_features = {}
     # set_classes = set()
-    for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
-        nb_frames = len(dict_FasterRCNN_all[miniclip].keys())
+    # for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
+    miniclip = "10p1_6mini_1"
+    nb_frames = len(dict_FasterRCNN_all[miniclip].keys())
 
-        list_classes_miniclip = []
-        list_features_miniclip = []
-        # for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
-        for frame in sorted(set_frames):
-            print(frame)
-            if frame not in dict_FasterRCNN_all[miniclip].keys():
-                list_classes_miniclip.append('nan')
-                list_features_miniclip.append('nan')
-                continue
+    list_classes_miniclip = []
+    list_features_miniclip = []
+    # for frame in sorted(dict_FasterRCNN_all[miniclip].keys()):
+    for frame in sorted(set_frames):
+        print(frame)
+        if frame not in dict_FasterRCNN_all[miniclip].keys():
+            list_classes_miniclip.append('nan')
+            list_features_miniclip.append('nan')
+        else:
             class_names = dict_FasterRCNN_all[miniclip][frame]["bbox_names"]
             features = dict_FasterRCNN_all[miniclip][frame]["bbox_features"]
             for i, _ in enumerate(class_names):
@@ -412,23 +413,23 @@ def transform_miniclip_data_into_clips():
                 list_features_miniclip.append(features[i])
             # print(frame, str(frame_nb), class_name)
 
-        for index_clip in range(0, int((nb_frames - 72) / 24)):
-            clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
+    for index_clip in range(0, int((nb_frames - 72) / 24)):
+        clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
-            if clip_name not in dict_clips_labels.keys():
-                dict_clips_labels[clip_name] = []
+        if clip_name not in dict_clips_labels.keys():
+            dict_clips_labels[clip_name] = []
 
-            if clip_name not in dict_clips_features.keys():
-                dict_clips_features[clip_name] = []
+        if clip_name not in dict_clips_features.keys():
+            dict_clips_features[clip_name] = []
 
-            # for index_frame in range(index_clip * 24, (index_clip + 3) * 24 + 1):
-            #     if index_frame == 0:
-            #         continue
+        # for index_frame in range(index_clip * 24, (index_clip + 3) * 24 + 1):
+        #     if index_frame == 0:
+        #         continue
 
 
-            # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
-            dict_clips_labels[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
-            dict_clips_features[clip_name] = list_features_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
+        # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
+        dict_clips_labels[clip_name] = list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
+        dict_clips_features[clip_name] = list_features_miniclip[index_clip * 24:(index_clip + 3) * 24].remove("nan")
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json', 'w+') as outfile:
         json.dump(dict_clips_labels, outfile)
@@ -621,9 +622,9 @@ def main():
 
     # load_FasterRCNN_feat()
     # read_FasterRCNN()
-    # transform_miniclip_data_into_clips()
+    transform_miniclip_data_into_clips()
     # read_data_DanDan()
-    transform_miniclip_data_into_clips_dandan()
+    # transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()
     # path_I3D_features = "../i3d_keras/data/results_features/"
