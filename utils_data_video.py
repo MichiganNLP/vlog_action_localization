@@ -399,7 +399,7 @@ def transform_miniclip_data_into_clips():
     # set_classes = set()
     # for miniclip in tqdm(list(dict_FasterRCNN_all.keys())):
     miniclip = "10p1_6mini_1"
-    nb_frames = len(dict_nb_frames[miniclip].keys())
+    nb_frames = len(dict_nb_frames[miniclip])
 
     list_classes_miniclip = []
     list_features_miniclip = []
