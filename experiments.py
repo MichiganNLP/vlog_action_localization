@@ -448,9 +448,12 @@ def create_config_name(args):
         if args.add_cluster:
             print("Add cluster info")
             config_name = config_name + " + cluster"
-        if args.add_obj_label:
+        if args.add_obj_label != "none":
             print("Add object label info")
-            config_name = config_name + " + object label"
+            config_name = config_name + " + " + args.add_obj_label
+        if args.add_obj_feat != "none":
+            print("Add object add_obj_feat info")
+            config_name = config_name + " + " + args.add_obj_feat
 
     return config_name
 
@@ -485,59 +488,55 @@ def main():
         #     Create data
         # '''
         train_data, val_data, test_data = \
-            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label,
-                                  path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
+            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label, args.add_obj_feat,
+                                   path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
                                   path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
                                   channels_val=channels_val,
                                   channels_test=channels_test,
                                   hold_out_test_channels=hold_out_test_channels)
-    #
-    #     if config_name == "system max":
-    #         compute_predicted_IOU_GT(test_data, args.clip_length)
-    #         for channel_test in channels_test:
-    #             evaluate("GT", channel_test)
-    #     else:
-    #         '''
-    #                 Create model
-    #         '''
-    #         if args.add_obj_label:
-    #             # config_name += "_ObjectLabelsDANDAN"
-    #             config_name += "_ActionI3D"
-    #             # config_name += "_ObjectLabelsOrig"
-    #         model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-    #                                                                args.epochs,
-    #                                                                args.balance, config_name)
-    #
-    #         # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-    #         #                                                             args.epochs,
-    #         #                                                             args.balance, config_name)
-    #
-    #         # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-    #         # config_name = "compare actions bert cosine"
-    #
-    #         # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-    #         # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-    #         # config_name = "test tf actions"
-    #
-    #         '''
-    #             Majority (actions are visible in all clips)
-    #         '''
-    #         # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
-    #         # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
-    #         # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
-    #         # get_features_from_data(train_data, val_data, test_data)
-    #         # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
-    #         # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
-    #         # list_predictions = [1] * len(predicted)
-    #         # print("maj_val: {:0.2f}".format(maj_val))
-    #         # print("maj_test: {:0.2f}".format(maj_test))
-    #
-    #         '''
-    #                 Evaluate
-    #         '''
-    #         compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-    #       #  for channel_test in channels_test:
-    #         evaluate(config_name, "1p01_5p01")
+
+        if config_name == "system max":
+            compute_predicted_IOU_GT(test_data, args.clip_length)
+            for channel_test in channels_test:
+                evaluate("GT", channel_test)
+        else:
+            '''
+                    Create model
+            '''
+            model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+                                                                   args.epochs,
+                                                                   args.balance, config_name)
+
+            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+            #                                                             args.epochs,
+            #                                                             args.balance, config_name)
+
+            # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+            # config_name = "compare actions bert cosine"
+
+            # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            # config_name = "test tf actions"
+
+            '''
+                Majority (actions are visible in all clips)
+            '''
+            # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
+            # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+            # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
+            # get_features_from_data(train_data, val_data, test_data)
+            # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
+            # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
+            # list_predictions = [1] * len(predicted)
+            # print("maj_val: {:0.2f}".format(maj_val))
+            # print("maj_test: {:0.2f}".format(maj_test))
+
+            '''
+                    Evaluate
+            '''
+            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+          #  for channel_test in channels_test:
+            evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":
     main()

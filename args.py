@@ -18,5 +18,6 @@ def parse_args():
     parser.add_argument('-cl', '--clip_length', choices=["3s", "10s"], default="3s")
     parser.add_argument('-b', '--balance', type=bool, choices=[True, False], default=True)
     parser.add_argument('-c', '--add_cluster', action='store_true')
-    parser.add_argument('-ol', '--add_obj_label', action='store_true')
+    parser.add_argument('-ol', '--add_obj_label', choices=["original", "hands", "none"], default="none")
+    parser.add_argument('-of', '--add_obj_feat', choices=["original", "hands", "none"], default="none")
     return parser.parse_args()

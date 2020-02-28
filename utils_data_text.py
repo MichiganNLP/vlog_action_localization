@@ -30,8 +30,7 @@ from transformers.modeling_bert import BertModel
 from keras.preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
-from compute_text_embeddings import create_glove_embeddings, embed_elmo2, get_bert_finetuned_embeddings, \
-    avg_GLoVe_action_emb, create_bert_embeddings, NumpyEncoder
+from compute_text_embeddings import embed_elmo2, get_bert_finetuned_embeddings, create_bert_embeddings, NumpyEncoder
 from steve_human_action.main import read_activity, read_ouput_DNT
 from utils_data_video import average_i3d_features, load_data_from_I3D, average_i3d_features_miniclip
 
@@ -56,26 +55,26 @@ class color:
     END = '\033[0m'
 
 
-def get_word_embedding(embeddings_index, word):
-    embedding_vector = embeddings_index.get(word)
-    if embedding_vector is None:
-        return None
-    else:
-        word_embedding = np.asarray(embedding_vector)
-        return word_embedding
-
-
-def load_embeddings():
-    embeddings_index = dict()
-    with open("data/glove.6B.50d.txt") as f:
-        for line in f:
-            values = line.split()
-            word = values[0]
-            coefs = np.asarray(values[1:], dtype='float32')
-            embeddings_index[word] = coefs
-    print('Loaded %s word vectors.' % len(embeddings_index))
-
-    return embeddings_index
+# def get_word_embedding(embeddings_index, word):
+#     embedding_vector = embeddings_index.get(word)
+#     if embedding_vector is None:
+#         return None
+#     else:
+#         word_embedding = np.asarray(embedding_vector)
+#         return word_embedding
+#
+#
+# def load_embeddings():
+#     embeddings_index = dict()
+#     with open("data/glove.6B.50d.txt") as f:
+#         for line in f:
+#             values = line.split()
+#             word = values[0]
+#             coefs = np.asarray(values[1:], dtype='float32')
+#             embeddings_index[word] = coefs
+#     print('Loaded %s word vectors.' % len(embeddings_index))
+#
+#     return embeddings_index
 
 
 def get_cosine(vec1, vec2):
@@ -320,7 +319,8 @@ def get_list_actions_for_label(dict_video_actions, miniclip, label_type):
     return list_type_actions
 
 
-def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labels, path_all_annotations,
+def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labels, add_object_feat,
+                          path_all_annotations,
                           path_I3D_features, channels_val,
                           channels_test, hold_out_test_channels):
     with open(path_all_annotations) as f:
@@ -335,11 +335,17 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
     if add_cluster:
         dict_action_embeddings = add_cluster_data(dict_action_embeddings)
 
-    if add_object_labels:
-        print("Adding object data")
-        dict_clip_object_labels = add_object_label()
+    if add_object_labels != "none":
+        print("Adding object label data")
+        dict_clip_object_labels = add_object_label(add_object_labels)
     else:
         dict_clip_object_labels = {}
+
+    if add_object_feat != "none":
+        print("Adding object feature data")
+        dict_clip_object_features = add_object_features(add_object_feat)
+    else:
+        dict_clip_object_features = {}
 
     dict_train_annotations, dict_val_annotations, dict_test_annotations = split_data_train_val_test(
         dict_all_annotations,
@@ -395,6 +401,12 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        # add or concat them
+        if dict_clip_object_features != {}:
+            viz_objects_feat = dict_clip_object_features[clip[:-4]]
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
+
+
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
@@ -424,6 +436,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             continue
 
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        # add or concat them
+        if dict_clip_object_features != {}:
+            viz_objects_feat = dict_clip_object_features[clip[:-4]]
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
+
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
@@ -452,7 +469,13 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
+
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        # add or concat them
+        if dict_clip_object_features != {}:
+            viz_objects_feat = dict_clip_object_features[clip[:-4]]
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
+
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
         viz_feat2 = [y for x in [viz_feat, miniclip_viz_feat] for y in x]
@@ -533,10 +556,10 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
     #     GT_vb_noun[miniclip + ", " + new_action] = groundtruth_1p0[miniclip_action]
     # with open('data/annotations/annotations1p01_5p01_vb.json', 'w+') as outfile:
     #     json.dump(GT_vb_noun, outfile, cls=NumpyEncoder)
-
-    if type_action_emb == "GloVe":
-        return create_glove_embeddings(list_all_actions)
-    elif type_action_emb == "ELMo":
+    #
+    # if type_action_emb == "GloVe":
+    #     return create_glove_embeddings(list_all_actions)
+    if type_action_emb == "ELMo":
         with open('data/embeddings/dict_action_embeddings_ELMo.json') as f:
             # with open('data/embeddings/dict_action_embeddings_ELMo_vb_particle.json') as f:
             json_load = json.loads(f.read())
@@ -850,7 +873,7 @@ def svm_predict_actions(channels_test):
     #
     # print(Counter(Y_train))
 
-   # X_train, Y_train = [], []
+    # X_train, Y_train = [], []
     X_test = []
     Y_test = []
     X_test_action = []
@@ -902,7 +925,8 @@ def svm_predict_actions(channels_test):
     f1 = f1_score(Y_test, predicted)
     recall = recall_score(Y_test, predicted)
     precision = precision_score(Y_test, predicted)
-    print("acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print(
+        "acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
     print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
     print("recall: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
     print("precision: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
@@ -2122,42 +2146,71 @@ def get_dict_all_annotations_visible_not():
         json.dump(dict_all_annotations_ordered, outfile)
 
 
-def add_object_label():
-    # original
-    # with open("data/embeddings/FasterRCNN/dict_FasterRCNN_first3_label_str_clips.json") as file:
-    #     dict_FasterRCNN_first3_label_str_clips = json.load(file)
+def add_object_features(type):
+    dict_FasterRCNN_features_clips = {}
 
-    ##dandan
-    with open("data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_str_clips.json") as file:
-        dict_FasterRCNN_first3_label_str_clips = json.load(file)
+    if type == "original":
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.json") as file:
+            dict_FasterRCNN_features_clips = json.load(file)
+
+    elif type == "hands":
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_hands_features_clips.json") as file:
+            dict_FasterRCNN_features_clips = json.load(file)
+    else:
+        print("Error argument object label type")
+
+    dict_clip_features = {}
+    for clip in dict_FasterRCNN_features_clips.keys():
+        # list_labels = read_class_results(clip)
+        list_features = dict_FasterRCNN_features_clips[clip]
+        if not list_features:
+            continue
+        sum_label_embeddings = list_features[0]
+        for feature in list_features[1:]:
+            sum_label_embeddings += feature
+
+        dict_clip_features[clip] = sum_label_embeddings
+    return dict_clip_features
+
+
+def add_object_label(type):
+    dict_FasterRCNN_labels_clips = {}
+    dict_action_embeddings_Bert_FasteRCNNlabels = {}
+
+    if type == "original":
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json") as file:
+            dict_FasterRCNN_labels_clips = json.load(file)
+        with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+            dict_action_embeddings_Bert_FasteRCNNlabels = json.load(file)
+
+    elif type == "hands":
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_hands_labels_clips.json") as file:
+            dict_FasterRCNN_labels_clips = json.load(file)
+        with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_dandan.json") as file:
+            dict_action_embeddings_Bert_FasteRCNNlabels = json.load(file)
+    else:
+        print("Error argument object label type")
 
     # set_labels = set()
     # for clip in dict_FasterRCNN_first3_label_str_clips.keys():
     #     for c in dict_FasterRCNN_first3_label_str_clips[clip]:
     #         set_labels.add(c)
 
-    ## original
-    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
-    #     dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
-
-    ##dandan
-    # with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_dandan.json") as file:
-    #     dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.load(file)
-
     dict_clip_labels = {}
 
-    with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
-        dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.loads(f.read())
+    # with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
+    #     dict_action_embeddings_Bert_FasteRCNNlabels_orig = json.loads(f.read())
+    #
 
-
-
-    for clip in dict_FasterRCNN_first3_label_str_clips.keys():
-        list_labels = read_class_results(clip)
-        # list_labels = dict_FasterRCNN_first3_label_str_clips[clip]
-        sum_label_embeddings = np.zeros(768)
-        for label in list_labels:
-            print(label)
-            label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels_orig[label])
+    for clip in dict_FasterRCNN_labels_clips.keys():
+        # list_labels = read_class_results(clip)
+        list_labels = dict_FasterRCNN_labels_clips[clip]
+        if not list_labels:
+            continue
+        label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[list_labels[0]])
+        sum_label_embeddings = label_emb
+        for label in list_labels[1:]:
+            label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[label])
             sum_label_embeddings += label_emb
 
         dict_clip_labels[clip] = sum_label_embeddings

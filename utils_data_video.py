@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -440,11 +441,14 @@ def transform_miniclip_data_into_clips():
             dict_clips_features[clip_name] = list_features_miniclip_index
 
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_labels, outfile)
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json', 'w+') as outfile:
+    #     json.dump(dict_clips_labels, outfile)
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_features, outfile)
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.pickle', 'wb') as handle:
+        pickle.dump(dict_clips_features, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.json', 'w+') as outfile:
+    #     json.dump(dict_clips_features, outfile)
 
 def transform_miniclip_data_into_clips_dandan():
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_all.json') as json_file:
@@ -502,11 +506,13 @@ def transform_miniclip_data_into_clips_dandan():
             dict_clips_features[clip_name] = list_features_miniclip_index
 
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_labels_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_labels, outfile)
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_labels_clips.json', 'w+') as outfile:
+    #     json.dump(dict_clips_labels, outfile)
 
-    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_features_clips.json', 'w+') as outfile:
-        json.dump(dict_clips_features, outfile)
+    # with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_features_clips.json', 'w+') as outfile:
+    #     json.dump(dict_clips_features, outfile)
+    with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_features_clips.pickle', 'wb') as handle:
+        pickle.dump(dict_clips_features, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def get_feature_and_label(resnet50_feature, resnet50_label, preprocess, class2name_mapping, image, bbox):
@@ -653,7 +659,7 @@ def main():
 
     # load_FasterRCNN_feat()
     # read_FasterRCNN()
-    # transform_miniclip_data_into_clips()
+    transform_miniclip_data_into_clips()
     # read_data_DanDan()
     transform_miniclip_data_into_clips_dandan()
 
