@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import itertools
+import pickle
 import random
 import time
 
@@ -2150,12 +2151,12 @@ def add_object_features(type):
     dict_FasterRCNN_features_clips = {}
 
     if type == "original":
-        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.json") as file:
-            dict_FasterRCNN_features_clips = json.load(file)
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_features_clips.pickle", 'rb') as file:
+            dict_FasterRCNN_features_clips = pickle.load(file)
 
     elif type == "hands":
-        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_hands_features_clips.json") as file:
-            dict_FasterRCNN_features_clips = json.load(file)
+        with open("data/embeddings/FasterRCNN/dict_FasterRCNN_hands_features_clips.pickle", 'rb') as file:
+            dict_FasterRCNN_features_clips = pickle.load(file)
     else:
         print("Error argument object label type")
 
