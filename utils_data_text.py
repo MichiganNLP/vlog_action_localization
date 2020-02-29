@@ -403,11 +403,12 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
-
+        print(viz_feat.shape)
         # concat them
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
+                print(viz_objects_feat.shape)
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
             else:
                 viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
@@ -422,12 +423,12 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             action_emb = dict_action_embeddings[action]
 
             if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
                 # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
             # else:
             #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
-                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
+            # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
             # action_emb = np.zeros(1024)
             # data_clips_train.append([clip, viz_feat3])
             data_clips_train.append([clip, viz_feat])
@@ -463,7 +464,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
                 # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
             # else:
@@ -492,7 +493,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
-                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1) # 3. concat
+                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
             else:
                 viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
 
@@ -505,7 +506,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             if dict_clip_object_labels.keys and clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
                 # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
             # else:
@@ -2194,7 +2195,7 @@ def add_object_features(type):
             sum_label_embeddings += np.array(feature)
 
         result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
-        dict_clip_features[clip] =  np.squeeze(result)
+        dict_clip_features[clip] = np.squeeze(result)
 
         # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
     return dict_clip_features
