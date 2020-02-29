@@ -475,35 +475,34 @@ def transform_miniclip_data_into_clips_dandan():
             nb_frames = len(dict_nb_frames[miniclip])
 
         list_classes_miniclip = []
-        # list_features_miniclip = []
+        list_features_miniclip = []
         for frame in sorted(dict_FasterRCNN_dadan_str[miniclip].keys()):
             if frame not in dict_FasterRCNN_dadan_str[miniclip].keys():
                 list_classes_miniclip.append('nan')
-                # list_features_miniclip.append('nan')
+                list_features_miniclip.append('nan')
                 continue
             class_names = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_names"]
-            # features = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_features"]
+            features = dict_FasterRCNN_dadan_str[miniclip][frame]["bbox_features"]
             for i, _ in enumerate(class_names):
                 list_classes_miniclip.append(class_names[i])
-                # list_features_miniclip.append(features[i])
+                list_features_miniclip.append(features[i])
 
         for index_clip in range(0, int((nb_frames - 72) / 24)):
             clip_name = miniclip + "_" + str(index_clip + 1).zfill(3)
 
             if clip_name not in dict_clips_labels.keys():
                 dict_clips_labels[clip_name] = []
-            #
-            # if clip_name not in dict_clips_features.keys():
-            #     dict_clips_features[clip_name] = []
+
+            if clip_name not in dict_clips_features.keys():
+                dict_clips_features[clip_name] = []
 
             list_classes_miniclip_index = list(
                 filter(lambda a: a != 'nan', list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
-            # list_features_miniclip_index = list(
-            #     filter(lambda a: a != 'nan', list_features_miniclip[index_clip * 24:(index_clip + 3) * 24]))
+            list_features_miniclip_index = list(
+                filter(lambda a: a != 'nan', list_features_miniclip[index_clip * 24:(index_clip + 3) * 24]))
 
-            # dict_clips_data[clip_name] = list(set(list_classes_miniclip[index_clip * 24:(index_clip + 3) * 24]))
             dict_clips_labels[clip_name] = list_classes_miniclip_index
-            # dict_clips_features[clip_name] = list_features_miniclip_index
+            dict_clips_features[clip_name] = list_features_miniclip_index
 
 
     with open('data/embeddings/FasterRCNN/dict_FasterRCNN_dandan_labels_clips.json', 'w+') as outfile:

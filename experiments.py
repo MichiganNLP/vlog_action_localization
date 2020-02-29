@@ -504,8 +504,7 @@ def main():
                     Create model
             '''
             model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-                                                                   args.epochs,
-                                                                   args.balance, config_name)
+                                                                   args.epochs, args.balance, config_name)
 
             # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
             #                                                             args.epochs,
