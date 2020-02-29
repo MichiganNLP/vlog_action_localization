@@ -409,7 +409,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -450,7 +450,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -485,13 +485,14 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             continue
 
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
+        print(viz_feat.shape)
         # concat them
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -2192,7 +2193,6 @@ def add_object_features(type):
 
         dict_clip_features[clip] = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
         # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
-        print(dict_clip_features[clip].shape)
     return dict_clip_features
 
 
