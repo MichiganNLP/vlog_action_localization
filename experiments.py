@@ -369,8 +369,8 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
                   validation_data=([data_actions_val, data_clips_val], labels_val),
                   epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
 
-    # print("Load best model weights from " + file_path_best_model)
-    # model.load_weights(file_path_best_model)
+    print("Load best model weights from " + file_path_best_model)
+    model.load_weights(file_path_best_model)
 
     if finetune_bert:
         score, acc_train = model.evaluate([train_input_ids, train_input_masks, train_segment_ids, data_clips_train],
