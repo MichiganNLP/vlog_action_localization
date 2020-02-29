@@ -571,7 +571,7 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
             # with open('data/embeddings/dict_action_embeddings_Bert_only_vb.json') as f:
             json_load = json.loads(f.read())
         return json_load
-        # return create_bert_embeddings(list_all_actions)
+        # return create_bert_embeddings(list_all_actions, path_output)
     elif type_action_emb == "DNT":
         dict_embeddings = read_ouput_DNT()
         dict_actions = read_activity()
@@ -2181,13 +2181,34 @@ def add_object_label(type):
     if type == "original":
         with open("data/embeddings/FasterRCNN/dict_FasterRCNN_labels_clips.json") as file:
             dict_FasterRCNN_labels_clips = json.load(file)
-        with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_orig.json") as file:
+
+        # create bert embeddings:
+        path_output = "data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNN_orig.json"
+        if not os.path.exists(path_output):
+            set_labels = set()
+            for clip in dict_FasterRCNN_labels_clips.keys():
+                for s in dict_FasterRCNN_labels_clips[clip]:
+                    set_labels.add(s)
+            create_bert_embeddings(list(set_labels), path_output)
+
+        with open(path_output) as file:
             dict_action_embeddings_Bert_FasteRCNNlabels = json.load(file)
 
     elif type == "hands":
         with open("data/embeddings/FasterRCNN/dict_FasterRCNN_hands_labels_clips.json") as file:
             dict_FasterRCNN_labels_clips = json.load(file)
-        with open("data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNNlabels_dandan.json") as file:
+
+        # create bert embeddings:
+
+        path_output = "data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNN_hands.json"
+        if not os.path.exists(path_output):
+            set_labels = set()
+            for clip in dict_FasterRCNN_labels_clips.keys():
+                for s in dict_FasterRCNN_labels_clips[clip]:
+                    set_labels.add(s)
+            create_bert_embeddings(list(set_labels), path_output)
+
+        with open(path_output) as file:
             dict_action_embeddings_Bert_FasteRCNNlabels = json.load(file)
     else:
         print("Error argument object label type")
