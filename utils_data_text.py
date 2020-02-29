@@ -403,7 +403,6 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
-        viz_feat = np.expand_dims(viz_feat, axis=0)
 
         # concat them
         if dict_clip_object_features:
@@ -411,7 +410,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -446,7 +445,6 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             continue
 
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
-        viz_feat = np.expand_dims(viz_feat, axis=0)
 
         # concat them
         if dict_clip_object_features:
@@ -454,7 +452,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -489,7 +487,6 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             continue
 
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
-        viz_feat = np.expand_dims(viz_feat, axis=0)
 
         # concat them
         if dict_clip_object_features:
@@ -497,7 +494,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1) # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -2190,13 +2187,15 @@ def add_object_features(type):
         # list_labels = read_class_results(clip)
         list_features = dict_FasterRCNN_features_clips[clip]
         if not list_features:
-            dict_clip_features[clip] = np.zeros((1, 2048))
+            dict_clip_features[clip] = np.zeros(2048)
             continue
         sum_label_embeddings = np.array(list_features[0])
         for feature in list_features[1:]:
             sum_label_embeddings += np.array(feature)
 
-        dict_clip_features[clip] = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
+        result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
+        dict_clip_features[clip] =  np.squeeze(result)
+
         # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
     return dict_clip_features
 
