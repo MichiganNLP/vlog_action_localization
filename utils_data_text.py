@@ -410,6 +410,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
+                print(viz_objects_feat.shape)
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
             else:
                 viz_feat = np.concatenate((viz_feat, np.zeros((1, 2048))), axis=1)  # 3. concat
