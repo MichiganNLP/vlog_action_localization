@@ -2189,11 +2189,12 @@ def add_object_features(type):
         if not list_features:
             dict_clip_features[clip] = np.zeros(1024)
             continue
-        sum_label_embeddings = list_features[0]
+        sum_label_embeddings = np.array(list_features[0])
         for feature in list_features[1:]:
-            sum_label_embeddings += feature
+            sum_label_embeddings += np.array(feature)
 
         dict_clip_features[clip] = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
+        print(dict_clip_features[clip].shape)
         # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
     return dict_clip_features
 
