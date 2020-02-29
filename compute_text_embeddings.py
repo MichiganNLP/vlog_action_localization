@@ -366,8 +366,8 @@ def save_elmo_embddings(list_all_actions):
 def create_bert_embeddings(list_all_actions, path_output):
     tokenizer_name = 'bert-base-uncased'
 
-    # pretrained_model_name = 'data/epoch_29/'
-    pretrained_model_name = tokenizer_name
+    pretrained_model_name = 'data/epoch_29/'
+    # pretrained_model_name = tokenizer_name
 
     start = time.time()
     # Load pre-trained model tokenizer (vocabulary)

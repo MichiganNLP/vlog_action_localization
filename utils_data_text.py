@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import itertools
 import pickle
 import random
+import string
 import time
 
 import scipy
@@ -403,10 +404,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             continue
         viz_feat = dict_miniclip_clip_feature[clip[:-4]]
         # add or concat them
-        if dict_clip_object_features != {}:
+        if dict_clip_object_features:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
-
+            viz_feat +=  viz_objects_feat # 1. sum
+            # viz_feat /= 2 # 2. avg
+            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -416,9 +418,13 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
-            # TODO: concat
-            if clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]]
+
+            if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                # action_emb = action_emb / 2 # 2. avg
+                # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
                 # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
             # action_emb = np.zeros(1024)
             # data_clips_train.append([clip, viz_feat3])
@@ -440,7 +446,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # add or concat them
         if dict_clip_object_features != {}:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
+            viz_feat += viz_objects_feat  # 1. sum
+            # viz_feat /= 2 # 2. avg
+            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -450,9 +458,12 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
-            if clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]]
-                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
+            if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                # action_emb = action_emb / 2 # 2. avg
+                # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
             # action_emb = np.zeros(1024)
             # data_clips_val.append([clip, viz_feat3])
             data_clips_val.append([clip, viz_feat])
@@ -475,7 +486,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # add or concat them
         if dict_clip_object_features != {}:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)
+            viz_feat += viz_objects_feat  # 1. sum
+            # viz_feat /= 2 # 2. avg
+            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -485,9 +498,12 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         for [action, label] in list_action_label:
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
-            if clip[:-4] in dict_clip_object_labels.keys():
-                action_emb += dict_clip_object_labels[clip[:-4]]
-                # action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
+            if dict_clip_object_labels.keys and clip[:-4] in dict_clip_object_labels.keys():
+                action_emb += dict_clip_object_labels[clip[:-4]] # 1. add
+                # action_emb = action_emb / 2 # 2. avg
+                # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
             # action_emb = np.zeros(1024)
             # data_clips_test.append([clip, viz_feat3])
             data_clips_test.append([clip, viz_feat])
@@ -2165,12 +2181,14 @@ def add_object_features(type):
         # list_labels = read_class_results(clip)
         list_features = dict_FasterRCNN_features_clips[clip]
         if not list_features:
+            dict_clip_features[clip] = np.zeros(1024)
             continue
         sum_label_embeddings = list_features[0]
         for feature in list_features[1:]:
             sum_label_embeddings += feature
 
-        dict_clip_features[clip] = sum_label_embeddings
+        dict_clip_features[clip] = sum_label_embeddings / len(list_features)  # 2. avg
+        # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
     return dict_clip_features
 
 
@@ -2188,7 +2206,7 @@ def add_object_label(type):
             set_labels = set()
             for clip in dict_FasterRCNN_labels_clips.keys():
                 for s in dict_FasterRCNN_labels_clips[clip]:
-                    set_labels.add(s)
+                    set_labels.add(" ".join(s.lower().split("_")))
             create_bert_embeddings(list(set_labels), path_output)
 
         with open(path_output) as file:
@@ -2199,12 +2217,12 @@ def add_object_label(type):
             dict_FasterRCNN_labels_clips = json.load(file)
 
         # create bert embeddings:
-
         path_output = "data/embeddings/FasterRCNN/dict_action_embeddings_Bert_FasteRCNN_hands.json"
         if not os.path.exists(path_output):
             set_labels = set()
             for clip in dict_FasterRCNN_labels_clips.keys():
                 for s in dict_FasterRCNN_labels_clips[clip]:
+                    s = " ".join(s.lower().split("_"))
                     set_labels.add(s)
             create_bert_embeddings(list(set_labels), path_output)
 
@@ -2227,15 +2245,24 @@ def add_object_label(type):
     for clip in dict_FasterRCNN_labels_clips.keys():
         # list_labels = read_class_results(clip)
         list_labels = dict_FasterRCNN_labels_clips[clip]
+        # list_labels = list(set(dict_FasterRCNN_labels_clips[clip]))
         if not list_labels:
+            dict_clip_labels[clip] = np.zeros(768)
             continue
-        label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[list_labels[0]])
+        label = " ".join(list_labels[0].lower().split("_"))
+        label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[label])
         sum_label_embeddings = label_emb
-        for label in list_labels[1:]:
+        # matrix_embeddings = np.empty((len(list_labels), len(label_emb)))
+        # matrix_embeddings[0, :] = label_emb
+        for i, label in enumerate(list_labels[1:]):
+            label = " ".join(label.lower().split("_"))
             label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[label])
+            # matrix_embeddings[i + 1] = label_emb
             sum_label_embeddings += label_emb
 
-        dict_clip_labels[clip] = sum_label_embeddings
+        # dict_clip_labels[clip] = sum_label_embeddings # 1. sum
+        dict_clip_labels[clip] = sum_label_embeddings / len(list_labels)  # 2. avg
+        # dict_clip_labels[clip] = np.amax(matrix_embeddings, axis=0)  # 3. max
     return dict_clip_labels
 
 

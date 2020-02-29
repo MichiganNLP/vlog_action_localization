@@ -658,7 +658,7 @@ def main():
     # load_FasterRCNN_feat()
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
-    read_data_DanDan()
+    # read_data_DanDan()
     transform_miniclip_data_into_clips_dandan()
 
     # transform_clip_to_frames()

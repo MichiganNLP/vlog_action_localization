@@ -352,22 +352,22 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]
 
-    if not os.path.isfile(file_path_best_model):
+   # if not os.path.isfile(file_path_best_model):
 
-        if finetune_bert:
-            session = tf.keras.backend.get_session()
-            init = tf.global_variables_initializer()
-            session.run(init)
-            model.fit([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train,
-                      validation_data=([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val),
-                      epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
-        else:
-            model.fit([data_actions_train, data_clips_train], labels_train,
-                      validation_data=([data_actions_val, data_clips_val], labels_val),
-                      epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+    if finetune_bert:
+        session = tf.keras.backend.get_session()
+        init = tf.global_variables_initializer()
+        session.run(init)
+        model.fit([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train,
+                  validation_data=([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val),
+                  epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+    else:
+        model.fit([data_actions_train, data_clips_train], labels_train,
+                  validation_data=([data_actions_val, data_clips_val], labels_val),
+                  epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
 
-    print("Load best model weights from " + file_path_best_model)
-    model.load_weights(file_path_best_model)
+    # print("Load best model weights from " + file_path_best_model)
+    # model.load_weights(file_path_best_model)
 
     if finetune_bert:
         score, acc_train = model.evaluate([train_input_ids, train_input_masks, train_segment_ids, data_clips_train],
