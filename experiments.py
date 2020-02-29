@@ -347,7 +347,7 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
                                    save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=10)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=30)
     tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_" + config_name, histogram_freq=0,
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]

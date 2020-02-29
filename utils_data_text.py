@@ -403,12 +403,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
         viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
-        print(viz_feat.shape)
         # concat them
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
-                print(viz_objects_feat.shape)
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
                 viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
