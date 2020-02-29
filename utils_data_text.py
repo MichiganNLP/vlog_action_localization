@@ -409,9 +409,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
                 print(viz_objects_feat.shape)
-                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -451,9 +451,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
-                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -493,9 +493,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
                 viz_objects_feat = dict_clip_object_features[clip[:-4]]
-                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
-                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=1)  # 3. concat
+                viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
