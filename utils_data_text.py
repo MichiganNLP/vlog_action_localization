@@ -406,9 +406,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # add or concat them
         if dict_clip_object_features:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat +=  viz_objects_feat # 1. sum
-            # viz_feat /= 2 # 2. avg
-            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -446,9 +444,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # add or concat them
         if dict_clip_object_features != {}:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat += viz_objects_feat  # 1. sum
-            # viz_feat /= 2 # 2. avg
-            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -486,9 +482,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # add or concat them
         if dict_clip_object_features != {}:
             viz_objects_feat = dict_clip_object_features[clip[:-4]]
-            viz_feat += viz_objects_feat  # 1. sum
-            # viz_feat /= 2 # 2. avg
-            # viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
+            viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0) # 3. concat
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
