@@ -402,7 +402,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         # TODO: Spliting the clips, these were extra or they were < 8s (could not run I3D on them) or truncated
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
-        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
         print("viz feat: " + str(viz_feat.shape))
         # concat them
         if dict_clip_object_features:
@@ -446,7 +446,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
 
-        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
         # concat them
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
@@ -487,7 +487,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
         if clip[:-4] not in dict_miniclip_clip_feature.keys():
             continue
 
-        viz_feat = dict_miniclip_clip_feature[clip[:-4]]
+        viz_feat = np.array(dict_miniclip_clip_feature[clip[:-4]])
         # concat them
         if dict_clip_object_features:
             if clip[:-4] in dict_clip_object_features.keys():
