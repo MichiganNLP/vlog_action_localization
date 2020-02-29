@@ -140,6 +140,7 @@ def create_MPU_model(input_dim_video, input_dim_text, finetune_elmo, finetune_be
         action_input = tf.keras.layers.Input(shape=(input_dim_text,), name='action_input')
         # norm_layer_action = LayerNormalization()(action_input)
         action_output = tf.keras.layers.Dense(64)(action_input)
+        action_output = tf.keras.layers.Dropout(0.4)(action_output)
 
     video_input = tf.keras.layers.Input(shape=(input_dim_video,), dtype='float32', name='video_input')
     # norm_layer_video = LayerNormalization()(video_input)
@@ -149,6 +150,8 @@ def create_MPU_model(input_dim_video, input_dim_text, finetune_elmo, finetune_be
     # video_output = LSTM(64)(video_input)
 
     video_output = tf.keras.layers.Dense(64)(video_input)
+    video_output = tf.keras.layers.Dropout(0.4)(video_output)
+
 
     # MPU
     multiply = tf.keras.layers.Multiply()([action_output, video_output])
