@@ -2192,6 +2192,7 @@ def add_object_features(type):
 
         dict_clip_features[clip] = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
         # dict_clip_features[clip] = sum_label_embeddings  # 1. sum
+        print(dict_clip_features[clip].shape)
     return dict_clip_features
 
 
