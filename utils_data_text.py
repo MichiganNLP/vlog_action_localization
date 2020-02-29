@@ -410,6 +410,8 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 viz_feat = np.concatenate((viz_feat, viz_objects_feat), axis=0)  # 3. concat
             else:
                 viz_feat = np.concatenate((viz_feat, np.zeros(2048)), axis=0)  # 3. concat
+        else:
+            print("NO object feature info")
 
         miniclip_viz_feat = dict_miniclip_feature[clip[:-8]]
         pos_viz_feat = list(np.eye(1024)[int(clip[-7:-4])])
@@ -422,6 +424,8 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
 
             if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
                 action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
+            else:
+                print("NO object label info")
                 # action_emb = action_emb / 2 # 2. avg
                 # action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
             # else:
