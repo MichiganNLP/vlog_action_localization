@@ -2216,7 +2216,7 @@ def add_object_features(type):
         if not list_features:
             dict_clip_features[clip] = np.zeros(2048)
             continue
-        sum_label_embeddings = np.zeros(2048)
+        sum_label_embeddings = np.zeros((1,2048))
         for feature in list_features:
             sum_label_embeddings += np.array(feature)
 
