@@ -657,7 +657,12 @@ def show_results_bboxes():
     from torch.autograd import Variable
     from torchvision import datasets, transforms
     from cnn_finetune import make_model
-    fnt = ImageFont.truetype('times_b.ttf', 35)
+    from io import BytesIO
+    # fnt = ImageFont.truetype('times_b.ttf', 35)
+
+    file = open("times_b.ttf", "rb")
+    bytes_font = BytesIO(file.read())
+    fnt = ImageFont.truetype(bytes_font, 35)
 
     # pretrained resnet-50
     resnet50 = models.resnet50(pretrained=True)
