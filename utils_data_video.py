@@ -648,7 +648,7 @@ def transform_clip_to_frames():
     with open('data/embeddings/clip_to_frames.json', 'w+') as outfile:
         json.dump(dict_clips_data, outfile)
 
-def show_results_bboxes():
+def show_results_bboxes_hands():
     import os, pickle, pdb, argparse, glob, json
     from PIL import Image, ImageDraw, ImageFont
     import torch
@@ -728,6 +728,30 @@ def show_results_bboxes():
                     image.save(f'data/test_results_hands_1p0_10mini_1/{image_name[:-4]}_draw.jpg')
 
 
+def show_results_bboxes():
+    import torch
+    from pathlib import Path
+    root = Path('/local2/jiajunb/data/processed/1p0_10mini_1')
+    t = torch.load(root / 'frame_00449.jpg.pt', map_location="cpu")
+    # add map_location here; otherwise, it will map to gpu
+
+
+    # import metadata catalog class
+    from detectron2.data import MetadataCatalog
+    # get meta data
+    MetadataCatalog.get('coco_2017_train')
+    # get the list of thing
+    list_classes = MetadataCatalog.get('coco_2017_train').thing_classes
+
+    bbox = t[0].pred_boxes
+    predicted_names = []
+    for i in t[0].pred_classes:
+        predicted_names.append(list_classes[i])
+    print(predicted_names)
+    print(bbox)
+
+
+
 def main():
     path_miniclips = "data/miniclip_actions.json"
     path_pos_data = "data/dict_action_pos_concreteness.json"
@@ -738,7 +762,9 @@ def main():
     # transform_miniclip_data_into_clips()
     # read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
+    # show_results_bboxes_hands()
     show_results_bboxes()
+
     # transform_clip_to_frames()
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()
