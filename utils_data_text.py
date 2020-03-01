@@ -421,11 +421,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             action_emb = dict_action_embeddings[action]
 
             if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
-                # action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
-                action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
-            else:
-                action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
+            #     action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
             # action_emb = np.zeros(1024)
             # data_clips_train.append([clip, viz_feat3])
             data_clips_train.append([clip, viz_feat])
@@ -460,11 +460,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             if dict_clip_object_labels and clip[:-4] in dict_clip_object_labels.keys():
-                # action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
-                action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
-            else:
-                action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
+            #     action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
             #action_emb = np.zeros(1024)
             # data_clips_val.append([clip, viz_feat3])
             data_clips_val.append([clip, viz_feat])
@@ -501,11 +501,11 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             # action, _ = compute_action(action, use_nouns=False, use_particle=True)
             action_emb = dict_action_embeddings[action]
             if dict_clip_object_labels.keys and clip[:-4] in dict_clip_object_labels.keys():
-                # action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
+                action_emb += dict_clip_object_labels[clip[:-4]]  # 1. add
                 # action_emb = action_emb / 2 # 2. avg
-                action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
-            else:
-                action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
+            #     action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
+            # else:
+            #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
             # action_emb = np.zeros(1024)
             # data_clips_test.append([clip, viz_feat3])
             data_clips_test.append([clip, viz_feat])

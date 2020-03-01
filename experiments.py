@@ -453,10 +453,10 @@ def create_config_name(args):
             config_name = config_name + " + cluster"
         if args.add_obj_label != "none":
             print("Add object label info")
-            config_name = config_name + " + " + args.add_obj_label
+            config_name = config_name + " + label + " + args.add_obj_label
         if args.add_obj_feat != "none":
             print("Add object add_obj_feat info")
-            config_name = config_name + " + " + args.add_obj_feat
+            config_name = config_name + " + features + " + args.add_obj_feat
 
     return config_name
 
