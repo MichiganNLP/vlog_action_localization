@@ -723,7 +723,7 @@ def show_results_bboxes_hands():
                         draw.text((bbox[0], bbox[1]), predicted_name, fill=(255, 0, 255))
                         # draw.text((bbox[0], bbox[1]), predicted_name, font=fnt, fill=(255, 0, 255))
 
-                        print(f'{bbox_index}: {bbox} - {bbox_score} - {predicted_name}')
+                        print(f'{image_name}: {bbox} - {bbox_score} - {predicted_name}')
 
                     image.save(f'data/test_results_hands_1p0_10mini_1/{image_name[:-4]}_draw.jpg')
 
@@ -762,8 +762,8 @@ def main():
     # transform_miniclip_data_into_clips()
     # read_data_DanDan()
     # transform_miniclip_data_into_clips_dandan()
-    # show_results_bboxes_hands()
-    show_results_bboxes()
+    show_results_bboxes_hands()
+    # show_results_bboxes()
 
     # transform_clip_to_frames()
     # path_I3D_features = "../i3d_keras/data/results_features/"
