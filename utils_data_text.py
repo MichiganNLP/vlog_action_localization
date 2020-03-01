@@ -2202,6 +2202,15 @@ def add_object_features(type):
     else:
         print("Error argument object label type")
 
+    wheel_feature = np.zeros(2048)
+    for clip in dict_FasterRCNN_features_clips.keys():
+        # list_labels = read_class_results(clip)
+        if clip == "6p1_5mini_3_001":
+            list_features = dict_FasterRCNN_features_clips[clip]
+            wheel_feature = np.array(list_features[0])
+            break
+
+
     dict_clip_features = {}
     for clip in dict_FasterRCNN_features_clips.keys():
         # list_labels = read_class_results(clip)
@@ -2209,9 +2218,10 @@ def add_object_features(type):
         if not list_features:
             dict_clip_features[clip] = np.zeros(2048)
             continue
-        sum_label_embeddings = np.array(list_features[0])
-        for feature in list_features[1:]:
-            sum_label_embeddings += np.array(feature)
+        sum_label_embeddings = np.zeros(2048)
+        for feature in list_features:
+            if np.array(feature) != wheel_feature:
+                sum_label_embeddings += np.array(feature)
 
         result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
         dict_clip_features[clip] = np.squeeze(result)
@@ -2284,6 +2294,8 @@ def add_object_label(type):
         # matrix_embeddings[0, :] = label_emb
         for i, label in enumerate(list_labels[1:]):
             label = " ".join(label.lower().split("_"))
+            if "wheel" in label:
+                continue
             label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[label])
             # matrix_embeddings[i + 1] = label_emb
             sum_label_embeddings += label_emb
