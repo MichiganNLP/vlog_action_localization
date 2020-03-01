@@ -471,7 +471,7 @@ def main():
     # with open("data/dict_predicted_time2.json", 'w+') as fp:
     #     json.dump(predicted_time, fp)
 
-    with open("data/dict_predicted_time2.json") as f:
+    with open("data/dict_predicted_time.json") as f:
         predicted_time = json.loads(f.read())
 
     # predicted_time = predict_action_duration(channels_test)
