@@ -671,7 +671,7 @@ def show_results_bboxes():
     resnet50_feature.eval()
 
     # our finetuned resnet-50, object classifier
-    model_path = './model/resnet50/object_423/resnet50_object_lr0.001acc0.6587dp0.2_epoch19.pth'
+    model_path = 'data/FasterRCNN/resnet50_object_lr0.001acc0.6587dp0.2_epoch19.pth'
     resnet50_label = make_model('resnet50', num_classes=423)
     resnet50_label.load_state_dict(torch.load(model_path))
     resnet50_label.eval()
