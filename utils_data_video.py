@@ -687,7 +687,7 @@ def show_results_bboxes():
     resnet50_label.cuda()
 
     # class2label mapping
-    with open('class2label.json', 'r') as f:
+    with open('data/FasterRCNN/class2label.json', 'r') as f:
         name2class_mapping = json.load(f)
         class2name_mapping = {}
         for k, v in name2class_mapping.items():
