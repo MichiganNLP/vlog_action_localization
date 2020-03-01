@@ -426,7 +426,6 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
                 action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0) # 3. concat
             else:
                 action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
-            action_emb = list(np.concatenate((np.array(action_emb), np.array(dict_clip_object_labels[clip[:-4]]))))
             # action_emb = np.zeros(1024)
             # data_clips_train.append([clip, viz_feat3])
             data_clips_train.append([clip, viz_feat])
