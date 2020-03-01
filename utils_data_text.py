@@ -2220,7 +2220,7 @@ def add_object_features(type):
             continue
         sum_label_embeddings = np.zeros(2048)
         for feature in list_features:
-            if np.array(feature) != wheel_feature:
+            if not np.array_equal(np.array(feature), wheel_feature):
                 sum_label_embeddings += np.array(feature)
 
         result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
