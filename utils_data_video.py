@@ -693,7 +693,7 @@ def show_results_bboxes_hands():
         for k, v in name2class_mapping.items():
             class2name_mapping[v] = k
 
-    result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/1p0_10mini_1.pkl')
+    result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/5p1_2mini_6.pkl')
     for i in tqdm(range(len(result_list))):
         with open(result_list[i], 'rb') as f:
             prediction = pickle.load(f)
@@ -725,7 +725,7 @@ def show_results_bboxes_hands():
 
                         print(f'{image_name}: {bbox} - {bbox_score} - {predicted_name}')
 
-                    image.save(f'data/test_results_hands_1p0_10mini_1/{image_name[:-4]}_draw.jpg')
+                    image.save(f'data/test_results_hands_5p1_2mini_6/{image_name[:-4]}_draw.jpg')
 
 
 def show_results_bboxes():
