@@ -2202,12 +2202,13 @@ def add_object_features(type):
     else:
         print("Error argument object label type")
 
-    # for clip in dict_FasterRCNN_features_clips.keys():
-    #     # list_labels = read_class_results(clip)
-    #     if clip == "6p1_5mini_3_001":
-    #         list_features = dict_FasterRCNN_features_clips[clip]
-    #         whe
-
+    wheel_feature = np.zeros((1,2048))
+    for clip in dict_FasterRCNN_features_clips.keys():
+        # list_labels = read_class_results(clip)
+        if clip == "6p1_5mini_3_001":
+            list_features = dict_FasterRCNN_features_clips[clip]
+            wheel_feature = np.array(list_features[0])
+            break
 
     dict_clip_features = {}
     for clip in dict_FasterRCNN_features_clips.keys():
@@ -2218,7 +2219,8 @@ def add_object_features(type):
             continue
         sum_label_embeddings = np.zeros((1,2048))
         for feature in list_features:
-            sum_label_embeddings += np.array(feature)
+            if not np.array_equal(np.array(feature), wheel_feature):
+                sum_label_embeddings += np.array(feature)
 
         result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
         dict_clip_features[clip] = np.squeeze(result)
