@@ -761,8 +761,7 @@ def predict_action_duration(channels_test):
     f1 = f1_score(GT_time, predicted_time)
     recall = recall_score(GT_time, predicted_time)
     precision = precision_score(GT_time, predicted_time)
-    print(
-        "acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print("acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
     print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb 0.38 - Bert whole action
     print("recall: {:0.2f}".format(recall))
     print("precision: {:0.2f}".format(precision))
@@ -856,6 +855,7 @@ def get_extra_data_coin():
                 del X_train[i]
                 del Y_train[i]
             if c[1] >= c[0] * 3:
+            # if c[1] >= c[0] * 6:
                 stop = 0
                 break
 
@@ -863,15 +863,18 @@ def get_extra_data_coin():
     # create_bert_embeddings(list(set_actions))
 
 
-def svm_predict_actions(channels_test):
+def svm_predict_actions(channels_val, channels_test):
     from sklearn.svm import SVC
     model = SVC(kernel='rbf', class_weight='balanced', C=1.0, random_state=0)
 
     with open("data/dict_all_annotations_1_10channels.json") as file:
         annotations = json.load(file)
-
+    #
     with open("data/embeddings/dict_action_embeddings_Bert2.json") as f:
         dict_action_embeddings_Bert = json.loads(f.read())
+
+    # with open("data/embeddings/dict_action_embeddings_Bert1.json") as f:
+    #     dict_action_embeddings_Bert = json.loads(f.read())
 
     # with open("data/embeddings/dict_action_embeddings_Bert_vb_particle_noun.json") as f:
     #     dict_action_embeddings_Bert = json.loads(f.read())
@@ -895,6 +898,8 @@ def svm_predict_actions(channels_test):
     # X_train, Y_train = [], []
     X_test = []
     Y_test = []
+    X_val = []
+    Y_val = []
     X_test_action = []
     X_train_action = []
     X_train_channel = []
@@ -922,6 +927,10 @@ def svm_predict_actions(channels_test):
                     X_test_action.append(action)
                     # X_test_channel.append(channel)
                     Y_test.append(duration)
+                # elif miniclip.split("_")[0] in channels_val:
+                #     X_val.append(emb_action_train)
+                #     # X_test_channel.append(channel)
+                #     Y_val.append(duration)
                 else:
                     X_train.append(emb_action_train)
                     Y_train.append(duration)
@@ -937,21 +946,36 @@ def svm_predict_actions(channels_test):
 
     print("Fitting model")
     model.fit(X_std, Y_train)
-    print("Evaluating model")
-    predicted = model.predict(X_test)
 
-    acc_score = accuracy_score(Y_test, predicted)
-    f1 = f1_score(Y_test, predicted)
-    recall = recall_score(Y_test, predicted)
-    precision = precision_score(Y_test, predicted)
+    # print("Evaluating model val:")
+    # predicted_val = model.predict(X_val)
+    #
+    # acc_score = accuracy_score(Y_val, predicted_val)
+    # f1 = f1_score(Y_val, predicted_val)
+    # recall = recall_score(Y_val, predicted_val)
+    # precision = precision_score(Y_val, predicted_val)
+    # print(
+    #     "acc_score val: {:0.2f}".format(
+    #         acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    # print("f1_score val: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
+    # print("recall val: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
+    # print("precision val: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
+
+    print("Evaluating model test:")
+    predicted_test = model.predict(X_test)
+
+    acc_score = accuracy_score(Y_test, predicted_test)
+    f1 = f1_score(Y_test, predicted_test)
+    recall = recall_score(Y_test, predicted_test)
+    precision = precision_score(Y_test, predicted_test)
     print(
-        "acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
-    print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
-    print("recall: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
-    print("precision: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
+        "acc_score test: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print("f1_score test: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
+    print("recall test: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
+    print("precision test: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
 
     predicted_dict = {}
-    for action, duration in zip(X_test_action, predicted):
+    for action, duration in zip(X_test_action, predicted_test):
         predicted_dict[action] = str(duration)
 
     # index = 0

@@ -648,6 +648,79 @@ def transform_clip_to_frames():
     with open('data/embeddings/clip_to_frames.json', 'w+') as outfile:
         json.dump(dict_clips_data, outfile)
 
+def show_results_bboxes():
+    import os, pickle, pdb, argparse, glob, json
+    from PIL import Image, ImageDraw, ImageFont
+    import torch
+    import torch.nn as nn
+    import torchvision.models as models
+    from torch.autograd import Variable
+    from torchvision import datasets, transforms
+    from cnn_finetune import make_model
+    fnt = ImageFont.truetype('times_b.ttf', 35)
+
+    # pretrained resnet-50
+    resnet50 = models.resnet50(pretrained=True)
+    modules = list(resnet50.children())[:-1]
+    resnet50_feature = nn.Sequential(*modules)
+    resnet50_feature.eval()
+
+    # our finetuned resnet-50, object classifier
+    model_path = './model/resnet50/object_423/resnet50_object_lr0.001acc0.6587dp0.2_epoch19.pth'
+    resnet50_label = make_model('resnet50', num_classes=423)
+    resnet50_label.load_state_dict(torch.load(model_path))
+    resnet50_label.eval()
+
+    norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    preprocess = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        norm])
+
+    # to cuda
+    resnet50_feature.cuda()
+    resnet50_label.cuda()
+
+    # class2label mapping
+    with open('class2label.json', 'r') as f:
+        name2class_mapping = json.load(f)
+        class2name_mapping = {}
+        for k, v in name2class_mapping.items():
+            class2name_mapping[v] = k
+
+    result_list = glob.glob('data/FasterRCNN/FasterRCNN_dandan/1p0_10mini_1.pkl')
+    for i in tqdm(range(len(result_list))):
+        with open(result_list[i], 'rb') as f:
+            prediction = pickle.load(f)
+
+            for i, (image_path, val) in enumerate(prediction.items()):
+                image_path = "../i3d_keras/data/frames/" + "/".join(image_path.split("/")[-2:])
+                image_folder, image_name = os.path.split(image_path)
+
+                if 'object_info' in val.keys():
+                    object_info = val['object_info']
+
+                    image = Image.open(image_path)
+                    draw = ImageDraw.Draw(image)
+                    for bbox_index, bbox_info in object_info.items():
+                        bbox = (
+                            bbox_info['bbox']['x1'], bbox_info['bbox']['y1'], bbox_info['bbox']['x2'],
+                            bbox_info['bbox']['y2'])
+                        bbox_score = bbox_info['score']
+
+                        feature, predicted_label, predicted_name = get_feature_and_label(resnet50_feature,
+                                                                                         resnet50_label, preprocess,
+                                                                                         class2name_mapping, image,
+                                                                                         bbox)
+
+
+                        draw.rectangle([(bbox[0], bbox[1]), (bbox[2], bbox[3])], outline=(255, 0, 255), width=3)
+                        draw.text((bbox[0], bbox[1]), predicted_name, font=fnt, fill=(255, 0, 255))
+
+                        print(f'{bbox_index}: {bbox} - {bbox_score} - {predicted_name}')
+
+                    image.save(f'data/test_results_hands_1p0_10mini_1/{image_name[:-4]}_draw.jpg')
+
 
 def main():
     path_miniclips = "data/miniclip_actions.json"
@@ -658,8 +731,8 @@ def main():
     # read_FasterRCNN()
     # transform_miniclip_data_into_clips()
     # read_data_DanDan()
-    transform_miniclip_data_into_clips_dandan()
-
+    # transform_miniclip_data_into_clips_dandan()
+    show_results_bboxes()
     # transform_clip_to_frames()
     # path_I3D_features = "../i3d_keras/data/results_features/"
     # load_data_from_I3D()

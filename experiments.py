@@ -467,78 +467,78 @@ def main():
     config_name = create_config_name(args)
 
     # get_extra_data()
-    #predicted_time = svm_predict_actions(channels_test)
-    # with open("data/dict_predicted_time.json", 'w+') as fp:
-    #     json.dump(predicted_time, fp)
+    predicted_time = svm_predict_actions(channels_val, channels_test)
+    with open("data/dict_predicted_time2.json", 'w+') as fp:
+        json.dump(predicted_time, fp)
 
-    with open("data/dict_predicted_time.json") as f:
+    with open("data/dict_predicted_time2.json") as f:
         predicted_time = json.loads(f.read())
 
-    # # predicted_time = predict_action_duration(channels_test)
+    # predicted_time = predict_action_duration(channels_test)
     # #predicted_time = {}
-   # evaluate_combine_2(predicted_time, "alignment", "3s + MPU + Bert + 65", "compare actions bert cosine", "1p01_5p01")
+    evaluate_combine_2(predicted_time, "alignment", "3s + MPU + Bert + 65 + label + hands + features + hands", "1p01_5p01")
     #
     # predict_action_duration(channels_test)
 
 
-    if config_name == "alignment":
-        test_alignment()
-        # for channel_test in channels_test:
-        #     evaluate(config_name, channel_test)
-        evaluate(config_name, "1p01_5p01")
-    else:
-        '''
-        #     Create data
-        # '''
-        train_data, val_data, test_data = \
-            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label, args.add_obj_feat,
-                                   path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
-                                  path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
-                                  channels_val=channels_val,
-                                  channels_test=channels_test,
-                                  hold_out_test_channels=hold_out_test_channels)
-
-        if config_name == "system max":
-            compute_predicted_IOU_GT(test_data, args.clip_length)
-            for channel_test in channels_test:
-                evaluate("GT", channel_test)
-        else:
-            '''
-                    Create model
-            '''
-            model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-                                                                   args.epochs, args.balance, config_name)
-
-            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
-            #                                                             args.epochs,
-            #                                                             args.balance, config_name)
-
-            # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
-            # config_name = "compare actions bert cosine"
-
-            # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-            # config_name = "test tf actions"
-
-            '''
-                Majority (actions are visible in all clips)
-            '''
-            # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
-            # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
-            # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
-            # get_features_from_data(train_data, val_data, test_data)
-            # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
-            # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
-            # list_predictions = [1] * len(predicted)
-            # print("maj_val: {:0.2f}".format(maj_val))
-            # print("maj_test: {:0.2f}".format(maj_test))
-
-            '''
-                    Evaluate
-            '''
-            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-          #  for channel_test in channels_test:
-            evaluate(config_name, "1p01_5p01")
+    # if config_name == "alignment":
+    #     test_alignment()
+    #     # for channel_test in channels_test:
+    #     #     evaluate(config_name, channel_test)
+    #     evaluate(config_name, "1p01_5p01")
+    # else:
+    #     '''
+    #     #     Create data
+    #     # '''
+    #     train_data, val_data, test_data = \
+    #         create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label, args.add_obj_feat,
+    #                                path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
+    #                               path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
+    #                               channels_val=channels_val,
+    #                               channels_test=channels_test,
+    #                               hold_out_test_channels=hold_out_test_channels)
+    #
+    #     if config_name == "system max":
+    #         compute_predicted_IOU_GT(test_data, args.clip_length)
+    #         for channel_test in channels_test:
+    #             evaluate("GT", channel_test)
+    #     else:
+    #         '''
+    #                 Create model
+    #         '''
+    #         model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+    #                                                                args.epochs, args.balance, config_name)
+    #
+    #         # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+    #         #                                                             args.epochs,
+    #         #                                                             args.balance, config_name)
+    #
+    #         # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
+    #         # config_name = "compare actions bert cosine"
+    #
+    #         # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
+    #         # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+    #         # config_name = "test tf actions"
+    #
+    #         '''
+    #             Majority (actions are visible in all clips)
+    #         '''
+    #         # [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train], [
+    #         # data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val], [
+    #         # data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] =\
+    #         # get_features_from_data(train_data, val_data, test_data)
+    #         # maj_val, maj_labels = compute_majority_label_baseline_acc(labels_train, labels_val)
+    #         # maj_test, predicted = compute_majority_label_baseline_acc(labels_train, labels_test)
+    #         # list_predictions = [1] * len(predicted)
+    #         # print("maj_val: {:0.2f}".format(maj_val))
+    #         # print("maj_test: {:0.2f}".format(maj_test))
+    #
+    #         '''
+    #                 Evaluate
+    #         '''
+    #         compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+    #       #  for channel_test in channels_test:
+    #         evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":
     main()

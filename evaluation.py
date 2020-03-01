@@ -153,7 +153,7 @@ def compute_meanIOU(IOU_vals):
     return mean_tIOU
 
 
-def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, proposed_1p0_3, groundtruth_1p0):
+def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, groundtruth_1p0):
     if len(proposed_1p0_1.keys()) != len(groundtruth_1p0.keys()):
         count_visible_actions_not_caught = 0
         for key in groundtruth_1p0.keys() - proposed_1p0_1.keys():
@@ -166,15 +166,6 @@ def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, propos
     if len(proposed_1p0_2.keys()) != len(groundtruth_1p0.keys()):
         count_visible_actions_not_caught = 0
         for key in groundtruth_1p0.keys() - proposed_1p0_2.keys():
-            if groundtruth_1p0[key] != ['not visible']:
-                count_visible_actions_not_caught += 1
-                # print(key)
-        if count_visible_actions_not_caught:
-            print("count_visible_actions_not_caught: " + str(count_visible_actions_not_caught))
-
-    if len(proposed_1p0_3.keys()) != len(groundtruth_1p0.keys()):
-        count_visible_actions_not_caught = 0
-        for key in groundtruth_1p0.keys() - proposed_1p0_3.keys():
             if groundtruth_1p0[key] != ['not visible']:
                 count_visible_actions_not_caught += 1
                 # print(key)
@@ -195,10 +186,6 @@ def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, propos
             continue
         if proposed_1p0_2[miniclip_action] == ['not visible']:
             continue
-        if miniclip_action not in proposed_1p0_3.keys():
-            continue
-        if proposed_1p0_3[miniclip_action] == ['not visible']:
-            continue
 
         target_segment = np.array([float(x) for x in groundtruth_1p0[miniclip_action]])
 
@@ -209,19 +196,10 @@ def wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2, propos
         # else:
         #     candidate_segments = np.array(proposed_1p0_2[miniclip_action]) # MPU is good for long actions
 
-        # TODO: uncomment
         predicted_duration = int(predicted_time[miniclip_action.split(", ")[1]])
-        if miniclip_action in ["1p0_10mini_1.mp4, do the dishes", "1p0_10mini_1.mp4, get my son ready for bed",
-                               "1p0_10mini_5.mp4, eat my snack", "1p0_10mini_5.mp4, drink my tea",
-                               "1p0_10mini_4.mp4, cut up an apple", "1p0_10mini_4.mp4, make a snack for myself",
-                               "1p0_4mini_6.mp4, use my flat iron", "1p0_4mini_6.mp4, iron my hair"]:
-            print(miniclip_action)
-            if predicted_duration == 1:
-                print(proposed_1p0_1[miniclip_action])
-            else:
-                print(proposed_1p0_2[miniclip_action])
+
         if predicted_duration == 1:
-            candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignemnt is good for short actions
+            candidate_segments = np.array(proposed_1p0_1[miniclip_action])  # alignment is good for short actions
         else:
             candidate_segments = np.array(proposed_1p0_2[miniclip_action])  # MPU is good for long actions
 
@@ -308,24 +286,19 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
 #     return tIOU_threshold
 
 
-def evaluate_combine_2(predicted_time, method1, method2, method3, channel):
+def evaluate_combine_2(predicted_time, method1, method2, channel):
     print("-----------------------------------------------------------")
-    print("Results for method {0}, {1}, {2} on channel {3}:".format(method1, method2, method3, channel))
+    print("Results for method {0}, {1} on channel {2}:".format(method1, method2, channel))
     with open("data/results/dict_predicted_" + method1 + ".json") as f:
         proposed_1p0_1 = json.loads(f.read())
 
     with open("data/results/dict_predicted_" + method2 + ".json") as f:
         proposed_1p0_2 = json.loads(f.read())
 
-    with open("data/results/dict_predicted_" + method3 + ".json") as f:
-        proposed_1p0_3 = json.loads(f.read())
-
     with open("data/annotations/annotations" + channel + ".json") as f:
         groundtruth_1p0 = json.loads(f.read())
 
-    # IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(proposed_1p0_1, proposed_1p0_2, groundtruth_1p0)
     IOU_vals, dict_IOU_per_length = wrapper_IOU_combine_2(predicted_time, proposed_1p0_1, proposed_1p0_2,
-                                                          proposed_1p0_3,
                                                           groundtruth_1p0)
     print("#test points: " + str(len(IOU_vals)))
 
