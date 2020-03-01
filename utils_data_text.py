@@ -465,7 +465,7 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             #     action_emb = np.concatenate((action_emb, dict_clip_object_labels[clip[:-4]]), axis=0)  # 3. concat
             # else:
             #     action_emb = np.concatenate((action_emb, np.zeros(768)), axis=0)
-            #action_emb = np.zeros(1024)
+            # action_emb = np.zeros(1024)
             # data_clips_val.append([clip, viz_feat3])
             data_clips_val.append([clip, viz_feat])
             data_actions_val.append([action, action_emb])
@@ -761,7 +761,8 @@ def predict_action_duration(channels_test):
     f1 = f1_score(GT_time, predicted_time)
     recall = recall_score(GT_time, predicted_time)
     precision = precision_score(GT_time, predicted_time)
-    print("acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+    print(
+        "acc_score: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
     print("f1_score: {:0.2f}".format(f1))  # 0.34 - only verb 0.38 - Bert whole action
     print("recall: {:0.2f}".format(recall))
     print("precision: {:0.2f}".format(precision))
@@ -855,7 +856,7 @@ def get_extra_data_coin():
                 del X_train[i]
                 del Y_train[i]
             if c[1] >= c[0] * 3:
-            # if c[1] >= c[0] * 6:
+                # if c[1] >= c[0] * 6:
                 stop = 0
                 break
 
@@ -969,7 +970,8 @@ def svm_predict_actions(channels_val, channels_test):
     recall = recall_score(Y_test, predicted_test)
     precision = precision_score(Y_test, predicted_test)
     print(
-        "acc_score test: {:0.2f}".format(acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
+        "acc_score test: {:0.2f}".format(
+            acc_score))  # 0.66 - whole action; 0.64 - vb+particle+noun 0.63 - DNT Whole action
     print("f1_score test: {:0.2f}".format(f1))  # 0.34 - only verb; 0.47 - Bert
     print("recall test: {:0.2f}".format(recall))  # 0.34 - only verb; 0.47 - Bert
     print("precision test: {:0.2f}".format(precision))  # 0.34 - only verb; 0.47 - Bert
@@ -2202,25 +2204,14 @@ def add_object_features(type):
     else:
         print("Error argument object label type")
 
-    wheel_feature = np.zeros((1,2048))
-    for clip in dict_FasterRCNN_features_clips.keys():
-        # list_labels = read_class_results(clip)
-        if clip == "6p1_5mini_3_001":
-            list_features = dict_FasterRCNN_features_clips[clip]
-            wheel_feature = np.array(list_features[0])
-            break
-
     dict_clip_features = {}
     for clip in dict_FasterRCNN_features_clips.keys():
         # list_labels = read_class_results(clip)
         list_features = dict_FasterRCNN_features_clips[clip]
-        if not list_features:
-            dict_clip_features[clip] = np.zeros(2048)
-            continue
-        sum_label_embeddings = np.zeros((1,2048))
+
+        sum_label_embeddings = np.zeros((1, 2048))
         for feature in list_features:
-            if not np.array_equal(np.array(feature), wheel_feature):
-                sum_label_embeddings += np.array(feature)
+            sum_label_embeddings += np.array(feature)
 
         result = np.array(sum_label_embeddings) / len(list_features)  # 2. avg
         dict_clip_features[clip] = np.squeeze(result)
