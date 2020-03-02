@@ -2284,8 +2284,6 @@ def add_object_label(type):
         # matrix_embeddings[0, :] = label_emb
         for i, label in enumerate(list_labels[1:]):
             label = " ".join(label.lower().split("_"))
-            if "wheel" in label:
-                continue
             label_emb = np.array(dict_action_embeddings_Bert_FasteRCNNlabels[label])
             # matrix_embeddings[i + 1] = label_emb
             sum_label_embeddings += label_emb
