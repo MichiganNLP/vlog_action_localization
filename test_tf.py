@@ -33,7 +33,7 @@ print(tf.__version__)
 def load_video_feat(clip):
     filename = clip[:-4] + "_rgb.npy"
     path_I3D_features = "../i3d_keras/data/results_overlapping/"
-    print("loading I3D")
+    # print("loading I3D")
     try:
         features = np.load(path_I3D_features + filename)
     except Exception as e:
