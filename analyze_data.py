@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from tqdm import tqdm
 
 from compute_text_embeddings import create_bert_embeddings
 
@@ -202,16 +203,57 @@ def read_COIN():
     counter = Counter(list_duration)
     # counter = counter.most_common()
     counter = sorted(counter.items())
-    # print(counter)
+    print(counter)
     sum1 = 0
     for c, v in counter[:2]:
         sum1 += v
-    # print("1-15: " + str(sum1))
+    print("1-15: " + str(sum1))
 
     sum2 = 0
     for c, v in counter[2:]:
         sum2 += v
-    # print("16-175: " + str(sum2))
+    print("16-175: " + str(sum2))
+
+    nb_total_actions = sum1 + sum2
+    print("COIN:")
+    print("nb_total_actions: " + str(nb_total_actions))
+    print("nb_0-15s_actions relative to total: " + str(sum1 / nb_total_actions * 100))
+    print("nb_16-60s_actions relative to total: " + str(sum2 / nb_total_actions * 100))
+
+
+def read_howto100m():
+    with open("data/RelatedWorkDatasets/HowTo100M/caption.json") as file:
+        data = json.load(file)
+
+
+    list_duration = []
+    # list_all_actions = set()
+    for key in tqdm(data.keys()):
+        data_start_end = zip(data[key]["start"], data[key]["end"])
+
+        for [start, end] in data_start_end:
+            print(start, end)
+            action_duration = int(end - start)
+
+            # 5 -> 0; 6 -> 10
+            rounded_duration = str(int(round(action_duration, -1)))
+            list_duration.append(rounded_duration)
+            # list_all_actions.add(action)
+
+    # create_bert_embeddings(list_all_actions)
+    counter = Counter(list_duration)
+    # counter = counter.most_common()
+    counter = sorted(counter.items())
+    print(counter)
+    sum1 = 0
+    for c, v in counter[:2]:
+        sum1 += v
+    print("1-15: " + str(sum1))
+
+    sum2 = 0
+    for c, v in counter[2:]:
+        sum2 += v
+    print("16-175: " + str(sum2))
 
     nb_total_actions = sum1 + sum2
     print("COIN:")
@@ -311,8 +353,9 @@ def plot_nb_actions_per_channel():
 
 
 def main():
-    plot_nb_actions_per_channel()
+    # plot_nb_actions_per_channel()
     # read_COIN()
+    read_howto100m()
     # read_CrossTask()
     # count_how_many_times_actions_overlap()
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")

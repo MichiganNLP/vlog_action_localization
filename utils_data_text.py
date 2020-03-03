@@ -32,7 +32,8 @@ from transformers.modeling_bert import BertModel
 from keras.preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
-from compute_text_embeddings import embed_elmo2, get_bert_finetuned_embeddings, create_bert_embeddings, NumpyEncoder
+from compute_text_embeddings import embed_elmo2, get_bert_finetuned_embeddings, create_bert_embeddings, NumpyEncoder, \
+    create_glove_embeddings
 from steve_human_action.main import read_activity, read_ouput_DNT
 from utils_data_video import average_i3d_features, load_data_from_I3D, average_i3d_features_miniclip
 
@@ -576,8 +577,8 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
     # with open('data/annotations/annotations1p01_5p01_vb.json', 'w+') as outfile:
     #     json.dump(GT_vb_noun, outfile, cls=NumpyEncoder)
     #
-    # if type_action_emb == "GloVe":
-    #     return create_glove_embeddings(list_all_actions)
+    if type_action_emb == "GloVe":
+        return create_glove_embeddings(list_all_actions)
     if type_action_emb == "ELMo":
         with open('data/embeddings/dict_action_embeddings_ELMo.json') as f:
             # with open('data/embeddings/dict_action_embeddings_ELMo_vb_particle.json') as f:

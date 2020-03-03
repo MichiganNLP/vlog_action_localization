@@ -24,15 +24,15 @@ sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fr
 sess = tf.Session(config=sess_config)
 K.set_session(sess)
 
-# embeddings_index = dict()
-# with open("data/glove.6B.50d.txt") as f:
-#     for line in f:
-#         values = line.split()
-#         word = values[0]
-#         coefs = np.asarray(values[1:], dtype='float32')
-#         embeddings_index[word] = coefs
-#
-# dimension_embedding = len(embeddings_index.get("example"))
+embeddings_index = dict()
+with open("data/glove.6B.50d.txt") as f:
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:], dtype='float32')
+        embeddings_index[word] = coefs
+
+dimension_embedding = len(embeddings_index.get("example"))
 
 
 class ElmoEmbeddingLayer(Layer):
@@ -289,34 +289,34 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-# def avg_GLoVe_action_emb(action):
-#     # no prev or next action: ned to distinguish between cases when action is not recognized
-#     if action == "":
-#         average_word_embedding = np.ones((1, dimension_embedding), dtype='float32') * 10
-#     else:
-#         list_words = word_tokenize(action)
-#         set_words_not_in_glove = set()
-#         nb_words = 0
-#         average_word_embedding = np.zeros((1, dimension_embedding), dtype='float32')
-#         for word in list_words:
-#             if word in set_words_not_in_glove:
-#                 continue
-#             embedding_vector = embeddings_index.get(word)
-#             if embedding_vector is None:
-#                 set_words_not_in_glove.add(word)
-#                 continue
-#             word_embedding = np.asarray(embedding_vector)
-#             average_word_embedding += word_embedding
-#             nb_words += 1
-#         if nb_words != 0:
-#             average_word_embedding = average_word_embedding / nb_words
-#
-#         if (average_word_embedding == np.zeros((1,), dtype=np.float32)).all():
-#             # couldn't find any word of the action in the vocabulary -> initialize random
-#             average_word_embedding = np.random.rand(1, dimension_embedding).astype('float32')
-#
-#     return average_word_embedding.reshape(50)
-#
+def avg_GLoVe_action_emb(action):
+    # no prev or next action: ned to distinguish between cases when action is not recognized
+    if action == "":
+        average_word_embedding = np.ones((1, dimension_embedding), dtype='float32') * 10
+    else:
+        list_words = word_tokenize(action)
+        set_words_not_in_glove = set()
+        nb_words = 0
+        average_word_embedding = np.zeros((1, dimension_embedding), dtype='float32')
+        for word in list_words:
+            if word in set_words_not_in_glove:
+                continue
+            embedding_vector = embeddings_index.get(word)
+            if embedding_vector is None:
+                set_words_not_in_glove.add(word)
+                continue
+            word_embedding = np.asarray(embedding_vector)
+            average_word_embedding += word_embedding
+            nb_words += 1
+        if nb_words != 0:
+            average_word_embedding = average_word_embedding / nb_words
+
+        if (average_word_embedding == np.zeros((1,), dtype=np.float32)).all():
+            # couldn't find any word of the action in the vocabulary -> initialize random
+            average_word_embedding = np.random.rand(1, dimension_embedding).astype('float32')
+
+    return average_word_embedding.reshape(50)
+
 
 def embed_elmo2():
     with tf.Graph().as_default():
@@ -354,13 +354,13 @@ def save_elmo_embddings(list_all_actions):
 
     return dict_action_embeddings
 
-#
-# def create_glove_embeddings(list_all_actions):
-#     dict_action_embeddings = {}
-#     for action in list_all_actions:
-#         emb_action = avg_GLoVe_action_emb(action)
-#         dict_action_embeddings[action] = emb_action
-#     return dict_action_embeddings
+
+def create_glove_embeddings(list_all_actions):
+    dict_action_embeddings = {}
+    for action in list_all_actions:
+        emb_action = avg_GLoVe_action_emb(action)
+        dict_action_embeddings[action] = emb_action
+    return dict_action_embeddings
 
 
 def create_bert_embeddings(list_all_actions, path_output):
