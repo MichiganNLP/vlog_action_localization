@@ -63,15 +63,11 @@ def load_video_feat(clip):
 
 
 def method_tf_actions(train_data, val_data, test_data):
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
-                                                                                     labels_val,
-                                                                                     data_actions_names_val, data_clips_names_val], \
-
-
-    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
-     data_clips_names_test] = get_features_from_data(train_data,
-                                                     val_data,
-                                                     test_data)
+    [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train,
+     data_clips_names_train], [data_clips_feat_val, data_actions_emb_val, labels_val, data_actions_names_val,
+                               data_clips_names_val], [
+        data_clips_feat_test, data_actions_emb_test, labels_test, data_actions_names_test, data_clips_names_test] = \
+        get_features_from_data(train_data, val_data, test_data)
 
     predicted = []
 
@@ -97,7 +93,6 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
 
-    print(data_clips_names_train)
     for [action, clip] in tqdm(list(zip(data_actions_names_train, data_clips_names_train))):
         # clip_feat_rgb = dict_clip_feat[clip]
         clip_feat_rgb = load_video_feat(clip)
@@ -137,9 +132,10 @@ def method_tf_actions(train_data, val_data, test_data):
 
 
 def read_test_predicted(train_data, val_data, test_data):
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
-                                                                                     labels_val,
-                                                                                     data_actions_names_val, data_clips_names_val], \
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
+        data_clips_val, data_actions_val,
+        labels_val,
+        data_actions_names_val, data_clips_names_val], \
     [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
      data_clips_names_test] = get_features_from_data(train_data,
                                                      val_data,
