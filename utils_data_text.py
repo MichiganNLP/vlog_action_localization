@@ -1725,9 +1725,9 @@ def method_compare_actions(train_data, val_data, test_data):
     with open("data/embeddings/dict_action_embeddings_Bert_class_I3D.json") as f:
         dict_action_embeddings_Bert_class_I3D = json.loads(f.read())
 
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train], [data_clips_val, data_actions_val,
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [data_clips_val, data_actions_val,
                                                                                      labels_val,
-                                                                                     data_actions_names_val], \
+                                                                                     data_actions_names_val, data_clips_names_val], \
     [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
      data_clips_names_test] = get_features_from_data(train_data,
                                                      val_data,
@@ -2066,13 +2066,13 @@ def get_features_from_data(train_data, val_data, test_data):
     # data_clips_train = get_visual_features_from_data(data_clips_train)
     data_actions_emb_train = [i[1] for i in data_actions_train]
     data_actions_names_train = [i[0] for i in data_actions_train]
-    data_clips_names_train = [i[0] for i in data_actions_train]
+    data_clips_names_train = [i[0] for i in data_clips_train]
 
     data_clips_feat_val = np.asarray([i[1] for i in data_clips_val])
     # data_clips_val = get_visual_features_from_data(data_clips_val)
     data_actions_emb_val = [i[1] for i in data_actions_val]
     data_actions_names_val = [i[0] for i in data_actions_val]
-    data_clips_names_val = [i[0] for i in data_actions_val]
+    data_clips_names_val = [i[0] for i in data_clips_val]
 
     data_clips_feat_test = np.asarray([i[1] for i in data_clips_test])
     data_clips_names_test = [i[0] for i in data_clips_test]
