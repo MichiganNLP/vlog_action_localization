@@ -232,7 +232,6 @@ def read_howto100m():
         data_start_end = zip(data[key]["start"], data[key]["end"])
 
         for [start, end] in data_start_end:
-            print(start, end)
             action_duration = int(end - start)
 
             # 5 -> 0; 6 -> 10
