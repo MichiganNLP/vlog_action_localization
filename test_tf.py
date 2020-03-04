@@ -94,7 +94,7 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.tables_initializer())
 
 
-    for [action, clip] in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
+    for [action, clip] in tqdm(list(zip(data_actions_names_train, data_clips_names_train))):
         # clip_feat_rgb = dict_clip_feat[clip]
         clip_feat_rgb = load_video_feat(clip)
 
@@ -107,7 +107,8 @@ def method_tf_actions(train_data, val_data, test_data):
         # clip_0 = clip
 
     # np.save("data/tf_tes_predicted_train.npy", predicted)
-    np.save("data/tf_tes_predicted.npy", predicted)
+    # np.save("data/tf_tes_predicted.npy", predicted)
+    np.save("data/tf_train_predicted.npy", predicted)
     # print("Predicted " + str(Counter(predicted)))
     # f1_test = f1_score(labels_test, predicted)
     # prec_test = precision_score(labels_test, predicted)
@@ -146,8 +147,16 @@ def read_test_predicted(train_data, val_data, test_data):
     content = np.load("data/tf_tes_predicted.npy")
     predicted = np.squeeze(content)
     normalized_predicted = []
+    print(predicted)
+    print(predicted)
+    # learn the threshold
+    normalized_threshold = (min(predicted) + max(predicted))  /2
+    print(min(predicted))
+    print(max(predicted))
+    print(normalized_threshold)
+
     for i in predicted:
-        if i >= 0:
+        if i >= normalized_threshold:
             normalized_predicted.append(True)
         else:
             normalized_predicted.append(False)

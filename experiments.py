@@ -536,6 +536,7 @@ def main():
             '''
                     Evaluate
             '''
+
             compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
           #  for channel_test in channels_test:
             evaluate(config_name, "1p01_5p01")
