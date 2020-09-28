@@ -516,9 +516,9 @@ def main():
             # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
             # config_name = "compare actions bert cosine"
 
-            # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            # # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-            # config_name = "test tf actions"
+            predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            config_name = "test tf actions"
 
             '''
                 Majority (actions are visible in all clips)
