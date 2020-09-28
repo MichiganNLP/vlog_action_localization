@@ -343,9 +343,9 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
     else:
         raise ValueError("Wrong model name!")
     if balance == True:
-        file_path_best_model = 'model/Model_params/' + config_name + '.hdf5'
+        file_path_best_model = 'model/Model_params/not_vis_' + config_name + '.hdf5'
     else:
-        file_path_best_model = 'model/model_params_unbalanced/' + config_name + '.hdf5'
+        file_path_best_model = 'model/model_params_unbalanced/not_vis_' + config_name + '.hdf5'
 
     checkpointer = ModelCheckpoint(monitor='val_acc',
                                    filepath=file_path_best_model,
@@ -355,19 +355,19 @@ def create_model(train_data, val_data, test_data, model_name, nb_epochs, balance
                               write_graph=True)
     callback_list = [earlystopper, checkpointer]
 
-   # if not os.path.isfile(file_path_best_model):
+    if not os.path.isfile(file_path_best_model):
 
-    if finetune_bert:
-        session = tf.keras.backend.get_session()
-        init = tf.global_variables_initializer()
-        session.run(init)
-        model.fit([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train,
-                  validation_data=([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
-    else:
-        model.fit([data_actions_train, data_clips_train], labels_train,
-                  validation_data=([data_actions_val, data_clips_val], labels_val),
-                  epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+        if finetune_bert:
+            session = tf.keras.backend.get_session()
+            init = tf.global_variables_initializer()
+            session.run(init)
+            model.fit([train_input_ids, train_input_masks, train_segment_ids, data_clips_train], labels_train,
+                      validation_data=([val_input_ids, val_input_masks, val_segment_ids, data_clips_val], labels_val),
+                      epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
+        else:
+            model.fit([data_actions_train, data_clips_train], labels_train,
+                      validation_data=([data_actions_val, data_clips_val], labels_val),
+                      epochs=nb_epochs, batch_size=64, verbose=1, callbacks=callback_list)
 
     print("Load best model weights from " + file_path_best_model)
     model.load_weights(file_path_best_model)
@@ -517,7 +517,7 @@ def main():
             # config_name = "compare actions bert cosine"
 
             predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
             config_name = "test tf actions"
 
             '''
@@ -536,9 +536,8 @@ def main():
             '''
                     Evaluate
             '''
-
             compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-          #  for channel_test in channels_test:
+            # for channel_test in channels_test:
             evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":

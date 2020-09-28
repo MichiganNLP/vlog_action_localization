@@ -170,30 +170,35 @@ def create_action_clip_labels(path_input, path_output, channels):
 
     for channel in channels:
 
-        with open("data/annotations/annotations" + channel + ".json") as f:
+        with open("data/annotations/new/annotations" + channel + ".json") as f:
+        # with open("data/annotations/annotations" + channel + ".json") as f:
             dict_annotations = json.loads(f.read())
 
         for miniclip_action in dict_annotations.keys():
             if dict_annotations[miniclip_action] != ["not visible"]:
                 [time_s, time_e] = dict_annotations[miniclip_action]
-                time_s_action = float(time_s)
-                time_e_action = float(time_e)
-                miniclip = miniclip_action.split(", ")[0]
-                action = miniclip_action.split(", ")[1]
-                list_clips = get_all_keys_for_substring(miniclip[:-4] + "_", dict_clip_time_per_miniclip)
-                for clip in list_clips:
-                    [time_s_clip, time_e_clip] = dict_clip_time_per_miniclip[clip]
-                    if intervals_overlap([time_s_clip, time_e_clip], [time_s_action, time_e_action]) \
-                            and len(range(max(int(time_s_clip), int(time_s_action)),
-                                          min(int(time_e_clip), int(time_e_action)) + 1)) > 1:  # intersection is > 1s
-                        label = True
-                    else:
-                        label = False
-                    # print(miniclip, action, clip, [time_s_clip, time_e_clip], [time_s_action, time_e_action])
-                    all_annotations.append([miniclip, clip, action, label])
-                    if clip not in dict_all_annotations.keys():
-                        dict_all_annotations[clip] = []
-                    dict_all_annotations[clip].append([action, label])
+            else:
+                time_s, time_e = -1, -1
+            time_s_action = float(time_s)
+            time_e_action = float(time_e)
+            miniclip = miniclip_action.split(", ")[0]
+            action = miniclip_action.split(", ")[1]
+            list_clips = get_all_keys_for_substring(miniclip[:-4] + "_", dict_clip_time_per_miniclip)
+            for clip in list_clips:
+                [time_s_clip, time_e_clip] = dict_clip_time_per_miniclip[clip]
+                if intervals_overlap([time_s_clip, time_e_clip], [time_s_action, time_e_action]) \
+                        and len(range(max(int(time_s_clip), int(time_s_action)),
+                                      min(int(time_e_clip), int(time_e_action)) + 1)) > 1:  # intersection is > 1s
+                    label = True
+                else:
+                    label = False
+                # print(miniclip, action, clip, [time_s_clip, time_e_clip], [time_s_action, time_e_action])
+                all_annotations.append([miniclip, clip, action, label])
+                if clip not in dict_all_annotations.keys():
+                    dict_all_annotations[clip] = []
+                dict_all_annotations[clip].append([action, label])
+
+
 
     with open(path_output, 'w+') as outfile:
         json.dump(dict_all_annotations, outfile)

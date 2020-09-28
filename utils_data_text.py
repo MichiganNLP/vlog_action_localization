@@ -198,6 +198,7 @@ def stem_action(action, path_pos_data):
 def balance_data(dict_val_data):
     dict_balance_annotation = {}
     nb_visible_actions, nb_not_visible_actions = get_nb_visible_not_visible(dict_val_data)
+    print(nb_visible_actions, nb_not_visible_actions)
 
     if nb_not_visible_actions >= nb_visible_actions:
         ratio_visible_not_visible = int(nb_not_visible_actions / nb_visible_actions)
@@ -376,6 +377,10 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
     set_clip_test = set()
     set_clip_val = set()
 
+    clip_action_label_train = {}
+    clip_action_label_test = {}
+    clip_action_label_val = {}
+
     if balance:
         print("Balance data (train & val)")
 
@@ -433,6 +438,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             data_actions_train.append([action, action_emb])
             labels_train.append(label)
             set_action_miniclip_train.add(clip[:-8] + ", " + action)
+            if clip[:-8] + ", " + action not in clip_action_label_train.keys():
+                clip_action_label_train[clip[:-8] + ", " + action] = set()
+            clip_action_label_train[clip[:-8] + ", " + action].add(label)
             set_miniclip_train.add(clip[:-8])
             set_clip_train.add(clip[:-4])
             set_videos_train.add(clip.split("mini")[0])
@@ -472,6 +480,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             data_actions_val.append([action, action_emb])
             labels_val.append(label)
             set_action_miniclip_val.add(clip[:-8] + ", " + action)
+            if clip[:-8] + ", " + action not in clip_action_label_val.keys():
+                clip_action_label_val[clip[:-8] + ", " + action] = set()
+            clip_action_label_val[clip[:-8] + ", " + action].add(label)
             set_miniclip_val.add(clip[:-8])
             set_clip_val.add(clip[:-4])
             set_videos_val.add(clip.split("mini")[0])
@@ -513,6 +524,9 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
             data_actions_test.append([action, action_emb])
             labels_test.append(label)
             set_action_miniclip_test.add(clip[:-8] + ", " + action)
+            if clip[:-8] + ", " + action not in clip_action_label_test.keys():
+                clip_action_label_test[clip[:-8] + ", " + action] = set()
+            clip_action_label_test[clip[:-8] + ", " + action].add(label)
             list_test_clip_names.append(clip)
             list_test_action_names.append(action)
             set_miniclip_test.add(clip[:-8])
@@ -547,6 +561,46 @@ def create_data_for_model(type_action_emb, balance, add_cluster, add_object_labe
     print("# clips train " + str(len(set_clip_train)))
     print("# clips val " + str(len(set_clip_val)))
     print("# clips test " + str(len(set_clip_test)))
+
+    nb_vis_train = 0
+    nb_not_vis_train = 0
+    for i in clip_action_label_train.keys():
+        if len(clip_action_label_train[i]) == 2:
+            nb_vis_train += 1
+        elif len(clip_action_label_train[i]) == 1 and list(clip_action_label_train[i])[0] == False:
+            nb_not_vis_train += 1
+        elif len(clip_action_label_train[i]) == 1 and list(clip_action_label_train[i])[0] == True:
+            nb_vis_train += 1
+        else:
+            print("Zero?")
+    print("train: #action vis " + str(nb_vis_train) + " #action not vis: " + str(nb_not_vis_train))
+
+    nb_vis_val = 0
+    nb_not_vis_val = 0
+    for i in clip_action_label_val.keys():
+        if len(clip_action_label_val[i]) == 2:
+            nb_vis_val += 1
+        elif len(clip_action_label_val[i]) == 1 and list(clip_action_label_val[i])[0] == False:
+            nb_not_vis_val += 1
+        elif len(clip_action_label_val[i]) == 1 and list(clip_action_label_val[i])[0] == True:
+            nb_vis_val += 1
+        else:
+            print("Zero?")
+    print("val: #action vis " + str(nb_vis_val) + " #action not vis: " + str(nb_not_vis_val))
+
+    nb_vis_test = 0
+    nb_not_vis_test = 0
+    for i in clip_action_label_test.keys():
+        if len(clip_action_label_test[i]) == 2:
+            nb_vis_test += 1
+        elif len(clip_action_label_test[i]) == 1 and list(clip_action_label_test[i])[0] == False:
+            # print(clip_action_label_test[i], i)
+            nb_not_vis_test += 1
+        elif len(clip_action_label_test[i]) == 1 and list(clip_action_label_test[i])[0] == True:
+            nb_vis_test += 1
+        else:
+            print("Zero?")
+    print("test: #action vis " + str(nb_vis_test) + " #action not vis: " + str(nb_not_vis_test))
 
     return [data_clips_train, data_actions_train, labels_train], [data_clips_val, data_actions_val, labels_val], \
            [data_clips_test, data_actions_test, labels_test]
@@ -590,7 +644,7 @@ def load_text_embeddings(type_action_emb, dict_all_annotations, all_actions, use
             # with open('data/embeddings/dict_action_embeddings_Bert_only_vb.json') as f:
             json_load = json.loads(f.read())
         return json_load
-        # return create_bert_embeddings(list_all_actions, path_output)
+        # return create_bert_embeddings(list_all_actions, path_output='data/embeddings/dict_action_embeddings_Bert2.json')
     elif type_action_emb == "DNT":
         dict_embeddings = read_ouput_DNT()
         dict_actions = read_activity()
@@ -1021,8 +1075,8 @@ def compute_predicted_IOU(model_name, predicted_labels_test, test_data, clip_len
     with open("data/dict_clip_time_per_miniclip" + clip_length + ".json") as f:
         dict_clip_time_per_miniclip = json.loads(f.read())
 
-    with open("data/dict_time_per_miniclip.json") as f:
-        dict_time_per_miniclip = json.loads(f.read())
+    # with open("data/dict_time_per_miniclip.json") as f:
+    #     dict_time_per_miniclip = json.loads(f.read())
 
     [data_clips_test, data_actions_test, gt_labels_test] = test_data
     data_clips_test_names = [i[0] for i in data_clips_test]
@@ -1629,7 +1683,7 @@ def cosine_distance_wordembedding_method(s1, s2):
 
 def verify_actionI3D_actionGT(clip):
     # get visible actions in that clip
-    with open("data/dict_all_annotations3s.json") as f:
+    with open("data/dict_all_annotations3s_somenon.json") as f:
         dict_all_annotations10s = json.loads(f.read())
 
     list_visible_actions = [a for [a, label] in dict_all_annotations10s[clip + ".mp4"] if label == True]
@@ -2003,8 +2057,8 @@ def get_nb_visible_not_visible(dict_video_actions):
     nb_visible_actions = 0
     nb_not_visible_actions = 0
     for miniclip in dict_video_actions.keys():
-        nb_visible_actions += len(get_list_actions_for_label(dict_video_actions, miniclip, 0))
-        nb_not_visible_actions += len(get_list_actions_for_label(dict_video_actions, miniclip, 1))
+        nb_visible_actions += len(get_list_actions_for_label(dict_video_actions, miniclip, True))
+        nb_not_visible_actions += len(get_list_actions_for_label(dict_video_actions, miniclip, False))
     return nb_visible_actions, nb_not_visible_actions
 
 

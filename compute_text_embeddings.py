@@ -14,6 +14,7 @@ from keras import backend as K, Model
 from keras.engine import Layer
 from keras import layers
 import tensorflow_hub as hub
+# import tensorflow.compat.v1 as tf
 import tensorflow as tf
 from bert.tokenization import FullTokenizer
 

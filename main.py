@@ -18,9 +18,33 @@ def compare_json_files():
     print(len(list_coocurence))
     print(dict_action_embeddings_ELMo.keys() - list_coocurence)
 
+def add_non_visible_to_annotations():
+    with open("data/filtered_stemmed_miniclip_actions.json") as file:
+        filtered_stemmed_miniclip_actions = json.load(file)
+
+    for channel in ["1p0", "1p1", "2p0", "2p1", "3p0", "3p1", "4p0", "4p1", "5p0", "5p1", "6p0", "6p1", "7p0", "7p1", "8p0",
+                "8p1", "9p0", "9p1", "10p0", "10p1"]:
+        with open("data/annotations/annotations" + channel + ".json") as file:
+            annotations = json.load(file)
+
+        for clip in filtered_stemmed_miniclip_actions.keys():
+            playlist = clip.split("_")[0]
+            if playlist == channel:
+                list_actions_labels = [action for [action, label] in filtered_stemmed_miniclip_actions[clip] if label == 1]
+            else:
+                continue
+            for action in list_actions_labels:
+                if clip + ", " + action in annotations.keys() and annotations[clip + ", " + action] != ["not visible"]:
+                    print("Found sth wrong: " + clip + ", " + action)
+                annotations[clip + ", " + action] = ["not visible"]
+
+        with open("data/annotations/new/annotations" + channel + ".json", 'w+') as outfile:
+            json.dump(annotations, outfile)
+
 
 def main():
     # compare_json_files()
+    # add_non_visible_to_annotations()
     '''
         Annotations
     '''

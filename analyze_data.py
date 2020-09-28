@@ -179,6 +179,15 @@ def change_format(initial):
 
     return new_format_dict
 
+def count_intervals_overlap(segment_time_list):
+    total = 0
+    for i in range(len(segment_time_list) - 1):
+        for j in range(i+1, len(segment_time_list)):
+            overlap = getOverlap(segment_time_list[i], segment_time_list[j])
+            # print(overlap, segment_time_list[i], segment_time_list[j])
+            total += overlap
+    return total
+
 
 def read_COIN():
     with open("data/RelatedWorkDatasets/COIN.json") as file:
@@ -189,6 +198,7 @@ def read_COIN():
     list_all_actions = set()
     for key in data.keys():
         content = data[key]
+        segment_time_list = []
         for i in range(len(content["annotation"])):
             segment_time = content["annotation"][i]["segment"]
             action = content["annotation"][i]["label"]
@@ -198,6 +208,13 @@ def read_COIN():
             rounded_duration = str(int(round(action_duration, -1)))
             list_duration.append(rounded_duration)
             list_all_actions.add(action)
+            segment_time_list.append(segment_time)
+        if len(segment_time_list) > 1:
+            count_overlaps = count_intervals_overlap(segment_time_list)
+            if count_overlaps:
+                print("Found it!!:")
+                print(count_overlaps, segment_time_list)
+                break
 
     # create_bert_embeddings(list_all_actions)
     counter = Counter(list_duration)
@@ -255,11 +272,13 @@ def read_howto100m():
     print("16-175: " + str(sum2))
 
     nb_total_actions = sum1 + sum2
-    print("COIN:")
+    print("HowTo100m:")
     print("nb_total_actions: " + str(nb_total_actions))
     print("nb_0-15s_actions relative to total: " + str(sum1 / nb_total_actions * 100))
     print("nb_16-60s_actions relative to total: " + str(sum2 / nb_total_actions * 100))
 
+def getOverlap(a, b):
+    return max(0, min(a[1], b[1]) - max(a[0], b[0]))
 
 def read_CrossTask():
     list_csv_files = sorted(glob.glob("data/RelatedWorkDatasets/crosstask/annotations/*.csv"))
@@ -353,8 +372,8 @@ def plot_nb_actions_per_channel():
 
 def main():
     # plot_nb_actions_per_channel()
-    # read_COIN()
-    read_howto100m()
+    read_COIN()
+    # read_howto100m()
     # read_CrossTask()
     # count_how_many_times_actions_overlap()
     # new_format_dict = change_format("data/results/dict_predicted_MPU + ELMo + 651p0.json")

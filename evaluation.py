@@ -234,19 +234,37 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
     IOU_vals = []
     dict_IOU_per_length = {}
     dict_IOU_per_position = {'10': [], '50': []}
+    gt = len(groundtruth_1p0.keys())
+    p = len(proposed_1p0.keys())
+    print(gt)
+    print(p)
+    nb_not_vis_total = 0
+    nb_not_vis = 0
+
     for miniclip_action in groundtruth_1p0.keys():
         # TODO: deal with this
-        if groundtruth_1p0[miniclip_action] == ['not visible']:
-            continue
+        if groundtruth_1p0[miniclip_action][0] == 'not visible':
+            groundtruth_1p0[miniclip_action] = [-1, -1]
+            nb_not_vis_total += 1
+            # continue
         if miniclip_action not in proposed_1p0.keys():
             continue
-        if proposed_1p0[miniclip_action] == ['not visible']:
-            continue
+        # if proposed_1p0[miniclip_action] == ['not visible']:
+        #     continue
 
         target_segment = np.array([float(x) for x in groundtruth_1p0[miniclip_action]])
         candidate_segments = np.array(proposed_1p0[miniclip_action])
 
         tIOU = segment_iou(target_segment, candidate_segments)
+        if math.isnan(tIOU[0]):
+            tIOU = [1]
+            nb_not_vis += 1
+            if groundtruth_1p0[miniclip_action] != [-1, -1] or proposed_1p0[miniclip_action][0] != [-1, -1]:
+                print("NOOOO: ")
+                print(groundtruth_1p0[miniclip_action])
+                print(proposed_1p0[miniclip_action])
+                break
+
         # tIOU = np.expand_dims(tIOU, axis=1)
         # IOU_vals = np.append(IOU_vals, tIOU, axis=0)
         IOU_vals.append(tIOU)
@@ -271,6 +289,7 @@ def wrapper_IOU(proposed_1p0, groundtruth_1p0):
         else:
             dict_IOU_per_position["50"].append(tIOU)
 
+    print("# not visible predicted as not visible " + str(nb_not_vis) + "out of #GT " + str(nb_not_vis_total))
     return IOU_vals, dict_IOU_per_length, dict_IOU_per_position
 
 
@@ -336,7 +355,7 @@ def evaluate(method, channel):
     with open("data/results/dict_predicted_" + method + ".json") as f:
         proposed_1p0 = json.loads(f.read())
 
-    with open("data/annotations/annotations" + channel + ".json") as f:
+    with open("data/annotations/new/annotations" + channel + ".json") as f:
         groundtruth_1p0 = json.loads(f.read())
 
     # with open("data/annotations/annotations1p01_5p01_vb.json") as f:
