@@ -506,10 +506,10 @@ def main():
             '''
                     Create model
             '''
-            model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
-                                                                   args.epochs, args.balance, config_name)
-
-            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+            # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
+            #                                                        args.epochs, args.balance, config_name)
+            #
+            # # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
             #                                                             args.epochs,
             #                                                             args.balance, config_name)
 
@@ -517,7 +517,7 @@ def main():
             # config_name = "compare actions bert cosine"
 
             predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
             config_name = "test tf actions"
 
             '''
