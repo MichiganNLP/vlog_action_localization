@@ -94,7 +94,7 @@ def method_tf_actions(train_data, val_data, test_data):
     sess.run(tf.tables_initializer())
 
 
-    for [action, clip] in tqdm(list(zip(data_actions_names_test, data_clips_names_test))):
+    for [action, clip] in tqdm(list(zip(data_actions_names_test, data_clips_names_test))[:100]):
         # clip_feat_rgb = dict_clip_feat[clip]
         clip_feat_rgb = load_video_feat(clip)
 
