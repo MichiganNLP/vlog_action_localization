@@ -1,9 +1,12 @@
 import os
+import time
 from collections import Counter
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
+from tensorflow import keras
+from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tqdm import tqdm
 
@@ -61,6 +64,50 @@ def load_video_feat(clip):
 #         dict_clip_feat[filename[:-8] + ".mp4"] = features
 #     return features
 
+def finetune_howto1m(train_data, val_data, test_data):
+    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
+        data_clips_val, data_actions_val,
+        labels_val,
+        data_actions_names_val, data_clips_names_val], \
+    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
+     data_clips_names_test] = get_features_from_data(train_data,
+                                                     val_data,
+                                                     test_data)
+
+    module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1")
+    hub_layer = hub.KerasLayer(module_obj, trainable=True)
+    model = keras.Sequential()
+    model.add(hub_layer)
+    model.add(keras.layers.Dense(16, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(optimizer='adam', loss='binary_crossentropy')
+    model.summary()
+    # A simple classification problem, briging related wordds together.
+    # test = ['hive', 'hadoop', '.net']
+    # labels = [0, 0, 1]
+    # model.fit(x=text_values_list, y=labels, epochs=50)
+    file_path_best_model = 'model/Model_params/not_vis_howto100m_finetuned.hdf5'
+
+    checkpointer = ModelCheckpoint(monitor='val_acc',
+                                   filepath=file_path_best_model,
+                                   save_best_only=True, save_weights_only=True)
+    earlystopper = EarlyStopping(monitor='val_acc', patience=15)
+    tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_howto100m", histogram_freq=0,
+                              write_graph=True)
+    callback_list = [earlystopper, checkpointer]
+
+    model.fit([data_actions_train, data_clips_train], labels_train,
+              validation_data=([data_actions_val, data_clips_val], labels_val),
+              epochs=65, batch_size=64, verbose=1, callbacks=callback_list)
+    model.summary()
+
+    os.makedirs("finetuned_module_export", exist_ok=True)
+    export_module_dir = os.path.join(os.getcwd(), "finetuned_module_export")
+    tf.saved_model.save(module_obj, export_module_dir)
+
+    # print("Load best model weights from " + file_path_best_model)
+    # model.load_weights(file_path_best_model)
+
 
 def method_tf_actions(train_data, val_data, test_data):
     [data_clips_feat_train, data_actions_emb_train, labels_train, data_actions_names_train,
@@ -80,6 +127,8 @@ def method_tf_actions(train_data, val_data, test_data):
 
     # module = hub.Module("https://tfhub.dev/deepmind/mil-nce/s3d/1")
     module = hub.Module("https://tfhub.dev/deepmind/mil-nce/i3d/1")
+    # module = hub.Module("https://tfhub.dev/deepmind/mil-nce/i3d/1", trainable=True, tags={"train"})
+
 
     vision_output = module(input_frames, signature='video', as_dict=True)
     text_output = module(input_words, signature='text', as_dict=True)

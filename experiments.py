@@ -16,7 +16,7 @@ import json
 from collections import Counter, OrderedDict
 import time
 
-from test_tf import method_tf_actions, read_test_predicted
+from test_tf import method_tf_actions, read_test_predicted, finetune_howto1m
 from utils_data_text import get_features_from_data, stemm_list_actions, \
     separate_mapped_visibile_actions, color, compute_predicted_IOU, \
     compute_predicted_IOU_GT, create_data_for_model, get_seqs, compute_median_per_miniclip, method_compare_actions, \
@@ -508,17 +508,18 @@ def main():
             '''
             # model_name, predicted, list_predictions = create_model(train_data, val_data, test_data, args.model_name,
             #                                                        args.epochs, args.balance, config_name)
-            #
-            # # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
+
+            # model_name, predicted, list_predictions = create_main_model(train_data, val_data, test_data, "Main",
             #                                                             args.epochs,
             #                                                             args.balance, config_name)
 
             # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
             # config_name = "compare actions bert cosine"
 
-            predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
-            predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
-            config_name = "test tf actions"
+            finetune_howto1m(train_data, val_data, test_data)
+            # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
+            # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
+            # config_name = "test tf actions"
 
             '''
                 Majority (actions are visible in all clips)
@@ -536,9 +537,9 @@ def main():
             '''
                     Evaluate
             '''
-            compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
-            # for channel_test in channels_test:
-            evaluate(config_name, "1p01_5p01")
+            # compute_predicted_IOU(config_name, predicted, test_data, args.clip_length, list_predictions)
+            # # for channel_test in channels_test:
+            # evaluate(config_name, "1p01_5p01")
 
 if __name__ == "__main__":
     main()
