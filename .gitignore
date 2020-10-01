@@ -4,3 +4,5 @@ logs
 data
 clusters
 model
+__pycache__/
+*.py[cod]
