@@ -74,7 +74,7 @@ def finetune_howto1m(train_data, val_data, test_data):
                                                      val_data,
                                                      test_data)
 
-    module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", trainable=True, tags={"train"})
+    module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
     hub_layer = hub.KerasLayer(module_obj, trainable=True)
     model = keras.Sequential()
     model.add(hub_layer)
