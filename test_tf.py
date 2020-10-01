@@ -65,48 +65,64 @@ def load_video_feat(clip):
 #     return features
 
 def finetune_howto1m(train_data, val_data, test_data):
-    [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
-        data_clips_val, data_actions_val,
-        labels_val,
-        data_actions_names_val, data_clips_names_val], \
-    [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
-     data_clips_names_test] = get_features_from_data(train_data,
-                                                     val_data,
-                                                     test_data)
+    hub_layer = hub.KerasLayer("https://tfhub.dev/google/nnlm-en-dim50/2",
+                               input_shape=[], dtype=tf.string, trainable=True)
 
-    module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
-    hub_layer = hub.KerasLayer(module_obj)
     model = keras.Sequential()
     model.add(hub_layer)
     model.add(keras.layers.Dense(16, activation='relu'))
     model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(optimizer='adam', loss='binary_crossentropy')
+
+    model.compile(optimizer='rmsprop', loss='binary_crossentropy')
+
     model.summary()
-    # A simple classification problem, briging related wordds together.
-    # test = ['hive', 'hadoop', '.net']
-    # labels = [0, 0, 1]
-    # model.fit(x=text_values_list, y=labels, epochs=50)
-    file_path_best_model = 'model/Model_params/not_vis_howto100m_finetuned.hdf5'
+    from tensorflow import keras
+    text_values_list = ['java', 'hadoop', '.net']
+    labels = [0, 0, 1]
+    model.fit(x=text_values_list, y=labels, epochs=100)
 
-    checkpointer = ModelCheckpoint(monitor='val_acc',
-                                   filepath=file_path_best_model,
-                                   save_best_only=True, save_weights_only=True)
-    earlystopper = EarlyStopping(monitor='val_acc', patience=15)
-    tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_howto100m", histogram_freq=0,
-                              write_graph=True)
-    callback_list = [earlystopper, checkpointer]
-
-    model.fit([data_actions_train, data_clips_train], labels_train,
-              validation_data=([data_actions_val, data_clips_val], labels_val),
-              epochs=65, batch_size=64, verbose=1, callbacks=callback_list)
-    model.summary()
-
-    os.makedirs("finetuned_module_export", exist_ok=True)
-    export_module_dir = os.path.join(os.getcwd(), "finetuned_module_export")
-    tf.saved_model.save(module_obj, export_module_dir)
-
-    # print("Load best model weights from " + file_path_best_model)
-    # model.load_weights(file_path_best_model)
+    # [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
+    #     data_clips_val, data_actions_val,
+    #     labels_val,
+    #     data_actions_names_val, data_clips_names_val], \
+    # [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
+    #  data_clips_names_test] = get_features_from_data(train_data,
+    #                                                  val_data,
+    #                                                  test_data)
+    #
+    # module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
+    # hub_layer = hub.KerasLayer(module_obj)
+    # model = keras.Sequential()
+    # model.add(hub_layer)
+    # model.add(keras.layers.Dense(16, activation='relu'))
+    # model.add(keras.layers.Dense(1, activation='sigmoid'))
+    # model.compile(optimizer='adam', loss='binary_crossentropy')
+    # model.summary()
+    # # A simple classification problem, briging related wordds together.
+    # # test = ['hive', 'hadoop', '.net']
+    # # labels = [0, 0, 1]
+    # # model.fit(x=text_values_list, y=labels, epochs=50)
+    # file_path_best_model = 'model/Model_params/not_vis_howto100m_finetuned.hdf5'
+    #
+    # checkpointer = ModelCheckpoint(monitor='val_acc',
+    #                                filepath=file_path_best_model,
+    #                                save_best_only=True, save_weights_only=True)
+    # earlystopper = EarlyStopping(monitor='val_acc', patience=15)
+    # tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_howto100m", histogram_freq=0,
+    #                           write_graph=True)
+    # callback_list = [earlystopper, checkpointer]
+    #
+    # model.fit([data_actions_train, data_clips_train], labels_train,
+    #           validation_data=([data_actions_val, data_clips_val], labels_val),
+    #           epochs=65, batch_size=64, verbose=1, callbacks=callback_list)
+    # model.summary()
+    #
+    # os.makedirs("finetuned_module_export", exist_ok=True)
+    # export_module_dir = os.path.join(os.getcwd(), "finetuned_module_export")
+    # tf.saved_model.save(module_obj, export_module_dir)
+    #
+    # # print("Load best model weights from " + file_path_best_model)
+    # # model.load_weights(file_path_best_model)
 
 
 def method_tf_actions(train_data, val_data, test_data):
