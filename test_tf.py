@@ -65,21 +65,20 @@ def load_video_feat(clip):
 #     return features
 
 def finetune_howto1m(train_data, val_data, test_data):
-    hub_layer = hub.KerasLayer("https://tfhub.dev/google/nnlm-en-dim50/2",
-                               input_shape=[], dtype=tf.string, trainable=True)
+    # hub_layer = hub.KerasLayer("https://tfhub.dev/google/nnlm-en-dim50/2",
+    #                            input_shape=[], dtype=tf.string, trainable=True)
+    #
+    # model = keras.Sequential()
+    # model.add(hub_layer)
+    # model.add(keras.layers.Dense(16, activation='relu'))
+    # model.add(keras.layers.Dense(1, activation='sigmoid'))
 
-    model = keras.Sequential()
-    model.add(hub_layer)
-    model.add(keras.layers.Dense(16, activation='relu'))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    # model.compile(optimizer='rmsprop', loss='binary_crossentropy')
 
-    model.compile(optimizer='rmsprop', loss='binary_crossentropy')
-
-    model.summary()
-    from tensorflow import keras
-    text_values_list = ['java', 'hadoop', '.net']
-    labels = [0, 0, 1]
-    model.fit(x=text_values_list, y=labels, epochs=100)
+    # model.summary()
+    # text_values_list = ['java', 'hadoop', '.net']
+    # labels = [0, 0, 1]
+    # model.fit(x=text_values_list, y=labels, epochs=100)
 
     # [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
     #     data_clips_val, data_actions_val,
@@ -89,8 +88,21 @@ def finetune_howto1m(train_data, val_data, test_data):
     #  data_clips_names_test] = get_features_from_data(train_data,
     #                                                  val_data,
     #                                                  test_data)
+
+    module = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
+    print(module.get_signature_names())
+    print(module.get_input_info_dict())
+    # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
+    # input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
+    # # inputs_words are just a list of sentences (i.e. ['the sky is blue', 'someone cutting an apple'])
+    # input_words = tf.placeholder(tf.string, shape=(None,))
     #
-    # module_obj = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
+    # vision_output = module(input_frames, signature='video', as_dict=True)
+    # text_output = module(input_words, signature='text', as_dict=True)
+    #
+    # video_embedding = vision_output['video_embedding']
+    # text_embedding = text_output['text_embedding']
+
     # hub_layer = hub.KerasLayer(module_obj)
     # model = keras.Sequential()
     # model.add(hub_layer)
