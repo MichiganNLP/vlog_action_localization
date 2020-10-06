@@ -490,13 +490,13 @@ def main():
         '''
         #     Create data
         # '''
-        train_data, val_data, test_data = \
-            create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label, args.add_obj_feat,
-                                   path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
-                                  path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
-                                  channels_val=channels_val,
-                                  channels_test=channels_test,
-                                  hold_out_test_channels=hold_out_test_channels)
+        # train_data, val_data, test_data = \
+        #     create_data_for_model(args.type_action_emb, args.balance, args.add_cluster, args.add_obj_label, args.add_obj_feat,
+        #                            path_all_annotations="data/dict_all_annotations" + args.clip_length + ".json",
+        #                           path_I3D_features="../i3d_keras/data/results_features_overlapping_" + args.clip_length + "/",
+        #                           channels_val=channels_val,
+        #                           channels_test=channels_test,
+        #                           hold_out_test_channels=hold_out_test_channels)
 
         if config_name == "system max":
             compute_predicted_IOU_GT(test_data, args.clip_length)
@@ -515,7 +515,7 @@ def main():
 
             # predicted, list_predictions = method_compare_actions(train_data, val_data, test_data)
             # config_name = "compare actions bert cosine"
-
+            train_data, val_data, test_data = 0,0,0
             finetune_howto1m(train_data, val_data, test_data)
             # predicted, list_predictions = method_tf_actions(train_data, val_data, test_data)
             # predicted, list_predictions = read_test_predicted(train_data, val_data, test_data)
