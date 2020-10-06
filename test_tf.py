@@ -89,16 +89,14 @@ def finetune_howto1m(train_data, val_data, test_data):
     #                                                  val_data,
     #                                                  test_data)
 
-    hub_layer = hub.KerasLayer("https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1",
-                               output_shape=[128],
-                               input_shape=[], dtype=tf.string)
+    hub_layer = hub.KerasLayer("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags = {"train"})
 
-    model = keras.Sequential()
-    model.add(hub_layer)
-    model.add(keras.layers.Dense(16, activation='relu'))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    # model = keras.Sequential()
+    # model.add(hub_layer)
+    # model.add(keras.layers.Dense(16, activation='relu'))
+    # model.add(keras.layers.Dense(1, activation='sigmoid'))
 
-    model.summary()
+    # model.summary()
 
     # module = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
     # print(module.get_signature_names())
