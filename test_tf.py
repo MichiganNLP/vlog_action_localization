@@ -89,10 +89,21 @@ def finetune_howto1m(train_data, val_data, test_data):
     #                                                  val_data,
     #                                                  test_data)
 
-    module = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
-    print(module.get_signature_names())
-    print(module.get_input_info_dict())
-    # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
+    hub_layer = hub.KerasLayer("https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1",
+                               output_shape=[128],
+                               input_shape=[], dtype=tf.string)
+
+    model = keras.Sequential()
+    model.add(hub_layer)
+    model.add(keras.layers.Dense(16, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+
+    model.summary()
+
+    # module = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
+    # print(module.get_signature_names())
+    # print(module.get_input_info_dict())
+    # # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
     # input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
     # # inputs_words are just a list of sentences (i.e. ['the sky is blue', 'someone cutting an apple'])
     # input_words = tf.placeholder(tf.string, shape=(None,))
