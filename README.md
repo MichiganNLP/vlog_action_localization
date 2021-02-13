@@ -4,7 +4,10 @@ This repository contains the dataset and code for our todo_conf paper:
 [Human Action Localization in Lifestyle Vlogs](todo_arxiv)
 
 ## Task Description
+![Example instance](images/model_idea.pdf)
+<p align="center"> Given a video and its transcript, temporally localize the human actions mentioned in the video. </p>
 
+Given a list of actions extracted from the 
 ## Data format
 
 ## Setup
@@ -23,6 +26,3 @@ This repository contains the dataset and code for our todo_conf paper:
 3. data/embeddings/dict_I3D_avg.json
 
 ## Citation
-
-
-scp oignat@lit09.eecs.umich.edu:/local/oignat/Action_Recog/i3d_keras/data/results_miniclip/ .
