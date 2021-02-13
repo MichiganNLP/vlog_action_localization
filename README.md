@@ -4,7 +4,7 @@ This repository contains the dataset and code for our todo_conf paper:
 [Human Action Localization in Lifestyle Vlogs](todo_arxiv)
 
 ## Task Description
-![Example instance](images/model_idea.pdf)
+![Example instance](images/model_idea.png)
 <p align="center"> Given a video and its transcript, temporally localize the human actions mentioned in the video. </p>
 
 Given a list of actions extracted from the 
