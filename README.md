@@ -21,18 +21,45 @@ is described in detail in this [other project](https://github.com/OanaIgnat/vlog
 2. The visible actions are temporally annotated using this [open source tool](https://github.com/OanaIgnat/video_annotations) that we built.
 
 ## Data format
+The temporal annotations of the visible actions are available at [`data/dict_all_annotations_ordered.json`](data/dict_all_annotations_ordered.json).
+The visibility annotations of the actions are available at [`data/miniclip_actions.json`](data/miniclip_actions.json) and you can read more about 
+the process in the [other project](https://github.com/OanaIgnat/vlog_action_recognition).
 
+The miniclip name is formed by concatenating its YouTube channel, playlist, video and miniclip index. For miniclip "4p1_3mini_5.mp4":
+* 10 = __channel__ index
+* p0 = __playlist__ index (0 or 1) in the channel
+* 10 = __video__ index in the playlist
+* mini_2 = __miniclip__ index in the video
+
+The visible actions are assigned a start and end time at which they are localized in the miniclip. This does not necessarily
+correspond to the time the actions are mentioned in the miniclip.
+
+Example format in JSON:
+
+```json
+{
+  "10p0_10mini_2.mp4": [
+    ["go to first start by and shred up your kale", 26.0, 32.0],
+    ["place this into a large bowl", 27.0, 31.0],
+    ["break down the cell walls of the kale", 41.0, 51.0],
+    ["give it a good massage with your hands", 41.0, 50.0],
+    ["add in your butter lettuce", 52.0, 55.0]
+  ]
+}
+```
 ## Citation
 
 
 # Run the code
 
 ## Setup
-* I recommend creating a python virtualenv
-* I use Python 3.7.7
-* pip install -r requirements.txt
+* I recommend creating a python virtualenv 
+```bash
+pip install -r requirements.txt
+```
 
 ## Data requirements
+
 
 ## Usage
 1. Check [`args.py`](args.py) to set the arguments
