@@ -20,6 +20,10 @@ occurs in the video.</p>
 is described in detail in this [other project](https://github.com/OanaIgnat/vlog_action_recognition).
 2. The visible actions are temporally annotated using this [open source tool](https://github.com/OanaIgnat/video_annotations) that we built.
 
+Video-clips | Video hours | Transcript words | Visible actions | Non-visible actions |
+------------ | ------------- | ------------- | ------------- | ------------- | 
+1,246 | 20 | 302,316 | 3,131 | 10,249|
+
 ## Data format
 The temporal annotations of the visible actions are available at [`data/dict_all_annotations_ordered.json`](data/dict_all_annotations_ordered.json).
 The visibility annotations of the actions are available at [`data/miniclip_actions.json`](data/miniclip_actions.json) and you can read more about 
@@ -47,22 +51,24 @@ Example format in JSON:
   ]
 }
 ```
-## Citation
 
 
-# Run the code
+## Experiments
 
-## Setup
-* I recommend creating a python virtualenv 
-```bash
-pip install -r requirements.txt
-```
-
-## Data requirements
-
-
-## Usage
 1. Check [`args.py`](args.py) to set the arguments
 2. 
 
+
+## Citation information
+If you use this dataset or any ideas based on the associated research article, please cite the following:
+
+```bibtex
+@inproceedings{,
+    title="",
+    author={},
+    booktitle="",
+    month="",
+    year=""
+}
+```
 
