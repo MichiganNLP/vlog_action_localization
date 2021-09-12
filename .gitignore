@@ -1,6 +1,10 @@
 .idea
 __pycache__/
 *.py[cod]
-data/model_checkpoints/
-train_test_val/
-data/
+data/model_checkpoints
+data/embeddings
+data/related_work
+data/video_urls
+data/results
+data/train_test_val
+data/annotations

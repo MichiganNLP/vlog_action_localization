@@ -24,10 +24,17 @@ Video-clips | Video hours | Transcript words | Visible actions | Non-visible act
 ------------ | ------------- | ------------- | ------------- | ------------- | 
 1,246 | 20 | 302,316 | 3,131 | 10,249|
 
+The data is stored [here](https://drive.google.com/drive/folders/1c44X6HJkQU45mK7XFXIULXZ9gZeWTQ30?usp=sharing) (video urls, action embeddings, I3D features & others).
+
 ## Data format
 The temporal annotations of the visible actions are available at [`data/dict_all_annotations_ordered.json`](data_old/dict_all_annotations_ordered.json).
 The visibility annotations of the actions are available at [`data/miniclip_actions.json`](data_old/miniclip_actions.json) and you can read more about 
 the process in the [action detection project](https://github.com/OanaIgnat/vlog_action_recognition).
+
+The visible actions are assigned a start and end time at which they are localized in the miniclip. This does not necessarily
+correspond to the time the actions are mentioned in the miniclip. The time the actions are mentioned in the miniclip is extracted
+from the transcript, is the input for the Transcript Alignment method and is found at [`data/mapped_actions_time_label.json`](data/mapped_actions_time_label.json) 
+
 
 The miniclip name is formed by concatenating its YouTube channel, playlist, video and miniclip index. For miniclip "4p1_3mini_5.mp4":
 * 10 = __channel__ index
@@ -35,9 +42,6 @@ The miniclip name is formed by concatenating its YouTube channel, playlist, vide
 * 10 = __video__ index in the playlist
 * mini_2 = __miniclip__ index in the video
 
-The visible actions are assigned a start and end time at which they are localized in the miniclip. This does not necessarily
-correspond to the time the actions are mentioned in the miniclip. The time the actions are mentioned in the miniclip is extracted
-from the transcript, is the input for the Transcript Alignment method and is found at [`data/mapped_actions_time_label.json`](data/mapped_actions_time_label.json) 
 
 Example format in JSON:
 
