@@ -1,8 +1,6 @@
 .idea
-steve_human_action
-logs
-data
-clusters
-model
 __pycache__/
 *.py[cod]
+data/model_checkpoints/
+train_test_val/
+data/

@@ -22,7 +22,7 @@ print(tf.__version__)
 
 # The provided .npy file thus has shape (1, num_frames, 224, 224, 3) for RGB, corresponding to a batch size of 1
 # def load_video_feat():
-#     path_I3D_features = "../i3d_keras/data/results_overlapping/"
+#     path_I3D_features = "../i3d_keras/data_old/results_overlapping/"
 #     #path_I3D_features = "test_rgb.npy"
 #     print("loading I3D")
 #     list_features = []
@@ -35,7 +35,7 @@ print(tf.__version__)
 
 def load_video_feat(clip):
     filename = clip[:-4] + "_rgb.npy"
-    path_I3D_features = "../i3d_keras/data/results_overlapping/"
+    path_I3D_features = "../i3d_keras/data_old/results_overlapping/"
     # print("loading I3D")
     try:
         features = np.load(path_I3D_features + filename)
@@ -49,7 +49,7 @@ def load_video_feat(clip):
 
 
 # def load_video_feat():
-#     path_I3D_features = "../i3d_keras/data/results_overlapping/"
+#     path_I3D_features = "../i3d_keras/data_old/results_overlapping/"
 #     print("loading I3D")
 #     dict_clip_feat = {}
 #     for filename in tqdm(os.listdir(path_I3D_features)):
@@ -63,87 +63,6 @@ def load_video_feat(clip):
 #
 #         dict_clip_feat[filename[:-8] + ".mp4"] = features
 #     return features
-
-def finetune_howto1m(train_data, val_data, test_data):
-    # hub_layer = hub.KerasLayer("https://tfhub.dev/google/nnlm-en-dim50/2",
-    #                            input_shape=[], dtype=tf.string, trainable=True)
-    #
-    # model = keras.Sequential()
-    # model.add(hub_layer)
-    # model.add(keras.layers.Dense(16, activation='relu'))
-    # model.add(keras.layers.Dense(1, activation='sigmoid'))
-
-    # model.compile(optimizer='rmsprop', loss='binary_crossentropy')
-
-    # model.summary()
-    # text_values_list = ['java', 'hadoop', '.net']
-    # labels = [0, 0, 1]
-    # model.fit(x=text_values_list, y=labels, epochs=100)
-
-    # [data_clips_train, data_actions_train, labels_train, data_actions_names_train, data_clips_names_train], [
-    #     data_clips_val, data_actions_val,
-    #     labels_val,
-    #     data_actions_names_val, data_clips_names_val], \
-    # [data_clips_test, data_actions_test, labels_test, data_actions_names_test,
-    #  data_clips_names_test] = get_features_from_data(train_data,
-    #                                                  val_data,
-    #                                                  test_data)
-
-    hub_layer = hub.KerasLayer("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags=["train"])
-
-    # model = keras.Sequential()
-    # model.add(hub_layer)
-    # model.add(keras.layers.Dense(16, activation='relu'))
-    # model.add(keras.layers.Dense(1, activation='sigmoid'))
-
-    # model.summary()
-
-    # module = hub.load("https://tfhub.dev/deepmind/mil-nce/i3d/1", tags={"train"})
-    # print(module.get_signature_names())
-    # print(module.get_input_info_dict())
-    # # inputs_frames must be normalized in [0, 1] and of the shape Batch x T x H x W x 3
-    # input_frames = tf.placeholder(tf.float32, shape=(None, None, None, None, 3))
-    # # inputs_words are just a list of sentences (i.e. ['the sky is blue', 'someone cutting an apple'])
-    # input_words = tf.placeholder(tf.string, shape=(None,))
-    #
-    # vision_output = module(input_frames, signature='video', as_dict=True)
-    # text_output = module(input_words, signature='text', as_dict=True)
-    #
-    # video_embedding = vision_output['video_embedding']
-    # text_embedding = text_output['text_embedding']
-
-    # hub_layer = hub.KerasLayer(module_obj)
-    # model = keras.Sequential()
-    # model.add(hub_layer)
-    # model.add(keras.layers.Dense(16, activation='relu'))
-    # model.add(keras.layers.Dense(1, activation='sigmoid'))
-    # model.compile(optimizer='adam', loss='binary_crossentropy')
-    # model.summary()
-    # # A simple classification problem, briging related wordds together.
-    # # test = ['hive', 'hadoop', '.net']
-    # # labels = [0, 0, 1]
-    # # model.fit(x=text_values_list, y=labels, epochs=50)
-    # file_path_best_model = 'model/Model_params/not_vis_howto100m_finetuned.hdf5'
-    #
-    # checkpointer = ModelCheckpoint(monitor='val_acc',
-    #                                filepath=file_path_best_model,
-    #                                save_best_only=True, save_weights_only=True)
-    # earlystopper = EarlyStopping(monitor='val_acc', patience=15)
-    # tensorboard = TensorBoard(log_dir="logs/fit/" + time.strftime("%c") + "_howto100m", histogram_freq=0,
-    #                           write_graph=True)
-    # callback_list = [earlystopper, checkpointer]
-    #
-    # model.fit([data_actions_train, data_clips_train], labels_train,
-    #           validation_data=([data_actions_val, data_clips_val], labels_val),
-    #           epochs=65, batch_size=64, verbose=1, callbacks=callback_list)
-    # model.summary()
-    #
-    # os.makedirs("finetuned_module_export", exist_ok=True)
-    # export_module_dir = os.path.join(os.getcwd(), "finetuned_module_export")
-    # tf.saved_model.save(module_obj, export_module_dir)
-    #
-    # # print("Load best model weights from " + file_path_best_model)
-    # # model.load_weights(file_path_best_model)
 
 
 def method_tf_actions(train_data, val_data, test_data):
@@ -192,9 +111,9 @@ def method_tf_actions(train_data, val_data, test_data):
         # list_actions_per_clip = [action]
         # clip_0 = clip
 
-    # np.save("data/tf_tes_predicted_train.npy", predicted)
-    np.save("data/tf_tes_predicted.npy", predicted)
-    # np.save("data/tf_train_predicted.npy", predicted)
+    # np.save("data_old/tf_tes_predicted_train.npy", predicted)
+    np.save("data_old/tf_tes_predicted.npy", predicted)
+    # np.save("data_old/tf_train_predicted.npy", predicted)
     # print("Predicted " + str(Counter(predicted)))
     # f1_test = f1_score(labels_test, predicted)
     # prec_test = precision_score(labels_test, predicted)
@@ -230,7 +149,7 @@ def read_test_predicted(train_data, val_data, test_data):
                                                      val_data,
                                                      test_data)
 
-    content = np.load("data/tf_tes_predicted.npy")
+    content = np.load("data_old/tf_tes_predicted.npy")
     predicted = np.squeeze(content)
     normalized_predicted = []
     print(predicted)
