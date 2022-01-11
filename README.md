@@ -70,12 +70,14 @@ Example format in JSON:
 If you use this dataset or any ideas based on the associated research article, please cite the following:
 
 ```bibtex
-@inproceedings{,
-    title="",
-    author={},
-    booktitle="",
-    month="",
-    year=""
+@article{10.1145/3495211,
+year = {2021},
+issue_date = {Janury 2021},
+publisher = {Association for Computing Machinery},
+volume = {1},
+number = {1},
+issn = {1551-6857},
+journal = {ACM Trans. Multimedia Comput. Commun. Appl.}
 }
 ```
 
