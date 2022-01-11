@@ -1,6 +1,6 @@
 # Temporal Localization of Narrated Actions in Vlogs
 
-This repository contains the dataset and code for our todo_conf paper:
+This repository contains the dataset and code for our [ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM)](https://dl.acm.org/journal/tomm) paper:
 [When did it happen? Duration-informed Temporal Localization of Narrated
 Actions in Vlogs](todo_arxiv)
 
@@ -72,7 +72,7 @@ If you use this dataset or any ideas based on the associated research article, p
 ```bibtex
 @article{10.1145/3495211,
 year = {2021},
-issue_date = {January 2021},
+issue_date = {January 2022},
 publisher = {Association for Computing Machinery},
 volume = {1},
 number = {1},
