@@ -72,7 +72,7 @@ If you use this dataset or any ideas based on the associated research article, p
 ```bibtex
 @article{10.1145/3495211,
 year = {2021},
-issue_date = {Janury 2021},
+issue_date = {January 2021},
 publisher = {Association for Computing Machinery},
 volume = {1},
 number = {1},
