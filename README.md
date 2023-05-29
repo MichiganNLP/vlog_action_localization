@@ -1,6 +1,6 @@
 # Temporal Localization of Narrated Actions in Vlogs
 
-This repository contains the dataset and code for our [ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM)](https://dl.acm.org/journal/tomm) paper:
+This repository contains the dataset, **WhenAct**, and code for our [ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM)](https://dl.acm.org/journal/tomm) paper:
 [When did it happen? Duration-informed Temporal Localization of Narrated
 Actions in Vlogs](todo_arxiv)
 
@@ -8,7 +8,7 @@ Actions in Vlogs](todo_arxiv)
 ![Example instance](images/annotation_example.jpg)
 <p align="center"> Given a video and its transcript, temporally localize the human actions mentioned in the video. </p>
 
-## Dataset 
+## WhenAct Dataset 
 ![Example instance](images/model_idea.jpg)
 <p align="center">Distinguishing between actions that are narrated by the vlogger but not visible in the video
 and actions that are both narrated and visible in the video (underlined), with a highlight on visible actions that represent the same
