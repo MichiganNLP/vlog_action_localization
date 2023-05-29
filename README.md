@@ -1,4 +1,4 @@
-# Temporal Localization of Narrated Actions in Vlogs
+# WhenAct: Temporal Localization of Narrated Actions in Vlogs
 
 This repository contains the dataset, **WhenAct**, and code for our [ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM)](https://dl.acm.org/journal/tomm) paper:
 [When did it happen? Duration-informed Temporal Localization of Narrated
