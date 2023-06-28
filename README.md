@@ -2,7 +2,7 @@
 
 This repository contains the dataset, **WhenAct**, and code for our [ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM)](https://dl.acm.org/journal/tomm) paper:
 [When did it happen? Duration-informed Temporal Localization of Narrated
-Actions in Vlogs](todo_arxiv)
+Actions in Vlogs](https://arxiv.org/abs/2202.08138)
 
 ## Task Description
 ![Example instance](images/annotation_example.jpg)
